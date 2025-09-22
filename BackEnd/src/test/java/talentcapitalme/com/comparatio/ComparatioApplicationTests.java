@@ -1,10 +1,10 @@
-package com.example.compa_ratio;
+package talentcapitalme.com.comparatio;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CompaRatioApplicationTests {
+class ComparatioApplicationTests {
 
 	@Test
 	void contextLoads() {

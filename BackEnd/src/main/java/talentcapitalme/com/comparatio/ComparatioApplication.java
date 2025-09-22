@@ -1,13 +1,13 @@
-package com.example.compa_ratio;
+package talentcapitalme.com.comparatio;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CompaRatioApplication {
+public class ComparatioApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CompaRatioApplication.class, args);
+		SpringApplication.run(ComparatioApplication.class, args);
 	}
 
 }
