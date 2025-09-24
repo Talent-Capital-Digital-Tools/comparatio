@@ -73,7 +73,7 @@ public class BulkService {
                 .compaLabel(x.getCompaLabel())
                 .increasePct(x.getIncreasePct())
                 .newSalary(x.getNewSalary())
-                .calculatedAt(Instant.now())
+            
                 .build()));
 
         return new BulkResponse(batchId, rows.size(), (int) ok, rows.size() - (int) ok, rows);

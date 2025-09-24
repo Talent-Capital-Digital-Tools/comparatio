@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 
 @Document("job_grades")
-public class JobGrade {
+public class JobGrade extends Audit {
     @Id
     private String id;
     private String clientId;      // which company this belongs to

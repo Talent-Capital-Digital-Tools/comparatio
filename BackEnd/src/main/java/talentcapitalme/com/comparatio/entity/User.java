@@ -1,6 +1,7 @@
 package talentcapitalme.com.comparatio.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,7 +15,8 @@ import talentcapitalme.com.comparatio.enumeration.UserRole;
 
 @Document("users")
 @Data
-public class User extends  Audit {
+@EqualsAndHashCode(callSuper = false)
+public class User extends Audit {
     @Id
     private String id;                  // can be same as username
     @Indexed(unique = true)
@@ -28,7 +30,7 @@ public class User extends  Audit {
 
     // profile
     private String fullName;
-    private String phone;
+    private String Industry;
     private String avatarUrl;
 
 

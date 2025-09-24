@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +23,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	private final JwtUtil jwtUtil;
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain)
 			throws ServletException, IOException {
 		String header = request.getHeader("Authorization");
 		try {
@@ -32,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				RequestContext.set(ctx);
 				var auth = new UsernamePasswordAuthenticationToken(
 						ctx.userId(), null,
-						List.of(new SimpleGrantedAuthority("ROLE_" + ctx.role()))
+						List.of(new SimpleGrantedAuthority("ROLE_" + ctx.role().name()))
 				);
 				SecurityContextHolder.getContext().setAuthentication(auth);
 			}

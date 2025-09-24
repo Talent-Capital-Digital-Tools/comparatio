@@ -5,6 +5,8 @@ import talentcapitalme.com.comparatio.dto.CalcRequest;
 import talentcapitalme.com.comparatio.dto.CalcResponse;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
 import talentcapitalme.com.comparatio.entity.CalculationResult;
+import talentcapitalme.com.comparatio.exception.MatrixNotFoundException;
+import talentcapitalme.com.comparatio.exception.ValidationException;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import java.math.BigDecimal;
@@ -20,19 +22,27 @@ public class CompensationService {
     private final CalculationResultRepository resultRepo;
 
     public CalcResponse calculate(CalcRequest req) {
-        LocalDate asOf = req.getAsOf() != null ? req.getAsOf() : LocalDate.now();
+        // Validate input parameters
+        if (req.getCurrentSalary() == null || req.getMidOfScale() == null) {
+            throw new ValidationException("Current salary and mid of scale are required");
+        }
+        if (req.getCurrentSalary().compareTo(BigDecimal.ZERO) <= 0 || req.getMidOfScale().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValidationException("Current salary and mid of scale must be positive values");
+        }
+        if (req.getPerformanceRating() < 1 || req.getPerformanceRating() > 5) {
+            throw new ValidationException("Performance rating must be between 1 and 5");
+        }
 
+        LocalDate asOf = req.getAsOf() != null ? req.getAsOf() : LocalDate.now();
 
         BigDecimal compa = req.getCurrentSalary()
                 .divide(req.getMidOfScale(), 6, RoundingMode.HALF_UP);
 
-
-        int perfBucket = (req.getPerformanceRating5() >= 4) ? 3 :
-                (req.getPerformanceRating5() >= 2) ? 2 : 1;
-
+        int perfBucket = (req.getPerformanceRating() >= 4) ? 3 :
+                (req.getPerformanceRating() >= 2) ? 2 : 1;
 
         AdjustmentMatrix cell = matrixRepo.findActiveCell(perfBucket, compa, asOf)
-                .orElseThrow(() -> new IllegalStateException("No matrix cell matches inputs"));
+                .orElseThrow(() -> new MatrixNotFoundException("No adjustment matrix cell found for the given performance bucket, compa ratio, and date"));
 
 
         BigDecimal pct = (req.getYearsExperience() < 5) ? cell.getPctLt5Years() : cell.getPctGte5Years();

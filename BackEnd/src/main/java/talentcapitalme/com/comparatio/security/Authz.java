@@ -1,9 +1,11 @@
 package talentcapitalme.com.comparatio.security;
 
+import talentcapitalme.com.comparatio.enumeration.UserRole;
+
 public final class Authz {
 	public static boolean isSuperAdmin() {
 		var ctx = RequestContext.get();
-		return ctx != null && "SUPER_ADMIN".equals(ctx.role());
+		return ctx != null && UserRole.SUPER_ADMIN.equals(ctx.role());
 	}
 
 	public static String requireClientScope(String requestedClientId) {

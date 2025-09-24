@@ -23,7 +23,7 @@ public class CalcRequest {
     @NotNull @Min(0)
     private Integer yearsExperience;
     @NotNull @Min(1) @Max(5)
-    private Integer performanceRating5;
+    private Integer performanceRating;
     private String employeeCode;
     private String jobTitle;
     private LocalDate asOf; // optional; defaults to today

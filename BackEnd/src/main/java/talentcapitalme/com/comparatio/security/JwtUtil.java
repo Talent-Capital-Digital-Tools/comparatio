@@ -1,11 +1,12 @@
 package talentcapitalme.com.comparatio.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import talentcapitalme.com.comparatio.enumeration.UserRole;
 
 import java.security.Key;
 import java.util.Date;
@@ -18,22 +19,27 @@ public class JwtUtil {
 
 	@PostConstruct void init(){ key = Keys.hmacShaKeyFor(secret.getBytes()); }
 
-	public String generateToken(String userId, String role, String clientId){
+	public String generateToken(String userId, UserRole role, String clientId){
 		long now = System.currentTimeMillis();
 		return Jwts.builder()
-				.setSubject(userId)
-				.claim("role", role)
+				.subject(userId)
+				.claim("role", role.name())
 				.claim("clientId", clientId)
-				.setIssuedAt(new Date(now))
-				.setExpiration(new Date(now + ttlMillis))
-				.signWith(key, SignatureAlgorithm.HS256)
+				.issuedAt(new Date(now))
+				.expiration(new Date(now + ttlMillis))
+				.signWith(key)
 				.compact();
 	}
 
 	public RequestContext.Ctx parse(String token){
-		var claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+		Claims claims = Jwts.parser()
+				.verifyWith(Keys.hmacShaKeyFor(key.getEncoded()))
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
 		String sub = claims.getSubject();
-		String role = (String) claims.get("role");
+		String roleString = (String) claims.get("role");
+		UserRole role = UserRole.valueOf(roleString);
 		String clientId = (String) claims.get("clientId");
 		return new RequestContext.Ctx(sub, role, clientId);
 	}

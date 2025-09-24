@@ -1,5 +1,7 @@
 package talentcapitalme.com.comparatio.entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,7 +14,7 @@ import java.math.BigDecimal;
 
 
 @Document("employees")
-public class Employee {
+public class Employee extends Audit {
     @Id
     private String id;
     private String clientId;
