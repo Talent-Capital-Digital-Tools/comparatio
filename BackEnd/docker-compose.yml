@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+    ports: ["27017:27017"]
+    volumes:
+      - mongo_data:/data/db
+  app:
+    build: .
+    depends_on: [mongo]
+    environment:
+      APP_PORT: 8080
+      MONGO_URI: mongodb://root:rootpass@mongo:27017/?authSource=admin
+      MONGO_DB: compa_demo
+      TEMPLATE_PATH: /opt/compa/templates/compa_template.xlsx
+      JAVA_OPTS: -Xms256m -Xmx768m
+    ports: ["8080:8080"]
+volumes:
+  mongo_data:
+
+

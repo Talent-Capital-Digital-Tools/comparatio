@@ -1,0 +1,20 @@
+server:
+  port: ${APP_PORT:8080}
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017}
+      database: ${MONGO_DB:compa_demo}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  template:
+    path: ${TEMPLATE_PATH:classpath:templates/compa_template.xlsx}
+
+
