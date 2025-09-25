@@ -62,7 +62,8 @@ public class SeedService implements CommandLineRunner {
         seedRow(clientId, 1, 0.71, 0.85, 6, 8);
         seedRow(clientId, 1, 0.86, 1.00, 4, 6);
         seedRow(clientId, 1, 1.01, 1.15, 0, 4);
-        seedRow(clientId, 1, 1.16, 9.99, 0, 0);
+        seedRow(clientId, 1, 1.16, 1.30, 0, 0);
+        seedRow(clientId, 1, 1.30, 9.99, 0, 0);
     }
 
     private void seedRow(String clientId, int perf, double from, double to, double l, double r) {
