@@ -76,10 +76,10 @@ public class AuthService {
 
         User saved = userRepository.save(newUser);
 
-        // If a CLIENT_ADMIN is created, seed default matrices for their client if not present
-        if (saved.getRole() == UserRole.CLIENT_ADMIN && saved.getClientId() != null) {
+        // If a CLIENT_ADMIN is created, seed default matrices linked to the user id
+        if (saved.getRole() == UserRole.CLIENT_ADMIN) {
             try {
-                matrixSeederService.seedDefaultsForClient(saved.getClientId());
+                matrixSeederService.seedDefaultsForClient(saved.getId());
             } catch (ValidationException ignored) {
                 // Matrices already exist or invalid clientId; ignore to keep registration successful
             }
