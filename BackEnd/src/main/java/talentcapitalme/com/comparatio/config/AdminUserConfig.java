@@ -23,7 +23,7 @@ public class AdminUserConfig {
                     admin.setFullName("System Administrator");
                     admin.setPasswordHash(passwordEncoder.encode("admin"));
                     admin.setRole(UserRole.SUPER_ADMIN);
-                    admin.setClientId(null); // Super admin has no client restriction
+                    // Super admin has no client restriction (no name/active fields needed)
                     return userRepository.save(admin);
                 });
     }

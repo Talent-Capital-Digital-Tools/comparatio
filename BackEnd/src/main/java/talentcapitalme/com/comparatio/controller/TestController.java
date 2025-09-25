@@ -3,8 +3,9 @@ package talentcapitalme.com.comparatio.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import talentcapitalme.com.comparatio.entity.Client;
-import talentcapitalme.com.comparatio.service.ClientService;
+import talentcapitalme.com.comparatio.entity.User;
+import talentcapitalme.com.comparatio.enumeration.UserRole;
+import talentcapitalme.com.comparatio.service.UserManagementService;
 
 import java.util.List;
 
@@ -17,44 +18,52 @@ import java.util.List;
 public class TestController {
 
     @Autowired
-    private ClientService clientService;
+    private UserManagementService userManagementService;
 
     /**
-     * Test endpoint to create sample clients and verify separation
+     * Test endpoint to create sample CLIENT_ADMIN users and verify separation
      */
     @PostMapping("/setup-clients")
     public ResponseEntity<String> setupTestClients() {
         try {
-            // Create test clients
-            Client client1 = Client.builder()
-                    .name("HR Department")
-                    .active(true)
-                    .build();
+            // Create test CLIENT_ADMIN users
+            User client1 = new User();
+            client1.setUsername("hr_admin");
+            client1.setEmail("hr@test.com");
+            client1.setFullName("HR Department Admin");
+            client1.setPasswordHash("password123"); // In real app, this would be properly hashed
+            client1.setRole(UserRole.CLIENT_ADMIN);
+            client1.setName("HR Department");
+            client1.setActive(true);
             
-            Client client2 = Client.builder()
-                    .name("Finance Department")
-                    .active(true)
-                    .build();
+            User client2 = new User();
+            client2.setUsername("finance_admin");
+            client2.setEmail("finance@test.com");
+            client2.setFullName("Finance Department Admin");
+            client2.setPasswordHash("password123"); // In real app, this would be properly hashed
+            client2.setRole(UserRole.CLIENT_ADMIN);
+            client2.setName("Finance Department");
+            client2.setActive(true);
             
-            Client savedClient1 = clientService.createClient(client1);
-            Client savedClient2 = clientService.createClient(client2);
+            User savedClient1 = userManagementService.createClientAdmin(client1);
+            User savedClient2 = userManagementService.createClientAdmin(client2);
             
             return ResponseEntity.ok(
-                "Successfully created test clients:\n" +
+                "Successfully created test CLIENT_ADMIN users:\n" +
                 "1. " + savedClient1.getName() + " (ID: " + savedClient1.getId() + ")\n" +
                 "2. " + savedClient2.getName() + " (ID: " + savedClient2.getId() + ")\n" +
-                "Each client now has its own set of default matrices."
+                "Each CLIENT_ADMIN now has its own set of default matrices."
             );
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error creating clients: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error creating CLIENT_ADMIN users: " + e.getMessage());
         }
     }
     
     /**
-     * List all clients for testing
+     * List all CLIENT_ADMIN users for testing
      */
     @GetMapping("/clients")
-    public ResponseEntity<List<Client>> listClients() {
-        return ResponseEntity.ok(clientService.getAllClients());
+    public ResponseEntity<List<User>> listClients() {
+        return ResponseEntity.ok(userManagementService.getAllClientAdmins());
     }
 }

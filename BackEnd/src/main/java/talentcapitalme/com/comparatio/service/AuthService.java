@@ -68,24 +68,23 @@ public class AuthService {
         newUser.setFullName(request.getFullName());
         newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         newUser.setRole(request.getRole());
-        newUser.setClientId(request.getClientId());
         newUser.setIndustry(request.getIndustry());
+        
+        // Set client fields for CLIENT_ADMIN users
+        if (request.getRole() == UserRole.CLIENT_ADMIN) {
+            newUser.setName(request.getName()); // Company name
+            newUser.setActive(true); // New client admins are active by default
+        }
 
         // Validate role assignment based on current user's permissions
-        validateRoleAssignment(request.getRole(), request.getClientId());
+        validateRoleAssignment(request.getRole(), request.getName());
 
         User saved = userRepository.save(newUser);
 
-        // Ensure CLIENT_ADMIN has a tenant key (clientId). Default to their own user id.
-        if (saved.getRole() == UserRole.CLIENT_ADMIN && (saved.getClientId() == null || saved.getClientId().isBlank())) {
-            saved.setClientId(saved.getId());
-            saved = userRepository.save(saved);
-        }
-
-        // Seed default matrices for that tenant key so calculations work immediately
-        if (saved.getRole() == UserRole.CLIENT_ADMIN && saved.getClientId() != null) {
+        // Seed default matrices for CLIENT_ADMIN users using their user ID
+        if (saved.getRole() == UserRole.CLIENT_ADMIN) {
             try {
-                matrixSeederService.seedDefaultsForClient(saved.getClientId());
+                matrixSeederService.seedDefaultsForClient(saved.getId());
             } catch (ValidationException ignored) {
                 // Matrices already exist; safe to ignore
             }
@@ -97,7 +96,7 @@ public class AuthService {
     /**
      * Validate if current user can assign the requested role
      */
-    private void validateRoleAssignment(UserRole requestedRole, String clientId) {
+    private void validateRoleAssignment(UserRole requestedRole, String name) {
         UserRole currentUserRole = Authz.getCurrentUserRole();
 
         switch (currentUserRole) {
@@ -109,9 +108,9 @@ public class AuthService {
                 if (requestedRole == UserRole.SUPER_ADMIN) {
                     throw new UnauthorizedException("You cannot create users with SUPER_ADMIN role");
                 }
-                // Must specify client ID for client admin users
-                if (clientId == null) {
-                    throw new UnauthorizedException("Client ID is required for CLIENT_ADMIN users");
+                // Must specify company name for client admin users
+                if (requestedRole == UserRole.CLIENT_ADMIN && (name == null || name.trim().isEmpty())) {
+                    throw new UnauthorizedException("Company name is required for CLIENT_ADMIN users");
                 }
                 break;
             default:

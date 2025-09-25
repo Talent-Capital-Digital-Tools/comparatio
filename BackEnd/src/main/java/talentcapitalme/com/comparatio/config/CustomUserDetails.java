@@ -21,8 +21,12 @@ public class CustomUserDetails implements UserDetails {
         return user.getId();
     }
     
-    public String getClientId() {
-        return user.getClientId();
+    public String getClientName() {
+        return user.getName();
+    }
+    
+    public Boolean getClientActive() {
+        return user.getActive();
     }
 
     @Override

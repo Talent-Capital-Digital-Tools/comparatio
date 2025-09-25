@@ -3,9 +3,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
-import talentcapitalme.com.comparatio.entity.Client;
+import talentcapitalme.com.comparatio.entity.User;
+import talentcapitalme.com.comparatio.enumeration.UserRole;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
-import talentcapitalme.com.comparatio.repository.ClientRepository;
+import talentcapitalme.com.comparatio.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,31 +17,31 @@ import java.util.List;
 public class SeedService implements CommandLineRunner {
 
     private final AdjustmentMatrixRepository matrixRepo;
-    private final ClientRepository clientRepo;
+    private final UserRepository userRepo;
 
     @Override
     public void run(String... args) {
         // Only seed if no matrices exist at all
         if (matrixRepo.count() > 0) return;
         
-        // Get all existing clients and create default matrices for each
-        List<Client> clients = clientRepo.findAll();
+        // Get all existing CLIENT_ADMIN users and create default matrices for each
+        List<User> clientAdmins = userRepo.findByRoleAndActiveTrue(UserRole.CLIENT_ADMIN);
         
-        if (clients.isEmpty()) {
-            System.out.println("No clients found. Matrices will be created when clients are added.");
+        if (clientAdmins.isEmpty()) {
+            System.out.println("No CLIENT_ADMIN users found. Matrices will be created when CLIENT_ADMIN users are added.");
             return;
         }
         
-        for (Client client : clients) {
-            if (!matrixRepo.existsByClientId(client.getId())) {
-                System.out.println("Creating default matrices for client: " + client.getId());
-                seedMatricesForClient(client.getId());
+        for (User clientAdmin : clientAdmins) {
+            if (!matrixRepo.existsByClientId(clientAdmin.getId())) {
+                System.out.println("Creating default matrices for CLIENT_ADMIN user: " + clientAdmin.getId());
+                seedMatricesForClient(clientAdmin.getId());
             }
         }
     }
 
     /**
-     * Create default matrix structure for a specific client
+     * Create default matrix structure for a specific CLIENT_ADMIN user
      */
     public void seedMatricesForClient(String clientId) {
         seedRow(clientId, 3, 0.00, 0.70, 21, 25);

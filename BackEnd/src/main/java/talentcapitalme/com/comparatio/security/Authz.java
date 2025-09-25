@@ -33,6 +33,8 @@ public class Authz {
     
     /**
      * Get the current authenticated user's client ID
+     * For CLIENT_ADMIN users, this returns their user ID
+     * For SUPER_ADMIN users, this returns null (they can access any client)
      */
     public static String getCurrentUserClientId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -41,7 +43,12 @@ public class Authz {
         }
         
         if (auth.getPrincipal() instanceof CustomUserDetails userDetails) {
-            return userDetails.getClientId();
+            UserRole role = getCurrentUserRole();
+            if (role == UserRole.CLIENT_ADMIN) {
+                return userDetails.getId(); // CLIENT_ADMIN users use their own ID as client ID
+            } else {
+                return null; // SUPER_ADMIN users have no client restriction
+            }
         }
         
         throw new UnauthorizedException("Invalid user details");
@@ -82,7 +89,7 @@ public class Authz {
     /**
      * Require client scope - returns the client ID to use for operations
      * If user is SUPER_ADMIN, they can access any client (use provided clientId or throw error if null)
-     * If user is CLIENT_ADMIN or below, they can only access their own client
+     * If user is CLIENT_ADMIN, they can only access their own client (their user ID)
      */
     public static String requireClientScope(String requestedClientId) {
         UserRole role = getCurrentUserRole();
@@ -94,8 +101,8 @@ public class Authz {
                 throw new UnauthorizedException("Super admin must specify client ID");
             }
             return requestedClientId;
-        } else {
-            // Non-super admin users are restricted to their own client
+        } else if (role == UserRole.CLIENT_ADMIN) {
+            // CLIENT_ADMIN users are restricted to their own client (their user ID)
             if (userClientId == null) {
                 throw new UnauthorizedException("User has no associated client");
             }
@@ -106,6 +113,8 @@ public class Authz {
             }
             
             return userClientId;
+        } else {
+            throw new UnauthorizedException("Insufficient permissions for client access");
         }
     }
     

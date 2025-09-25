@@ -25,7 +25,7 @@ public class RegisterRequest {
     @NotNull(message = "Role is required")
     private UserRole role;
 
-    private String clientId; // Required for CLIENT_ADMIN
+    private String name; // Company name - Required for CLIENT_ADMIN
 
     private String industry;
 }

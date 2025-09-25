@@ -9,7 +9,8 @@ import talentcapitalme.com.comparatio.enumeration.UserRole;
 
 /**
  * User entity representing a user in the system.
- * Each user has a unique identifier, username, password hash, role, and associated client ID.
+ * Each user has a unique identifier, username, password hash, and role.
+ * For CLIENT_ADMIN users, the entity also contains client information (name, active status).
  */
 
 
@@ -25,8 +26,11 @@ public class User extends Audit {
     private String email;
 
     private String passwordHash;        // BCrypt
-    private UserRole role;                // SUPER_ADMIN |
-    private String clientId;            // null for SUPER_ADMIN (global)
+    private UserRole role;                // SUPER_ADMIN | CLIENT_ADMIN
+
+    // Client fields (merged from Client entity)
+    private String name;                // company name (for CLIENT_ADMIN users)
+    private Boolean active;             // enable/disable tenant (for CLIENT_ADMIN users)
 
     // profile
     private String fullName;
