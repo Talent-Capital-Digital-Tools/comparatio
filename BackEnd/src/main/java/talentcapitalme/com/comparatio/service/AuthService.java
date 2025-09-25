@@ -83,16 +83,16 @@ public class AuthService {
 
         switch (currentUserRole) {
             case SUPER_ADMIN:
-                // Super admin can assign any role
+                // Super admin can assign any of the two roles
                 break;
-            case ADMIN:
-                // Regular admin can only create CLIENT_ADMIN and USER roles
-                if (requestedRole == UserRole.SUPER_ADMIN || requestedRole == UserRole.ADMIN) {
-                    throw new UnauthorizedException("You cannot create users with SUPER_ADMIN or ADMIN roles");
+            case CLIENT_ADMIN:
+                // Client admins cannot create SUPER_ADMIN users
+                if (requestedRole == UserRole.SUPER_ADMIN) {
+                    throw new UnauthorizedException("You cannot create users with SUPER_ADMIN role");
                 }
-                // Must specify client ID for non-admin roles
-                if (clientId == null && requestedRole != UserRole.ADMIN) {
-                    throw new UnauthorizedException("Client ID is required for CLIENT_ADMIN and USER roles");
+                // Must specify client ID for client admin users
+                if (clientId == null) {
+                    throw new UnauthorizedException("Client ID is required for CLIENT_ADMIN users");
                 }
                 break;
             default:

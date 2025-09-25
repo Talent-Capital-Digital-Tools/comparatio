@@ -36,7 +36,7 @@ public class CalcController {
 
     @GetMapping("/bulk/{batchId}")
     public ResponseEntity<byte[]> download(@PathVariable String batchId) throws IOException {
-        String clientId = Authz.requireClientScope(null);
+        String clientId = Authz.getCurrentUserClientId();
         var rows = resultRepo.findByBatchId(batchId).stream()
                 .filter(r -> clientId.equals(r.getClientId()))
                 .map(r -> BulkRowResult.builder()

@@ -48,11 +48,11 @@ public class Authz {
     }
     
     /**
-     * Check if current user has admin privileges (SUPER_ADMIN or ADMIN)
+     * Check if current user has admin privileges (SUPER_ADMIN or CLIENT_ADMIN)
      */
     public static boolean hasAdminRole() {
         UserRole role = getCurrentUserRole();
-        return role == UserRole.SUPER_ADMIN || role == UserRole.ADMIN;
+        return role == UserRole.SUPER_ADMIN || role == UserRole.CLIENT_ADMIN;
     }
     
     /**
@@ -60,7 +60,7 @@ public class Authz {
      */
     public static boolean hasClientAdminRole() {
         UserRole role = getCurrentUserRole();
-        return role == UserRole.SUPER_ADMIN || role == UserRole.CLIENT_ADMIN || role == UserRole.ADMIN;
+        return role == UserRole.SUPER_ADMIN || role == UserRole.CLIENT_ADMIN;
     }
     
     /**

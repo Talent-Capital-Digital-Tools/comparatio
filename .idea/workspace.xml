@@ -5,14 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/config/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/config/WebSecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/CalcController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/CalcController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/MatrixController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/MatrixController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/TemplateController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/TemplateController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/CalcRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/CalcRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/CalculationResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/CalculationResult.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/RegisterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/RegisterRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/enumeration/UserRole.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/enumeration/UserRole.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/repository/AdjustmentMatrixRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/repository/AdjustmentMatrixRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/security/Authz.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/security/Authz.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/AuthService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/BulkService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/BulkService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/CompensationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/CompensationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/SeedService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/SeedService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +29,7 @@
       <list>
         <option value="Enum" />
         <option value="Interface" />
+        <option value="Exception" />
         <option value="Class" />
       </list>
     </option>
@@ -51,9 +57,15 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\IntelliJIdea2025.2\\plugins\\Shell Script\\shellcheck.exe&quot;,
+    &quot;Spring Boot.ComparatioApplication.executor&quot;: &quot;Run&quot;,
     &quot;git-widget-placeholder&quot;: &quot;backend-dev&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/springboot_ws/compa-ratio/BackEnd/src/main/java/talentcapitalme/com/comparatio&quot;,
@@ -62,7 +74,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -71,10 +83,27 @@
       <recent name="C:\springboot_ws\compa-ratio\BackEnd\src\main\java\talentcapitalme\com\comparatio" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="talentcapitalme.com.comparatio.dto" />
+      <recent name="talentcapitalme.com.comparatio.service" />
       <recent name="talentcapitalme.com.comparatio.repository" />
     </key>
   </component>
   <component name="RunManager">
+    <configuration default="true" type="ShConfigurationType">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="false" />
+      <option name="INTERPRETER_PATH" value="&quot;$PROJECT_DIR$/../../Program Files/Git/bin/bash.exe&quot;" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <configuration name="ComparatioApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="comparatio" />
@@ -113,6 +142,12 @@
       <workItem from="1758654814952" duration="747000" />
       <workItem from="1758705534592" duration="14333000" />
       <workItem from="1758738400130" duration="4353000" />
+      <workItem from="1758752638620" duration="6552000" />
+      <workItem from="1758807524376" duration="762000" />
+      <workItem from="1758808325250" duration="193000" />
+      <workItem from="1758809213302" duration="688000" />
+      <workItem from="1758810389926" duration="1554000" />
+      <workItem from="1758815364856" duration="1614000" />
     </task>
     <servers />
   </component>

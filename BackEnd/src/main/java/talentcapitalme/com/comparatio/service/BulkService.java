@@ -32,7 +32,7 @@ public class BulkService {
     private final CalculationResultRepository resultRepo;
 
     public BulkResponse process(MultipartFile file) throws IOException {
-        String clientId = Authz.requireClientScope(null);
+        String clientId = Authz.getCurrentUserClientId();
         String batchId = Instant.now().toString();
         List<BulkRowResult> rows = new ArrayList<>();
 
@@ -113,8 +113,9 @@ public class BulkService {
         BigDecimal compa = current.divide(mid, 6, RoundingMode.HALF_UP);
         int perfBucket = (perf5 >= 4) ? 3 : (perf5 >= 2) ? 2 : 1;
 
-        AdjustmentMatrix cell = matrixRepo.findActiveCell(perfBucket, compa, asOf)
-                .orElseThrow(() -> new IllegalStateException("No matrix for row " + rowIndex));
+        // Use client-specific matrices for calculations
+        AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, asOf, clientId)
+                .orElseThrow(() -> new IllegalStateException("No matrix found for client '" + clientId + "' at row " + rowIndex));
 
         BigDecimal pct = (years < 5) ? cell.getPctLt5Years() : cell.getPctGte5Years();
         BigDecimal newSalary = current.multiply(BigDecimal.ONE.add(pct.movePointLeft(2)))

@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,23 +27,39 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String autHeader= request.getHeader("Authorization");
-
-        String token = null;
-
-        String username = null;
-
-        if (autHeader !=null && autHeader.startsWith("Bearer ")) {
-            token = autHeader.substring(7);
-            username = jwtService.extractUserName(token);
+        // Bypass JWT processing for public endpoints
+        String path = request.getRequestURI();
+        if (path.startsWith("/api/auth/login")
+                || path.equals("/swagger-ui.html")
+                || path.startsWith("/swagger-ui/")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("//v3/api-docs")
+                || path.startsWith("/swagger-resources/")
+                || path.startsWith("/actuator/health")
+                || path.startsWith("/actuator/info")) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
+        String autHeader = request.getHeader("Authorization");
 
-        if(username !=null && SecurityContextHolder.getContext().getAuthentication()==null){
+        String token = null;
+        String username = null;
+
+        if (autHeader != null && autHeader.startsWith("Bearer ")) {
+            token = autHeader.substring(7);
+            try {
+                username = jwtService.extractUserName(token);
+            } catch (Exception ignored) {
+                // Malformed/expired token: ignore and continue without authentication
+            }
+        }
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if(jwtService.validateToken(token, userDetails)) {
+            if (jwtService.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);

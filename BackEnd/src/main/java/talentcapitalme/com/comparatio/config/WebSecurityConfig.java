@@ -39,15 +39,30 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(request -> request
                         // Public endpoints
                         .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+
+                                "/swagger-ui.html",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "//v3/api-docs",
+                                "//v3/api-docs/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         
                         // Admin only endpoints - user registration/management
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register").hasAnyRole("SUPER_ADMIN", "ADMIN")
-                        .requestMatchers("/api/users/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register").hasAnyRole("SUPER_ADMIN", "CLIENT_ADMIN")
+                        .requestMatchers("/api/users/**").hasAnyRole("SUPER_ADMIN", "CLIENT_ADMIN")
                         
-                        // Matrix management - requires CLIENT_ADMIN or higher
-                        .requestMatchers("/api/matrix/**").hasAnyRole("SUPER_ADMIN", "ADMIN", "CLIENT_ADMIN")
+                        // Matrix management - requires SUPER_ADMIN only
+                        .requestMatchers("/api/matrix/**").hasRole("SUPER_ADMIN")
+                        
+                        // Client management - requires SUPER_ADMIN only
+                        .requestMatchers("/api/clients/**").hasRole("SUPER_ADMIN")
+                        
+                        // Test endpoints - requires SUPER_ADMIN only (remove in production)
+                        .requestMatchers("/api/test/**").hasRole("SUPER_ADMIN")
                         
                         // Calculation endpoints - authenticated users
                         .requestMatchers("/api/calc/**").authenticated()
@@ -64,8 +79,9 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    @SuppressWarnings("deprecation")
     public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider provider= new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;

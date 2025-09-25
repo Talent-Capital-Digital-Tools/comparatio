@@ -9,6 +9,7 @@ import talentcapitalme.com.comparatio.exception.MatrixNotFoundException;
 import talentcapitalme.com.comparatio.exception.ValidationException;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
+import talentcapitalme.com.comparatio.security.Authz;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -41,8 +42,13 @@ public class CompensationService {
         int perfBucket = (req.getPerformanceRating() >= 4) ? 3 :
                 (req.getPerformanceRating() >= 2) ? 2 : 1;
 
-        AdjustmentMatrix cell = matrixRepo.findActiveCell(perfBucket, compa, asOf)
-                .orElseThrow(() -> new MatrixNotFoundException("No adjustment matrix cell found for the given performance bucket, compa ratio, and date"));
+        // Get current user's client ID for client-specific matrix lookup
+        String clientId = getCurrentUserClientId();
+        
+        // Use client-specific matrices for calculations
+        AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, asOf, clientId)
+                .orElseThrow(() -> new MatrixNotFoundException("No adjustment matrix found for client '" + clientId + 
+                    "'. Please contact your administrator to set up compensation matrices."));
 
 
         BigDecimal pct = (req.getYearsExperience() < 5) ? cell.getPctLt5Years() : cell.getPctGte5Years();
@@ -51,8 +57,9 @@ public class CompensationService {
                 .setScale(2, RoundingMode.HALF_UP);
 
 
-        // persist audit row (optional for individual)
+        // persist audit row with client ID for proper data isolation
         resultRepo.save(CalculationResult.builder()
+                .clientId(clientId)
                 .batchId("single-" + Instant.now())
                 .employeeCode(req.getEmployeeCode())
                 .jobTitle(req.getJobTitle())
@@ -66,10 +73,15 @@ public class CompensationService {
                 .newSalary(newSalary)
                 .build());
 
-
         return new CalcResponse(compa, compaLabel(cell), pct, newSalary);
     }
 
+    /**
+     * Get current user's client ID for calculations
+     */
+    private String getCurrentUserClientId() {
+        return Authz.getCurrentUserClientId();
+    }
 
     private String compaLabel(AdjustmentMatrix c) {
         BigDecimal from = c.getCompaFrom().multiply(BigDecimal.valueOf(100));
