@@ -20,3 +20,6 @@ management:
 app:
   template:
     path: ${TEMPLATE_PATH:classpath:templates/compa_template.csv}
+  file-storage:
+    base-path: ${FILE_STORAGE_PATH:./uploads}
+    retention-days: ${FILE_RETENTION_DAYS:90}

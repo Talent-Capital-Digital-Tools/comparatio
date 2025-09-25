@@ -1,15 +1,19 @@
-# Professional Matrix Management API Documentation
+# Professional Matrix Management & Dashboard API Documentation
 
 ## Overview
-The Matrix Management API provides comprehensive functionality for SUPER_ADMIN users to manage compensation matrices for CLIENT_ADMIN users. This system includes advanced validation, bulk operations, and professional error handling.
+The Matrix Management & Dashboard API provides comprehensive functionality for SUPER_ADMIN users to manage compensation matrices for CLIENT_ADMIN users and monitor client accounts through a professional dashboard. This system includes advanced validation, bulk operations, client management, and professional error handling.
 
-## Base URL
+## Base URLs
 ```
-/api/admin/matrix
+/api/admin/matrix    - Matrix Management
+/api/admin/dashboard - Client Dashboard Management
 ```
 
 ## Authentication
-All endpoints require SUPER_ADMIN role authentication.
+All endpoints require SUPER_ADMIN role authentication with valid JWT token:
+```
+Authorization: Bearer <jwt_token>
+```
 
 ## Endpoints
 
@@ -163,6 +167,186 @@ Validates the current matrix configuration for a client.
 
 Validates a matrix configuration before saving.
 
+---
+
+## Dashboard Management API
+
+### 1. Get Dashboard Data (Paginated)
+**GET** `/api/admin/dashboard`
+
+Get paginated dashboard data with client accounts and statistics.
+
+**Query Parameters:**
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | int | 0 | Page number (0-based) |
+| `size` | int | 10 | Number of items per page |
+| `sortBy` | string | "companyName" | Field to sort by |
+| `sortDir` | string | "asc" | Sort direction (asc/desc) |
+
+**Response:**
+```json
+{
+  "stats": {
+    "totalClients": 3,
+    "activeClients": 2,
+    "inactiveClients": 1,
+    "totalEmployees": 150,
+    "totalCalculations": 500,
+    "totalMatrices": 18,
+    "averageRating": 4.5,
+    "lastUpdated": "2024-01-15T10:30:00Z"
+  },
+  "clientAccounts": [
+    {
+      "id": "client1",
+      "companyName": "TechStart Innovations",
+      "contactPerson": "alice_cooper",
+      "email": "demo1@techstart.com",
+      "industry": "Technology",
+      "ratingScale": "5/5",
+      "active": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "lastLoginAt": "2024-01-15T09:00:00Z",
+      "totalEmployees": 50,
+      "totalCalculations": 200,
+      "status": "Active"
+    }
+  ],
+  "currentPage": 0,
+  "totalPages": 1,
+  "totalElements": 3,
+  "hasNext": false,
+  "hasPrevious": false
+}
+```
+
+### 2. Get All Client Accounts
+**GET** `/api/admin/dashboard/clients`
+
+Get all client accounts without pagination.
+
+**Response:**
+```json
+[
+  {
+    "id": "client1",
+    "companyName": "TechStart Innovations",
+    "contactPerson": "alice_cooper",
+    "email": "demo1@techstart.com",
+    "industry": "Technology",
+    "ratingScale": "5/5",
+    "active": true,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "lastLoginAt": "2024-01-15T09:00:00Z",
+    "totalEmployees": 50,
+    "totalCalculations": 200,
+    "status": "Active"
+  }
+]
+```
+
+### 3. Get Client Account by ID
+**GET** `/api/admin/dashboard/clients/{clientId}`
+
+Get specific client account details.
+
+**Path Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `clientId` | string | Client account ID |
+
+### 4. Toggle Client Status
+**PUT** `/api/admin/dashboard/clients/{clientId}/toggle-status`
+
+Toggle client account status between active and inactive.
+
+**Path Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `clientId` | string | Client account ID |
+
+### 5. Activate Client
+**PUT** `/api/admin/dashboard/clients/{clientId}/activate`
+
+Activate a client account.
+
+**Path Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `clientId` | string | Client account ID |
+
+### 6. Deactivate Client
+**PUT** `/api/admin/dashboard/clients/{clientId}/deactivate`
+
+Deactivate a client account.
+
+**Path Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `clientId` | string | Client account ID |
+
+### 7. Get Dashboard Statistics
+**GET** `/api/admin/dashboard/stats`
+
+Get dashboard statistics only.
+
+**Response:**
+```json
+{
+  "stats": {
+    "totalClients": 3,
+    "activeClients": 2,
+    "inactiveClients": 1,
+    "totalEmployees": 150,
+    "totalCalculations": 500,
+    "totalMatrices": 18,
+    "averageRating": 4.5,
+    "lastUpdated": "2024-01-15T10:30:00Z"
+  },
+  "clientAccounts": [],
+  "currentPage": 0,
+  "totalPages": 0,
+  "totalElements": 0,
+  "hasNext": false,
+  "hasPrevious": false
+}
+```
+
+---
+
+## Data Models
+
+### ClientAccountSummary
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Client account ID |
+| `companyName` | string | Company name |
+| `contactPerson` | string | Contact person username |
+| `email` | string | Contact email |
+| `industry` | string | Industry category |
+| `ratingScale` | string | Performance rating (e.g., "5/5") |
+| `active` | boolean | Account active status |
+| `createdAt` | string | Account creation timestamp |
+| `lastLoginAt` | string | Last login timestamp |
+| `totalEmployees` | int | Number of employees |
+| `totalCalculations` | int | Number of calculations performed |
+| `status` | string | Human-readable status ("Active", "Inactive") |
+
+### DashboardStats
+| Field | Type | Description |
+|-------|------|-------------|
+| `totalClients` | int | Total number of clients |
+| `activeClients` | int | Number of active clients |
+| `inactiveClients` | int | Number of inactive clients |
+| `totalEmployees` | int | Total employees across all clients |
+| `totalCalculations` | int | Total calculations performed |
+| `totalMatrices` | int | Total adjustment matrices |
+| `averageRating` | double | Average client rating |
+| `lastUpdated` | string | Last update timestamp |
+
+---
+
 ## Professional Features
 
 ### 1. Advanced Validation
@@ -181,15 +365,23 @@ Validates a matrix configuration before saving.
 - **Performance Optimized**: Efficient database operations
 - **Validation**: Pre-validates entire configuration before saving
 
-### 4. Professional Logging
-- **Operation Tracking**: Detailed logs for all matrix operations
-- **Performance Metrics**: Processing time and statistics
-- **Audit Trail**: Complete history of changes
+### 4. Dashboard Management
+- **Client Overview**: Comprehensive client account monitoring
+- **Status Management**: Toggle, activate, and deactivate client accounts
+- **Real-time Statistics**: Live system metrics and performance data
+- **Pagination Support**: Efficient data loading for large datasets
+- **Sorting & Filtering**: Flexible data organization and search
 
-### 5. Security
-- **Role-Based Access**: Only SUPER_ADMIN can manage matrices
-- **Client Isolation**: Matrices are properly isolated by client
+### 5. Professional Logging
+- **Operation Tracking**: Detailed logs for all matrix and dashboard operations
+- **Performance Metrics**: Processing time and statistics
+- **Audit Trail**: Complete history of changes and client management actions
+
+### 6. Security
+- **Role-Based Access**: Only SUPER_ADMIN can manage matrices and dashboard
+- **Client Isolation**: Matrices and data are properly isolated by client
 - **Input Validation**: Comprehensive validation of all inputs
+- **JWT Authentication**: Secure token-based authentication for all endpoints
 
 ## Error Codes
 
@@ -219,7 +411,7 @@ Validates a matrix configuration before saving.
 
 ## Example Usage
 
-### Creating a Complete Matrix Set
+### Matrix Management Workflow
 ```bash
 # 1. Validate current configuration
 GET /api/admin/matrix/client/{clientId}/validate
@@ -237,4 +429,60 @@ PUT /api/admin/matrix/{matrixId}/client/{clientId}
 GET /api/admin/matrix/client/{clientId}/validate
 ```
 
-This professional matrix management system provides enterprise-grade functionality for managing compensation matrices with comprehensive validation, error handling, and performance optimization.
+### Dashboard Management Workflow
+```bash
+# 1. Get dashboard overview
+GET /api/admin/dashboard?page=0&size=10&sortBy=companyName&sortDir=asc
+
+# 2. Get specific client details
+GET /api/admin/dashboard/clients/{clientId}
+
+# 3. Toggle client status
+PUT /api/admin/dashboard/clients/{clientId}/toggle-status
+
+# 4. Get system statistics
+GET /api/admin/dashboard/stats
+
+# 5. Manage client accounts
+PUT /api/admin/dashboard/clients/{clientId}/activate
+PUT /api/admin/dashboard/clients/{clientId}/deactivate
+```
+
+### Frontend Integration Example
+```javascript
+// Dashboard Management
+const getDashboard = async (page = 0, size = 10) => {
+  const response = await fetch(`/api/admin/dashboard?page=${page}&size=${size}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  return await response.json();
+};
+
+// Toggle client status
+const toggleClientStatus = async (clientId) => {
+  const response = await fetch(`/api/admin/dashboard/clients/${clientId}/toggle-status`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  return await response.json();
+};
+
+// Matrix management
+const getClientMatrices = async (clientId) => {
+  const response = await fetch(`/api/admin/matrix/client/${clientId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  return await response.json();
+};
+```
+
+This professional matrix management and dashboard system provides enterprise-grade functionality for managing compensation matrices and client accounts with comprehensive validation, error handling, and performance optimization.

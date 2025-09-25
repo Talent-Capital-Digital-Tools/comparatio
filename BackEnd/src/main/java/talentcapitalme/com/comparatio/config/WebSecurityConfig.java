@@ -62,6 +62,9 @@ public class WebSecurityConfig {
                         // Dashboard management - requires SUPER_ADMIN only
                         .requestMatchers("/api/admin/dashboard/**").hasRole("SUPER_ADMIN")
                         
+                        // Upload history - authenticated users (SUPER_ADMIN and CLIENT_ADMIN)
+                        .requestMatchers("/api/upload-history/**").hasAnyRole("SUPER_ADMIN", "CLIENT_ADMIN")
+                        
                         // Client management - requires SUPER_ADMIN only
                         .requestMatchers("/api/clients/**").hasRole("SUPER_ADMIN")
                         

@@ -13,8 +13,10 @@ import talentcapitalme.com.comparatio.dto.BulkResponse;
 import talentcapitalme.com.comparatio.dto.BulkRowResult;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
 import talentcapitalme.com.comparatio.entity.CalculationResult;
+import talentcapitalme.com.comparatio.entity.UploadHistory;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
+import talentcapitalme.com.comparatio.repository.UserRepository;
 import talentcapitalme.com.comparatio.security.Authz;
 
 import java.io.ByteArrayOutputStream;
@@ -38,6 +40,9 @@ public class OptimizedBulkService {
     
     private final AdjustmentMatrixRepository matrixRepo;
     private final CalculationResultRepository resultRepo;
+    private final UploadHistoryService uploadHistoryService;
+    private final FileStorageService fileStorageService;
+    private final UserRepository userRepository;
     
     // Thread pool for parallel processing
     private final Executor bulkProcessingExecutor = Executors.newFixedThreadPool(
@@ -53,6 +58,25 @@ public class OptimizedBulkService {
         
         log.info("Starting bulk processing for client: {}, batch: {}", clientId, batchId);
         long startTime = System.currentTimeMillis();
+        
+        // Get client information for upload history
+        String clientName = userRepository.findById(clientId)
+                .map(user -> user.getName())
+                .orElse("Unknown Client");
+        
+        String uploadedBy = Authz.getCurrentUserId();
+        String uploadedByEmail = userRepository.findById(uploadedBy)
+                .map(user -> user.getEmail())
+                .orElse("unknown@example.com");
+        
+        // Create upload history record
+        UploadHistory uploadHistory = uploadHistoryService.createUploadHistory(
+                clientId, clientName, file.getOriginalFilename(), 
+                file.getOriginalFilename(), batchId, uploadedBy, uploadedByEmail);
+        
+        // Store uploaded file
+        String uploadFilePath = fileStorageService.storeUploadedFile(file, clientId, batchId);
+        uploadHistoryService.updateFilePaths(batchId, uploadFilePath, null);
         
         List<BulkRowResult> rows = new ArrayList<>();
         List<Row> excelRows = new ArrayList<>();
@@ -110,6 +134,20 @@ public class OptimizedBulkService {
         
         log.info("Bulk processing completed. Total: {}, Success: {}, Errors: {}, Time: {}ms", 
                 rows.size(), successCount, errorCount, processingTime);
+        
+        // Generate result Excel file
+        byte[] resultData = generateResultExcel(rows);
+        String resultFilePath = fileStorageService.storeResultFile(resultData, clientId, batchId, ".xlsx");
+        
+        // Update upload history with results
+        List<String> validationErrors = rows.stream()
+                .filter(row -> row.getError() != null)
+                .map(BulkRowResult::getError)
+                .collect(Collectors.toList());
+        
+        uploadHistoryService.updateUploadHistory(
+                batchId, rows.size(), rows.size(), (int) successCount, (int) errorCount, 
+                processingTime, resultFilePath, validationErrors);
         
         return new BulkResponse(batchId, rows.size(), (int) successCount, (int) errorCount, rows);
     }
@@ -312,5 +350,57 @@ public class OptimizedBulkService {
         return IntStream.range(0, (list.size() + batchSize - 1) / batchSize)
             .mapToObj(i -> list.subList(i * batchSize, Math.min((i + 1) * batchSize, list.size())))
             .collect(Collectors.toList());
+    }
+    
+    /**
+     * Generate result Excel file with all processed data
+     */
+    private byte[] generateResultExcel(List<BulkRowResult> results) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Calculation Results");
+            
+            // Create header row
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {
+                "Row Index", "Employee Code", "Job Title", "Years Experience", 
+                "Performance Rating", "Current Salary", "Mid of Scale", 
+                "Compa Ratio", "Compa Label", "Increase %", "New Salary", "Error"
+            };
+            
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+            
+            // Add data rows
+            for (int i = 0; i < results.size(); i++) {
+                BulkRowResult result = results.get(i);
+                Row row = sheet.createRow(i + 1);
+                
+                row.createCell(0).setCellValue(result.getRowIndex());
+                row.createCell(1).setCellValue(result.getEmployeeCode());
+                row.createCell(2).setCellValue(result.getJobTitle());
+                row.createCell(3).setCellValue(result.getYearsExperience());
+                row.createCell(4).setCellValue(result.getPerformanceRating5());
+                row.createCell(5).setCellValue(result.getCurrentSalary().doubleValue());
+                row.createCell(6).setCellValue(result.getMidOfScale().doubleValue());
+                row.createCell(7).setCellValue(result.getCompaRatio().doubleValue());
+                row.createCell(8).setCellValue(result.getCompaLabel());
+                row.createCell(9).setCellValue(result.getIncreasePct().doubleValue());
+                row.createCell(10).setCellValue(result.getNewSalary().doubleValue());
+                row.createCell(11).setCellValue(result.getError() != null ? result.getError() : "");
+            }
+            
+            // Auto-size columns
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+            
+            // Convert to byte array
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                workbook.write(outputStream);
+                return outputStream.toByteArray();
+            }
+        }
     }
 }
