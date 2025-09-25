@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import talentcapitalme.com.comparatio.config.CustomUserDetails;
-import talentcapitalme.com.comparatio.repository.UserRepository;
 
 import javax.crypto.SecretKey;
 import java.util.Collection;
@@ -24,8 +23,6 @@ public class JWTService {
 
     @Value("${jwt.secret}")
     private String secretKey;
-
-    private final UserRepository userRepository;
 
     public String generateToken(UserDetails userDetails) {
 

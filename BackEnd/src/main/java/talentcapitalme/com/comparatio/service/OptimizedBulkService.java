@@ -13,7 +13,6 @@ import talentcapitalme.com.comparatio.dto.BulkResponse;
 import talentcapitalme.com.comparatio.dto.BulkRowResult;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
 import talentcapitalme.com.comparatio.entity.CalculationResult;
-import talentcapitalme.com.comparatio.entity.UploadHistory;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.repository.UserRepository;
@@ -70,7 +69,7 @@ public class OptimizedBulkService {
                 .orElse("unknown@example.com");
         
         // Create upload history record
-        UploadHistory uploadHistory = uploadHistoryService.createUploadHistory(
+        uploadHistoryService.createUploadHistory(
                 clientId, clientName, file.getOriginalFilename(), 
                 file.getOriginalFilename(), batchId, uploadedBy, uploadedByEmail);
         
