@@ -9,9 +9,8 @@ import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
 import talentcapitalme.com.comparatio.exception.NotFoundException;
 import talentcapitalme.com.comparatio.exception.ValidationException;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
+import talentcapitalme.com.comparatio.service.MatrixSeederService;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MatrixController {
     private final AdjustmentMatrixRepository repo;
+    private final MatrixSeederService seeder;
 
     @GetMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -97,45 +97,8 @@ public class MatrixController {
             throw new ValidationException("Matrices already exist for client: " + clientId);
         }
         
-        seedDefaultMatricesForClient(clientId);
+        seeder.seedDefaultsForClient(clientId);
         return ResponseEntity.ok("Default matrices created for client: " + clientId);
     }
-
-    private void seedDefaultMatricesForClient(String clientId) {
-        // Create default matrix structure for the client
-        seedRowForClient(clientId, 3, 0.00, 0.70, 21, 25);
-        seedRowForClient(clientId, 3, 0.71, 0.85, 17, 21);
-        seedRowForClient(clientId, 3, 0.86, 1.00, 12, 17);
-        seedRowForClient(clientId, 3, 1.01, 1.15, 8, 12);
-        seedRowForClient(clientId, 3, 1.16, 1.30, 6, 8);
-        seedRowForClient(clientId, 3, 1.30, 9.99, 0, 0);
-
-        seedRowForClient(clientId, 2, 0.00, 0.70, 15, 17);
-        seedRowForClient(clientId, 2, 0.71, 0.85, 12, 17);
-        seedRowForClient(clientId, 2, 0.86, 1.00, 8, 12);
-        seedRowForClient(clientId, 2, 1.01, 1.15, 6, 8);
-        seedRowForClient(clientId, 2, 1.16, 1.30, 4, 6);
-        seedRowForClient(clientId, 2, 1.30, 9.99, 0, 0);
-
-        seedRowForClient(clientId, 1, 0.00, 0.70, 8, 12);
-        seedRowForClient(clientId, 1, 0.71, 0.85, 6, 8);
-        seedRowForClient(clientId, 1, 0.86, 1.00, 4, 6);
-        seedRowForClient(clientId, 1, 1.01, 1.15, 0, 4);
-        seedRowForClient(clientId, 1, 1.16, 9.99, 0, 0);
-    }
-
-    private void seedRowForClient(String clientId, int perf, double from, double to, double l, double r) {
-        repo.save(AdjustmentMatrix.builder()
-                .id(clientId + "_m_" + perf + "_" + from + "_" + to)
-                .clientId(clientId)
-                .perfBucket(perf)
-                .compaFrom(BigDecimal.valueOf(from))
-                .compaTo(BigDecimal.valueOf(to))
-                .pctLt5Years(BigDecimal.valueOf(l))
-                .pctGte5Years(BigDecimal.valueOf(r))
-                .effectiveFrom(LocalDate.of(2025, 1, 1))
-                .effectiveTo(null)
-                .active(true)
-                .build());
-    }
+    
 }

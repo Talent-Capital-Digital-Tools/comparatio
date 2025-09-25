@@ -14,6 +14,7 @@ import talentcapitalme.com.comparatio.dto.TokenResponse;
 import talentcapitalme.com.comparatio.entity.User;
 import talentcapitalme.com.comparatio.enumeration.UserRole;
 import talentcapitalme.com.comparatio.exception.UnauthorizedException;
+import talentcapitalme.com.comparatio.exception.ValidationException;
 import talentcapitalme.com.comparatio.exception.UserAreadyExit;
 import talentcapitalme.com.comparatio.repository.UserRepository;
 import talentcapitalme.com.comparatio.security.Authz;
@@ -26,6 +27,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
+    private final MatrixSeederService matrixSeederService;
 
     /**
      * Authenticate user and generate JWT token
@@ -72,7 +74,18 @@ public class AuthService {
         // Validate role assignment based on current user's permissions
         validateRoleAssignment(request.getRole(), request.getClientId());
 
-        return userRepository.save(newUser);
+        User saved = userRepository.save(newUser);
+
+        // If a CLIENT_ADMIN is created, seed default matrices for their client if not present
+        if (saved.getRole() == UserRole.CLIENT_ADMIN && saved.getClientId() != null) {
+            try {
+                matrixSeederService.seedDefaultsForClient(saved.getClientId());
+            } catch (ValidationException ignored) {
+                // Matrices already exist or invalid clientId; ignore to keep registration successful
+            }
+        }
+
+        return saved;
     }
 
     /**
