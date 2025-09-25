@@ -34,4 +34,10 @@ public class AuthController {
         user.setPasswordHash(null);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        // Stateless JWT: client should discard the token. Endpoint provided for UX symmetry.
+        return ResponseEntity.ok().build();
+    }
 }

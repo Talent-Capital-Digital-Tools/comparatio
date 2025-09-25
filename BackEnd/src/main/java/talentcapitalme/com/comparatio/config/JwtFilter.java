@@ -32,6 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // Bypass JWT processing for public endpoints
         String path = request.getRequestURI();
         if (path.startsWith("/api/auth/login")
+                || path.startsWith("/api/auth/logout")
                 || path.equals("/swagger-ui.html")
                 || path.startsWith("/swagger-ui/")
                 || path.startsWith("/v3/api-docs")
