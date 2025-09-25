@@ -1,5 +1,4 @@
 package talentcapitalme.com.comparatio.service;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -57,11 +56,18 @@ public class UserService {
         if (userUpdate.getRole() != null) {
             existingUser.setRole(userUpdate.getRole());
         }
-        if (userUpdate.getClientId() != null) {
-            existingUser.setClientId(userUpdate.getClientId());
-        }
         if (userUpdate.getIndustry() != null) {
             existingUser.setIndustry(userUpdate.getIndustry());
+        }
+        
+        // Update client fields for CLIENT_ADMIN users
+        if (userUpdate.getRole() == UserRole.CLIENT_ADMIN || existingUser.getRole() == UserRole.CLIENT_ADMIN) {
+            if (userUpdate.getName() != null) {
+                existingUser.setName(userUpdate.getName());
+            }
+            if (userUpdate.getActive() != null) {
+                existingUser.setActive(userUpdate.getActive());
+            }
         }
 
         return userRepository.save(existingUser);
