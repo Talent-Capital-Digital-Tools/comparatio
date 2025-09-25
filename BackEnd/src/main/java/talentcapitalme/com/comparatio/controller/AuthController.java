@@ -36,8 +36,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
-        // Stateless JWT: client should discard the token. Endpoint provided for UX symmetry.
-        return ResponseEntity.ok().build();
+    public ResponseEntity<java.util.Map<String, String>> logout() {
+        // Stateless JWT: client should discard the token. Return a friendly message.
+        return ResponseEntity.ok(java.util.Map.of("message", "Logout successful"));
     }
 }

@@ -42,8 +42,8 @@ public class CompensationService {
         int perfBucket = (req.getPerformanceRating() >= 4) ? 3 :
                 (req.getPerformanceRating() >= 2) ? 2 : 1;
 
-        // Get current user's client ID for client-specific matrix lookup
-        String clientId = getCurrentUserClientId();
+        // Use current user's id as tenant key for matrix lookup
+        String clientId = Authz.getCurrentUserId();
         
         // Use client-specific matrices for calculations
         AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, asOf, clientId)
@@ -76,12 +76,7 @@ public class CompensationService {
         return new CalcResponse(compa, compaLabel(cell), pct, newSalary);
     }
 
-    /**
-     * Get current user's client ID for calculations
-     */
-    private String getCurrentUserClientId() {
-        return Authz.getCurrentUserClientId();
-    }
+    // tenant key now uses user id; no helper needed
 
     private String compaLabel(AdjustmentMatrix c) {
         BigDecimal from = c.getCompaFrom().multiply(BigDecimal.valueOf(100));

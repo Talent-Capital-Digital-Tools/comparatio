@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/security/Authz.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/security/Authz.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/BulkService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/BulkService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/CompensationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/CompensationService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,7 +139,7 @@
       <workItem from="1758808325250" duration="193000" />
       <workItem from="1758809213302" duration="688000" />
       <workItem from="1758810389926" duration="1554000" />
-      <workItem from="1758815364856" duration="3601000" />
+      <workItem from="1758815364856" duration="5489000" />
     </task>
     <servers />
   </component>

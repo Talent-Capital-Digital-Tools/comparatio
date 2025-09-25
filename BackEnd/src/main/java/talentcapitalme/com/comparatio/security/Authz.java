@@ -46,6 +46,22 @@ public class Authz {
         
         throw new UnauthorizedException("Invalid user details");
     }
+
+    /**
+     * Get the current authenticated user's id
+     */
+    public static String getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new UnauthorizedException("User not authenticated");
+        }
+
+        if (auth.getPrincipal() instanceof CustomUserDetails userDetails) {
+            return userDetails.getId();
+        }
+
+        throw new UnauthorizedException("Invalid user details");
+    }
     
     /**
      * Check if current user has admin privileges (SUPER_ADMIN or CLIENT_ADMIN)

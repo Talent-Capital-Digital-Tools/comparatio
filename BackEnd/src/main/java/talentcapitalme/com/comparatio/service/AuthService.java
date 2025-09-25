@@ -76,12 +76,18 @@ public class AuthService {
 
         User saved = userRepository.save(newUser);
 
-        // If a CLIENT_ADMIN is created, seed default matrices linked to the user id
-        if (saved.getRole() == UserRole.CLIENT_ADMIN) {
+        // Ensure CLIENT_ADMIN has a tenant key (clientId). Default to their own user id.
+        if (saved.getRole() == UserRole.CLIENT_ADMIN && (saved.getClientId() == null || saved.getClientId().isBlank())) {
+            saved.setClientId(saved.getId());
+            saved = userRepository.save(saved);
+        }
+
+        // Seed default matrices for that tenant key so calculations work immediately
+        if (saved.getRole() == UserRole.CLIENT_ADMIN && saved.getClientId() != null) {
             try {
-                matrixSeederService.seedDefaultsForClient(saved.getId());
+                matrixSeederService.seedDefaultsForClient(saved.getClientId());
             } catch (ValidationException ignored) {
-                // Matrices already exist or invalid clientId; ignore to keep registration successful
+                // Matrices already exist; safe to ignore
             }
         }
 
