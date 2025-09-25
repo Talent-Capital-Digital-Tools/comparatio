@@ -1,5 +1,7 @@
 package talentcapitalme.com.comparatio.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import talentcapitalme.com.comparatio.entity.User;
 import talentcapitalme.com.comparatio.enumeration.UserRole;
@@ -14,5 +16,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByName(String name);
     List<User> findByActiveTrue();
     List<User> findByRoleAndActiveTrue(UserRole role);
+    List<User> findByRole(UserRole role);
+    Page<User> findByRole(UserRole role, Pageable pageable);
     boolean existsByName(String name);
 }

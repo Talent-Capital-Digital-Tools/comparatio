@@ -59,6 +59,9 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/matrix/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/admin/matrix/**").hasRole("SUPER_ADMIN")
                         
+                        // Dashboard management - requires SUPER_ADMIN only
+                        .requestMatchers("/api/admin/dashboard/**").hasRole("SUPER_ADMIN")
+                        
                         // Client management - requires SUPER_ADMIN only
                         .requestMatchers("/api/clients/**").hasRole("SUPER_ADMIN")
                         

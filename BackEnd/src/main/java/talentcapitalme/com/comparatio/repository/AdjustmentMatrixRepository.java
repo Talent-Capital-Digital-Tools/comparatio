@@ -71,5 +71,13 @@ public interface AdjustmentMatrixRepository extends MongoRepository<AdjustmentMa
      * @param clientId The client ID.
      */
     void deleteByClientId(String clientId);
+    
+    /**
+     * Count matrices for a specific client.
+     * 
+     * @param clientId The client ID.
+     * @return Number of matrices for the client.
+     */
+    long countByClientId(String clientId);
 }
 
