@@ -1,5 +1,6 @@
 package talentcapitalme.com.comparatio.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,9 +11,15 @@ import talentcapitalme.com.comparatio.service.UserManagementService;
 import java.util.List;
 
 /**
- * Test controller to verify multi-tenant functionality
- * This should be removed in production
+ * Test Controller
+ * 
+ * Purpose: Development and testing utilities for multi-tenant functionality
+ * - Test data creation and setup
+ * - Multi-tenant isolation verification
+ * - Development environment testing
+ * - WARNING: This controller should be removed in production
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
@@ -25,6 +32,7 @@ public class TestController {
      */
     @PostMapping("/setup-clients")
     public ResponseEntity<String> setupTestClients() {
+        log.info("Test Controller: Setting up test CLIENT_ADMIN users for development testing");
         try {
             // Create test CLIENT_ADMIN users
             User client1 = new User();
@@ -45,9 +53,12 @@ public class TestController {
             client2.setName("Finance Department");
             client2.setActive(true);
             
+            log.info("Test Controller: Creating test client 1: HR Department");
             User savedClient1 = userManagementService.createClientAdmin(client1);
+            log.info("Test Controller: Creating test client 2: Finance Department");
             User savedClient2 = userManagementService.createClientAdmin(client2);
             
+            log.info("Test Controller: Successfully created {} test CLIENT_ADMIN users with default matrices", 2);
             return ResponseEntity.ok(
                 "Successfully created test CLIENT_ADMIN users:\n" +
                 "1. " + savedClient1.getName() + " (ID: " + savedClient1.getId() + ")\n" +
@@ -55,6 +66,7 @@ public class TestController {
                 "Each CLIENT_ADMIN now has its own set of default matrices."
             );
         } catch (Exception e) {
+            log.error("Test Controller: Error creating test CLIENT_ADMIN users: {}", e.getMessage());
             return ResponseEntity.badRequest().body("Error creating CLIENT_ADMIN users: " + e.getMessage());
         }
     }
@@ -64,6 +76,9 @@ public class TestController {
      */
     @GetMapping("/clients")
     public ResponseEntity<List<User>> listClients() {
-        return ResponseEntity.ok(userManagementService.getAllClientAdmins());
+        log.info("Test Controller: Listing all CLIENT_ADMIN users for testing purposes");
+        List<User> clients = userManagementService.getAllClientAdmins();
+        log.info("Test Controller: Found {} CLIENT_ADMIN users", clients.size());
+        return ResponseEntity.ok(clients);
     }
 }

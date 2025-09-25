@@ -1,5 +1,4 @@
 package talentcapitalme.com.comparatio.controller;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -8,11 +7,17 @@ import org.springframework.web.bind.annotation.*;
 import talentcapitalme.com.comparatio.dto.ClientAccountSummary;
 import talentcapitalme.com.comparatio.dto.DashboardResponse;
 import talentcapitalme.com.comparatio.service.DashboardService;
-
 import java.util.List;
 
 /**
- * Controller for super admin dashboard functionality
+ * Super Admin Dashboard Controller
+ * 
+ * Purpose: Provides comprehensive dashboard functionality for super administrators
+ * - Client account overview and management
+ * - System statistics and performance metrics
+ * - Client status management (activate/deactivate)
+ * - Paginated data access with sorting and filtering
+ * - Real-time monitoring of all client activities
  */
 @Slf4j
 @RestController

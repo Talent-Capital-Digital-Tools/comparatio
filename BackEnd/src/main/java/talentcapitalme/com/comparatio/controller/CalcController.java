@@ -2,6 +2,7 @@ package talentcapitalme.com.comparatio.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,16 @@ import talentcapitalme.com.comparatio.service.CompensationService;
 
 import java.io.IOException;
 
+/**
+ * Calculation Controller
+ * 
+ * Purpose: Handles compensation calculation operations
+ * - Individual employee salary calculations
+ * - Bulk Excel file processing with multithreading
+ * - Calculation result retrieval and download
+ * - Performance-optimized processing for large datasets
+ */
+@Slf4j
 @RestController
 @RequestMapping("/api/calc")
 @RequiredArgsConstructor
@@ -29,13 +40,27 @@ public class CalcController {
     private final CalculationResultRepository resultRepo;
 
     @PostMapping("/individual")
-    public CalcResponse calc(@Valid @RequestBody CalcRequest req) { return service.calculate(req); }
+    public CalcResponse calc(@Valid @RequestBody CalcRequest req) { 
+        log.info("Calculation Controller: Processing individual calculation for employee: {}", req.getEmployeeCode());
+        CalcResponse response = service.calculate(req);
+        log.info("Calculation Controller: Individual calculation completed for employee: {} with new salary: {}", 
+                req.getEmployeeCode(), response.getNewSalary());
+        return response; 
+    }
 
     @PostMapping(value="/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BulkResponse bulk(@RequestPart("file") MultipartFile file) throws IOException { return bulkService.process(file); }
+    public BulkResponse bulk(@RequestPart("file") MultipartFile file) throws IOException { 
+        log.info("Calculation Controller: Processing bulk Excel file upload: {} ({} bytes)", 
+                file.getOriginalFilename(), file.getSize());
+        BulkResponse response = bulkService.process(file);
+        log.info("Calculation Controller: Bulk processing completed - Total: {}, Success: {}, Errors: {}", 
+                response.getTotalRows(), response.getSuccessCount(), response.getErrorCount());
+        return response; 
+    }
 
     @GetMapping("/bulk/{batchId}")
     public ResponseEntity<byte[]> download(@PathVariable String batchId) throws IOException {
+        log.info("Calculation Controller: Processing download request for batch: {}", batchId);
         String clientId = Authz.getCurrentUserClientId();
         var rows = resultRepo.findByBatchId(batchId).stream()
                 .filter(r -> clientId.equals(r.getClientId()))
@@ -52,10 +77,12 @@ public class CalcController {
                         .newSalary(r.getNewSalary())
                         .build()).toList();
 
+        log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), batchId);
         byte[] xlsx = bulkService.exportExcel(rows);
         HttpHeaders h = new HttpHeaders();
         h.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         h.setContentDisposition(ContentDisposition.attachment().filename("bulk-results-"+batchId+".xlsx").build());
+        log.info("Calculation Controller: Excel file generated successfully for batch: {} ({} bytes)", batchId, xlsx.length);
         return new ResponseEntity<>(xlsx, h, HttpStatus.OK);
     }
 }

@@ -20,6 +20,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Enhanced Matrix Management Controller
+ * 
+ * Purpose: Provides professional matrix management for super administrators
+ * - Advanced matrix CRUD operations with validation
+ * - Bulk matrix updates and management
+ * - Matrix statistics and analytics
+ * - Client-specific matrix configuration
+ * - Professional API with comprehensive error handling
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/admin/matrix")

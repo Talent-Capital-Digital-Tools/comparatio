@@ -19,7 +19,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controller for managing upload history and file downloads
+ * Upload History Management Controller
+ * 
+ * Purpose: Handles historical tracking and file management for Excel uploads
+ * - Upload history tracking and retrieval
+ * - Original and result file downloads
+ * - Upload statistics and analytics
+ * - File cleanup and maintenance
+ * - Client-specific upload history access
  */
 @Slf4j
 @RestController
