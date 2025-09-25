@@ -1,37 +1,37 @@
 package talentcapitalme.com.comparatio.controller;
 
-import lombok.Data;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import talentcapitalme.com.comparatio.enumeration.UserRole;
-import talentcapitalme.com.comparatio.security.JwtUtil;
+import talentcapitalme.com.comparatio.dto.LoginRequest;
+import talentcapitalme.com.comparatio.dto.RegisterRequest;
+import talentcapitalme.com.comparatio.dto.TokenResponse;
+import talentcapitalme.com.comparatio.entity.User;
+import talentcapitalme.com.comparatio.service.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final JwtUtil jwtUtil;
+
+    private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
-        // TODO: validate user credentials from DB/IdP. This is a simplified demo.
-        String token = jwtUtil.generateToken(req.getUserId(), req.getRole(), req.getClientId());
-        return ResponseEntity.ok(new TokenResponse(token));
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+        TokenResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 
-    @Data
-    public static class LoginRequest {
-        private String userId;
-        private UserRole role;
-        private String clientId;
-    }
-
-    @Data
-    public static class TokenResponse {
-        private final String token;
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) {
+        User user = authService.registerUser(request);
+        // Remove password hash from response
+        user.setPasswordHash(null);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 }

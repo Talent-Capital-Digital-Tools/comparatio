@@ -1,6 +1,10 @@
 server:
   port: ${APP_PORT:8080}
 
+jwt:
+  secret: "fda10b388526a9b0ebda6d8a7f2d2345a1af5"
+
+
 spring:
   data:
     mongodb:
@@ -16,5 +20,3 @@ management:
 app:
   template:
     path: ${TEMPLATE_PATH:classpath:templates/compa_template.xlsx}
-
-

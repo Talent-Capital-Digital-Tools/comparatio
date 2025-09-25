@@ -30,7 +30,7 @@ public class User extends Audit {
 
     // profile
     private String fullName;
-    private String Industry;
+    private String industry;
     private String avatarUrl;
 
 
