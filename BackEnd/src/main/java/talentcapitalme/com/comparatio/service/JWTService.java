@@ -1,9 +1,8 @@
 package talentcapitalme.com.comparatio.service;
-
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,19 +19,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-
+@RequiredArgsConstructor
 public class JWTService {
 
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private  final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public JWTService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    public String generatedToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails) {
 
         Map<String,Object> claims= new HashMap<>();
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
@@ -45,7 +40,7 @@ public class JWTService {
         return Jwts.builder()
                 .claims()
                 .add(claims)
-                .setSubject(userDetails.getUsername())
+                .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .and()
@@ -62,8 +57,7 @@ public class JWTService {
 
 
 
-    public String extractUserName(String token) {
-
+    public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -81,8 +75,8 @@ public class JWTService {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = extractUserName(token);
-        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token) {

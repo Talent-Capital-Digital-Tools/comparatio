@@ -41,7 +41,7 @@ public class AuthService {
 
             // Generate JWT token
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            String token = jwtService.generatedToken(userDetails);
+            String token = jwtService.generateToken(userDetails);
 
             return new TokenResponse(token);
         } catch (AuthenticationException e) {

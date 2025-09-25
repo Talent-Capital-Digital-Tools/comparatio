@@ -1,0 +1,4 @@
+EmployeeCode,JobTitle,YearsExperience,PerformanceRating5,CurrentSalary,MidOfScale
+EMP001,Software Engineer,3,4,75000,80000
+EMP002,Senior Developer,5,5,90000,85000
+EMP003,Team Lead,7,3,95000,90000

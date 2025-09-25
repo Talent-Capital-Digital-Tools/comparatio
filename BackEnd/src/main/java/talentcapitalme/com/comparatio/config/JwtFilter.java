@@ -52,7 +52,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (autHeader != null && autHeader.startsWith("Bearer ")) {
             token = autHeader.substring(7);
             try {
-                username = jwtService.extractUserName(token);
+                username = jwtService.extractUsername(token);
             } catch (Exception ignored) {
                 // Malformed/expired token: ignore and continue without authentication
             }
