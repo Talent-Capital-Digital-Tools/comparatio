@@ -32,7 +32,7 @@ public class BulkService {
     private final CalculationResultRepository resultRepo;
 
     public BulkResponse process(MultipartFile file) throws IOException {
-        String clientId = Authz.getCurrentUserId();
+        String clientId = Authz.getCurrentUserClientId();
         String batchId = Instant.now().toString();
         List<BulkRowResult> rows = new ArrayList<>();
 

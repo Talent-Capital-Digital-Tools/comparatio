@@ -15,7 +15,7 @@ import talentcapitalme.com.comparatio.dto.CalcRequest;
 import talentcapitalme.com.comparatio.dto.CalcResponse;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.security.Authz;
-import talentcapitalme.com.comparatio.service.BulkService;
+import talentcapitalme.com.comparatio.service.OptimizedBulkService;
 import talentcapitalme.com.comparatio.service.CompensationService;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class CalcController {
     private final CompensationService service;
-    private final BulkService bulkService;
+    private final OptimizedBulkService bulkService;
     private final CalculationResultRepository resultRepo;
 
     @PostMapping("/individual")
