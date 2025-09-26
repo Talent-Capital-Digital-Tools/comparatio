@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/CalcController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/CalcController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/MatrixController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/MatrixController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/TestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/TestController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/CalcRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/CalcRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/LoginRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/LoginRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/RegisterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/RegisterRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/Audit.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/Audit.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/Employee.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/Employee.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/JobGrade.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/JobGrade.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/AuthService.java" afterDir="false" />
-    </list>
+    <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,30 +40,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHELLCHECK.PATH&quot;: &quot;C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\IntelliJIdea2025.2\\plugins\\Shell Script\\shellcheck.exe&quot;,
-    &quot;Spring Boot.ComparatioApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;backend-dev&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/springboot_ws/compa-ratio/BackEnd/src/main/java/talentcapitalme/com/comparatio&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHELLCHECK.PATH": "C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\IntelliJIdea2025.2\\plugins\\Shell Script\\shellcheck.exe",
+    "Spring Boot.ComparatioApplication.executor": "Debug",
+    "git-widget-placeholder": "backend-dev",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/springboot_ws/compa-ratio/BackEnd/src/main/java/talentcapitalme/com/comparatio",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "terminal",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\springboot_ws\compa-ratio\BackEnd\src\main\java\talentcapitalme\com\comparatio" />
@@ -155,7 +136,7 @@
       <workItem from="1758815364856" duration="10097000" />
       <workItem from="1758831772971" duration="600000" />
       <workItem from="1758878387621" duration="2905000" />
-      <workItem from="1758888094688" duration="970000" />
+      <workItem from="1758888094688" duration="1769000" />
     </task>
     <servers />
   </component>

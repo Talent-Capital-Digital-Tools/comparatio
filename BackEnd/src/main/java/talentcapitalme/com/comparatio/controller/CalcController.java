@@ -53,15 +53,47 @@ public class CalcController {
         return response; 
     }
 
-    @Operation(summary = "Bulk Calculation", description = "Process Excel file with multiple employee calculations")
+    @Operation(summary = "Bulk Calculation", description = "Process Excel file and return enhanced Excel with calculation results")
     @PostMapping(value="/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BulkResponse bulk(@Parameter(description = "Excel file with employee data") @RequestPart("file") MultipartFile file) throws IOException { 
+    public ResponseEntity<byte[]> bulk(@Parameter(description = "Excel file with employee data") @RequestPart("file") MultipartFile file) throws IOException { 
         log.info("Calculation Controller: Processing bulk Excel file upload: {} ({} bytes)", 
                 file.getOriginalFilename(), file.getSize());
+        
+        // Process the file and get the enhanced results
         BulkResponse response = bulkService.process(file);
         log.info("Calculation Controller: Bulk processing completed - Total: {}, Success: {}, Errors: {}", 
                 response.getTotalRows(), response.getSuccessCount(), response.getErrorCount());
-        return response; 
+        
+        // Get the calculation results for the batch
+        String clientId = Authz.getCurrentUserClientId();
+        var rows = resultRepo.findByBatchId(response.getBatchId()).stream()
+                .filter(r -> clientId.equals(r.getClientId()))
+                .map(r -> BulkRowResult.builder()
+                        .employeeCode(r.getEmployeeCode())
+                        .jobTitle(r.getJobTitle())
+                        .yearsExperience(r.getYearsExperience())
+                        .performanceRating5(r.getPerfBucket()==3?4: r.getPerfBucket()==2?3:1)
+                        .currentSalary(r.getCurrentSalary())
+                        .midOfScale(r.getMidOfScale())
+                        .compaRatio(r.getCompaRatio())
+                        .compaLabel(r.getCompaLabel())
+                        .increasePct(r.getIncreasePct())
+                        .newSalary(r.getNewSalary())
+                        .build()).toList();
+
+        log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), response.getBatchId());
+        
+        // Generate Excel file with enhanced data
+        byte[] xlsx = bulkService.exportExcel(rows);
+        
+        // Set up response headers for Excel download
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename("bulk-calculation-results-" + response.getBatchId() + ".xlsx").build());
+        
+        log.info("Calculation Controller: Excel file generated successfully for batch: {} ({} bytes)", response.getBatchId(), xlsx.length);
+        return new ResponseEntity<>(xlsx, headers, HttpStatus.OK);
     }
 
     @Operation(summary = "Download Results", description = "Download Excel file with calculation results for a batch")
