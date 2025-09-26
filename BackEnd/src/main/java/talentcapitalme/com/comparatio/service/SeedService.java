@@ -9,7 +9,6 @@ import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
 import talentcapitalme.com.comparatio.repository.UserRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -78,8 +77,6 @@ public class SeedService implements CommandLineRunner {
                 .compaTo(BigDecimal.valueOf(to))
                 .pctLt5Years(BigDecimal.valueOf(l))
                 .pctGte5Years(BigDecimal.valueOf(r))
-                .effectiveFrom(LocalDate.of(2025, 1, 1))
-                .effectiveTo(null)
                 .active(true)
                 .build());
     }

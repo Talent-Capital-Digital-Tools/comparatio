@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,13 +112,11 @@ public class BulkService {
 
     private BulkRowResult computeRow(String clientId, int rowIndex, String code, String jobTitle, Integer years, Integer perf5, BigDecimal current, BigDecimal mid) {
         if (mid == null || mid.compareTo(BigDecimal.ZERO) <= 0) throw new IllegalArgumentException("Invalid midOfScale");
-        LocalDate asOf = LocalDate.now();
-
         BigDecimal compa = current.divide(mid, 6, RoundingMode.HALF_UP);
         int perfBucket = (perf5 >= 4) ? 3 : (perf5 >= 2) ? 2 : 1;
 
         // Use client-specific matrices for calculations
-        AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, asOf, clientId)
+        AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, clientId)
                 .orElseThrow(() -> new IllegalStateException("No matrix found for client '" + clientId + "' at row " + rowIndex));
 
         BigDecimal pct = (years < 5) ? cell.getPctLt5Years() : cell.getPctGte5Years();

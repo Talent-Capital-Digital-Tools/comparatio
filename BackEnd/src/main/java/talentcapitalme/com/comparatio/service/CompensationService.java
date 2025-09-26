@@ -14,7 +14,6 @@ import talentcapitalme.com.comparatio.security.Authz;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.time.LocalDate;
 
 @Slf4j
 @Service
@@ -36,8 +35,6 @@ public class CompensationService {
             String clientId = Authz.getCurrentUserClientId();
             log.debug("Using client ID: {} for calculation", clientId);
 
-            LocalDate asOf = req.getAsOf() != null ? req.getAsOf() : LocalDate.now();
-
             // Calculate compa ratio
             BigDecimal compa = req.getCurrentSalary()
                     .divide(req.getMidOfScale(), 6, RoundingMode.HALF_UP);
@@ -47,7 +44,7 @@ public class CompensationService {
                     (req.getPerformanceRating() >= 2) ? 2 : 1;
 
             // Find appropriate adjustment matrix
-            AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, asOf, clientId)
+            AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, clientId)
                     .orElseThrow(() -> new MatrixNotFoundException("No adjustment matrix found for client '" + clientId + 
                         "'. Please contact your administrator to set up compensation matrices."));
 

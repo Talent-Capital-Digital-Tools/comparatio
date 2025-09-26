@@ -9,7 +9,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -29,9 +28,6 @@ public class AdjustmentMatrix extends Audit {
     private BigDecimal pctLt5Years;    // % if < 5 yrs (e.g., 17)
     private BigDecimal pctGte5Years;   // % if >= 5 yrs (e.g., 21)
 
-    // optional time-based control
-    private LocalDate effectiveFrom;   // null = open
-    private LocalDate effectiveTo;     // null = open
-    private Boolean active;            // mark old rows inactive instead of delete         // whether this row is still valid
+    private Boolean active;            // whether this row is still valid
 
 }

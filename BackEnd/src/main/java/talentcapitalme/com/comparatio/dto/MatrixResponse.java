@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -23,8 +22,6 @@ public class MatrixResponse {
     private BigDecimal compaTo;
     private BigDecimal pctLt5Years;
     private BigDecimal pctGte5Years;
-    private LocalDate effectiveFrom;
-    private LocalDate effectiveTo;
     private Boolean active;
     private String compaRangeLabel;
     
@@ -38,8 +35,6 @@ public class MatrixResponse {
                 .compaTo(matrix.getCompaTo())
                 .pctLt5Years(matrix.getPctLt5Years())
                 .pctGte5Years(matrix.getPctGte5Years())
-                .effectiveFrom(matrix.getEffectiveFrom())
-                .effectiveTo(matrix.getEffectiveTo())
                 .active(matrix.getActive())
                 .compaRangeLabel(createCompaRangeLabel(matrix))
                 .build();

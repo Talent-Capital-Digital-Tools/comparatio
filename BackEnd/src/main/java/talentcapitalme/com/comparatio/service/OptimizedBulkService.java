@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -291,12 +290,11 @@ public class OptimizedBulkService {
             throw new IllegalArgumentException("Invalid years experience at row " + rowIndex);
         }
 
-        LocalDate asOf = LocalDate.now();
         BigDecimal compa = current.divide(mid, 6, RoundingMode.HALF_UP);
         int perfBucket = (perf5 >= 4) ? 3 : (perf5 >= 2) ? 2 : 1;
 
         // Use client-specific matrices for calculations
-        AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, asOf, clientId)
+        AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, clientId)
                 .orElseThrow(() -> new IllegalStateException(
                     "No matrix found for client '" + clientId + "' at row " + rowIndex));
 

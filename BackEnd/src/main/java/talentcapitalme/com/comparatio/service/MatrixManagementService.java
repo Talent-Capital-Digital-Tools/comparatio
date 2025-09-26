@@ -92,8 +92,6 @@ public class MatrixManagementService {
         existing.setCompaTo(matrixUpdate.getCompaTo());
         existing.setPctLt5Years(matrixUpdate.getPctLt5Years());
         existing.setPctGte5Years(matrixUpdate.getPctGte5Years());
-        existing.setEffectiveFrom(matrixUpdate.getEffectiveFrom());
-        existing.setEffectiveTo(matrixUpdate.getEffectiveTo());
         existing.setActive(matrixUpdate.getActive());
         
         // Update ID if compa range changed
@@ -251,12 +249,6 @@ public class MatrixManagementService {
             throw new ValidationException("Percentage values cannot exceed 100%");
         }
         
-        // Validate effective dates
-        if (matrix.getEffectiveFrom() != null && matrix.getEffectiveTo() != null) {
-            if (matrix.getEffectiveFrom().isAfter(matrix.getEffectiveTo())) {
-                throw new ValidationException("Effective 'from' date must be before 'to' date");
-            }
-        }
     }
 
     /**

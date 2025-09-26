@@ -120,8 +120,6 @@ public class EnhancedMatrixController {
                 .compaTo(request.getCompaTo())
                 .pctLt5Years(request.getPctLt5Years())
                 .pctGte5Years(request.getPctGte5Years())
-                .effectiveFrom(request.getEffectiveFrom())
-                .effectiveTo(request.getEffectiveTo())
                 .active(request.getActive())
                 .build();
         
@@ -149,8 +147,6 @@ public class EnhancedMatrixController {
                 .compaTo(request.getCompaTo())
                 .pctLt5Years(request.getPctLt5Years())
                 .pctGte5Years(request.getPctGte5Years())
-                .effectiveFrom(request.getEffectiveFrom())
-                .effectiveTo(request.getEffectiveTo())
                 .active(request.getActive())
                 .build();
         

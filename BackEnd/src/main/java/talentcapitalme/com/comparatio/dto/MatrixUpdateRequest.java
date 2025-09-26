@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -42,8 +41,6 @@ public class MatrixUpdateRequest {
     @DecimalMax(value = "100.0", message = "Percentage cannot exceed 100%")
     private BigDecimal pctGte5Years;
     
-    private LocalDate effectiveFrom;
-    private LocalDate effectiveTo;
     
     @Builder.Default
     private Boolean active = true;

@@ -7,7 +7,6 @@ import talentcapitalme.com.comparatio.exception.ValidationException;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -61,8 +60,6 @@ public class MatrixSeederService {
                 .compaTo(BigDecimal.valueOf(to))
                 .pctLt5Years(BigDecimal.valueOf(l))
                 .pctGte5Years(BigDecimal.valueOf(r))
-                .effectiveFrom(LocalDate.of(2025, 1, 1))
-                .effectiveTo(null)
                 .active(true)
                 .build());
     }
