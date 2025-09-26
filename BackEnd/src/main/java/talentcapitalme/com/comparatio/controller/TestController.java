@@ -92,7 +92,7 @@ public class TestController {
 
     @Operation(summary = "Test Excel Upload", description = "Test Excel file upload with detailed error reporting")
     @PostMapping(value = "/excel-test", consumes = "multipart/form-data")
-    public ResponseEntity<Map<String, Object>> testExcelUpload(@RequestPart("file") MultipartFile file) {
+    public ResponseEntity<Map<String, Object>> testExcelUpload(@RequestParam("file") MultipartFile file) {
         log.info("Test Controller: Testing Excel file upload: {} ({} bytes)", file.getOriginalFilename(), file.getSize());
         
         Map<String, Object> result = new HashMap<>();

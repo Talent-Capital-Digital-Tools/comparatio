@@ -44,6 +44,7 @@ public class SeedService implements CommandLineRunner {
      * Create default matrix structure for a specific CLIENT_ADMIN user
      */
     public void seedMatricesForClient(String clientId) {
+        // Performance bucket 3 (exceeds targets) - Updated to match frontend matrix
         seedRow(clientId, 3, 0.00, 0.70, 21, 25);
         seedRow(clientId, 3, 0.71, 0.85, 17, 21);
         seedRow(clientId, 3, 0.86, 1.00, 12, 17);
@@ -51,6 +52,7 @@ public class SeedService implements CommandLineRunner {
         seedRow(clientId, 3, 1.16, 1.30, 6, 8);
         seedRow(clientId, 3, 1.30, 9.99, 0, 0);
 
+        // Performance bucket 2 (meets targets) - Updated to match frontend matrix
         seedRow(clientId, 2, 0.00, 0.70, 15, 17);
         seedRow(clientId, 2, 0.71, 0.85, 12, 17);
         seedRow(clientId, 2, 0.86, 1.00, 8, 12);
@@ -58,6 +60,7 @@ public class SeedService implements CommandLineRunner {
         seedRow(clientId, 2, 1.16, 1.30, 4, 6);
         seedRow(clientId, 2, 1.30, 9.99, 0, 0);
 
+        // Performance bucket 1 (partially meets) - Updated to match frontend matrix
         seedRow(clientId, 1, 0.00, 0.70, 8, 12);
         seedRow(clientId, 1, 0.71, 0.85, 6, 8);
         seedRow(clientId, 1, 0.86, 1.00, 4, 6);

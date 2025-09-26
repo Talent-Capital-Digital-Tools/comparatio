@@ -55,7 +55,7 @@ public class CalcController {
 
     @Operation(summary = "Bulk Calculation", description = "Process Excel file and return enhanced Excel with calculation results")
     @PostMapping(value="/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> bulk(@Parameter(description = "Excel file with employee data") @RequestPart("file") MultipartFile file) { 
+    public ResponseEntity<byte[]> bulk(@Parameter(description = "Excel file with employee data") @RequestParam("file") MultipartFile file) { 
         log.info("Calculation Controller: Processing bulk Excel file upload: {} ({} bytes)", 
                 file.getOriginalFilename(), file.getSize());
         
@@ -122,6 +122,15 @@ public class CalcController {
             headers.setContentType(MediaType.APPLICATION_JSON);
             return new ResponseEntity<>(errorJson.getBytes(), headers, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Operation(summary = "Upload Excel File", description = "Simple file upload endpoint for testing")
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadExcel(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("No file uploaded!");
+        }
+        return ResponseEntity.ok("File uploaded: " + file.getOriginalFilename());
     }
 
     @Operation(summary = "Download Results", description = "Download Excel file with calculation results for a batch")
