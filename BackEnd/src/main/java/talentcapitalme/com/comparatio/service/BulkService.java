@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.security.Authz;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -36,7 +38,7 @@ public class BulkService {
         String batchId = Instant.now().toString();
         List<BulkRowResult> rows = new ArrayList<>();
 
-        try (Workbook wb = new XSSFWorkbook(file.getInputStream())) {
+        try (Workbook wb = createRobustWorkbook(file)) {
             Sheet sh = wb.getSheetAt(0);
             int i = 0;
             for (Row r : sh) {
@@ -56,6 +58,9 @@ public class BulkService {
                     rows.add(BulkRowResult.builder().rowIndex(i).error(ex.getMessage()).build());
                 }
             }
+        } catch (Exception e) {
+            System.out.println("Error reading Excel file: " + e.getMessage());
+            throw new IOException("Failed to read Excel file: " + e.getMessage(), e);
         }
 
         long ok = rows.stream().filter(x -> x.getError() == null).count();
@@ -175,18 +180,36 @@ public class BulkService {
                     // Try to parse string as number
                     String stringValue = c.getStringCellValue().trim();
                     if (stringValue.isEmpty()) return 0d;
+                    // Remove any non-numeric characters except decimal point and minus
+                    stringValue = stringValue.replaceAll("[^0-9.-]", "");
+                    if (stringValue.isEmpty()) return 0d;
                     return Double.parseDouble(stringValue);
                 case FORMULA:
                     // Handle formula cells
-                    return c.getNumericCellValue();
+                    try {
+                        return c.getNumericCellValue();
+                    } catch (Exception e) {
+                        // If formula evaluation fails, try to get string value and parse
+                        String formulaResult = c.getStringCellValue();
+                        if (formulaResult != null && !formulaResult.trim().isEmpty()) {
+                            return Double.parseDouble(formulaResult.replaceAll("[^0-9.-]", ""));
+                        }
+                        return 0d;
+                    }
                 case BOOLEAN:
                     return c.getBooleanCellValue() ? 1d : 0d;
                 case BLANK:
+                    return 0d;
+                case ERROR:
+                    System.out.println("Error cell at row " + r.getRowNum() + ", col " + idx);
                     return 0d;
                 default:
                     System.out.println("Unsupported cell type: " + c.getCellType() + " at row " + r.getRowNum() + ", col " + idx);
                     return 0d;
             }
+        } catch (NumberFormatException e) {
+            System.out.println("Number format error at row " + r.getRowNum() + ", col " + idx + ": " + e.getMessage());
+            return 0d;
         } catch (Exception e) {
             System.out.println("Error reading numeric value at row " + r.getRowNum() + ", col " + idx + ": " + e.getMessage());
             return 0d;
@@ -196,6 +219,38 @@ public class BulkService {
     private static void set(Row r, int c, Object v) { 
         if (v == null) return; 
         r.createCell(c).setCellValue(String.valueOf(v)); 
+    }
+
+    /**
+     * Create workbook with comprehensive error handling and multiple fallback strategies
+     */
+    private Workbook createRobustWorkbook(MultipartFile file) throws IOException {
+        byte[] fileBytes = file.getBytes();
+        
+        // Strategy 1: Try XSSFWorkbook with byte array
+        try {
+            return new XSSFWorkbook(new ByteArrayInputStream(fileBytes));
+        } catch (Exception e) {
+            System.out.println("XSSFWorkbook failed: " + e.getMessage());
+        }
+        
+        // Strategy 2: Try WorkbookFactory with byte array
+        try {
+            return WorkbookFactory.create(new ByteArrayInputStream(fileBytes));
+        } catch (Exception e) {
+            System.out.println("WorkbookFactory failed: " + e.getMessage());
+        }
+        
+        // Strategy 3: Try with input stream reset
+        try {
+            file.getInputStream().reset();
+            return WorkbookFactory.create(file.getInputStream());
+        } catch (Exception e) {
+            System.out.println("WorkbookFactory with stream reset failed: " + e.getMessage());
+        }
+        
+        // If all strategies fail, provide helpful error message
+        throw new IOException("Unable to read Excel file. Please ensure the file is a valid .xlsx format without complex date formatting, formulas, or special characters. Try saving the file as a simple Excel format.");
     }
 
     private String label(AdjustmentMatrix c) {

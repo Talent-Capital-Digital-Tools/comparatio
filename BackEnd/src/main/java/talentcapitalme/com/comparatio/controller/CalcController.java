@@ -55,45 +55,73 @@ public class CalcController {
 
     @Operation(summary = "Bulk Calculation", description = "Process Excel file and return enhanced Excel with calculation results")
     @PostMapping(value="/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> bulk(@Parameter(description = "Excel file with employee data") @RequestPart("file") MultipartFile file) throws IOException { 
+    public ResponseEntity<byte[]> bulk(@Parameter(description = "Excel file with employee data") @RequestPart("file") MultipartFile file) { 
         log.info("Calculation Controller: Processing bulk Excel file upload: {} ({} bytes)", 
                 file.getOriginalFilename(), file.getSize());
         
-        // Process the file and get the enhanced results
-        BulkResponse response = bulkService.process(file);
-        log.info("Calculation Controller: Bulk processing completed - Total: {}, Success: {}, Errors: {}", 
-                response.getTotalRows(), response.getSuccessCount(), response.getErrorCount());
-        
-        // Get the calculation results for the batch
-        String clientId = Authz.getCurrentUserClientId();
-        var rows = resultRepo.findByBatchId(response.getBatchId()).stream()
-                .filter(r -> clientId.equals(r.getClientId()))
-                .map(r -> BulkRowResult.builder()
-                        .employeeCode(r.getEmployeeCode())
-                        .jobTitle(r.getJobTitle())
-                        .yearsExperience(r.getYearsExperience())
-                        .performanceRating5(r.getPerfBucket()==3?4: r.getPerfBucket()==2?3:1)
-                        .currentSalary(r.getCurrentSalary())
-                        .midOfScale(r.getMidOfScale())
-                        .compaRatio(r.getCompaRatio())
-                        .compaLabel(r.getCompaLabel())
-                        .increasePct(r.getIncreasePct())
-                        .newSalary(r.getNewSalary())
-                        .build()).toList();
+        try {
+            // Process the file and get the enhanced results
+            BulkResponse response = bulkService.process(file);
+            log.info("Calculation Controller: Bulk processing completed - Total: {}, Success: {}, Errors: {}", 
+                    response.getTotalRows(), response.getSuccessCount(), response.getErrorCount());
+            
+            // Get the calculation results for the batch
+            String clientId = Authz.getCurrentUserClientId();
+            var rows = resultRepo.findByBatchId(response.getBatchId()).stream()
+                    .filter(r -> clientId.equals(r.getClientId()))
+                    .map(r -> BulkRowResult.builder()
+                            .employeeCode(r.getEmployeeCode())
+                            .jobTitle(r.getJobTitle())
+                            .yearsExperience(r.getYearsExperience())
+                            .performanceRating5(r.getPerfBucket()==3?4: r.getPerfBucket()==2?3:1)
+                            .currentSalary(r.getCurrentSalary())
+                            .midOfScale(r.getMidOfScale())
+                            .compaRatio(r.getCompaRatio())
+                            .compaLabel(r.getCompaLabel())
+                            .increasePct(r.getIncreasePct())
+                            .newSalary(r.getNewSalary())
+                            .build()).toList();
 
-        log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), response.getBatchId());
-        
-        // Generate Excel file with enhanced data
-        byte[] xlsx = bulkService.exportExcel(rows);
-        
-        // Set up response headers for Excel download
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        headers.setContentDisposition(ContentDisposition.attachment()
-                .filename("bulk-calculation-results-" + response.getBatchId() + ".xlsx").build());
-        
-        log.info("Calculation Controller: Excel file generated successfully for batch: {} ({} bytes)", response.getBatchId(), xlsx.length);
-        return new ResponseEntity<>(xlsx, headers, HttpStatus.OK);
+            log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), response.getBatchId());
+            
+            // Generate Excel file with enhanced data
+            byte[] xlsx = bulkService.exportExcel(rows);
+            
+            // Set up response headers for Excel download
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            headers.setContentDisposition(ContentDisposition.attachment()
+                    .filename("bulk-calculation-results-" + response.getBatchId() + ".xlsx").build());
+            
+            log.info("Calculation Controller: Excel file generated successfully for batch: {} ({} bytes)", response.getBatchId(), xlsx.length);
+            return new ResponseEntity<>(xlsx, headers, HttpStatus.OK);
+            
+        } catch (IOException e) {
+            log.error("Calculation Controller: Error processing Excel file: {}", e.getMessage(), e);
+            
+            // Return a helpful error response
+            String errorMessage = e.getMessage();
+            if (errorMessage.contains("YearOfEra") || errorMessage.contains("date")) {
+                errorMessage = "The Excel file contains unsupported date formats. Please convert all date columns to text format before uploading.";
+            } else if (errorMessage.contains("Unsupported")) {
+                errorMessage = "The Excel file contains unsupported formatting. Please save as a simple .xlsx format with only text and numbers.";
+            }
+            
+            // Create an error response as JSON
+            String errorJson = String.format("{\"error\": \"%s\", \"suggestion\": \"Please ensure your Excel file has these columns: Employee Code, Job Title, Years of Experience, Performance Rating, Current Salary, Mid of Scale\"}", 
+                    errorMessage.replace("\"", "\\\""));
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            return new ResponseEntity<>(errorJson.getBytes(), headers, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            log.error("Calculation Controller: Unexpected error processing Excel file: {}", e.getMessage(), e);
+            
+            String errorJson = String.format("{\"error\": \"Unexpected error: %s\"}", e.getMessage().replace("\"", "\\\""));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            return new ResponseEntity<>(errorJson.getBytes(), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Operation(summary = "Download Results", description = "Download Excel file with calculation results for a batch")

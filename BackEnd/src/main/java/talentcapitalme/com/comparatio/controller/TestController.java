@@ -3,14 +3,23 @@ package talentcapitalme.com.comparatio.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import talentcapitalme.com.comparatio.entity.User;
 import talentcapitalme.com.comparatio.enumeration.UserRole;
 import talentcapitalme.com.comparatio.service.UserManagementService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Test Controller
@@ -79,5 +88,66 @@ public class TestController {
         List<User> clients = userManagementService.getAllClientAdmins();
         log.info("Test Controller: Found {} CLIENT_ADMIN users", clients.size());
         return ResponseEntity.ok(clients);
+    }
+
+    @Operation(summary = "Test Excel Upload", description = "Test Excel file upload with detailed error reporting")
+    @PostMapping(value = "/excel-test", consumes = "multipart/form-data")
+    public ResponseEntity<Map<String, Object>> testExcelUpload(@RequestPart("file") MultipartFile file) {
+        log.info("Test Controller: Testing Excel file upload: {} ({} bytes)", file.getOriginalFilename(), file.getSize());
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("filename", file.getOriginalFilename());
+        result.put("size", file.getSize());
+        result.put("contentType", file.getContentType());
+        
+        try {
+            // Test basic file reading
+            try (Workbook wb = new XSSFWorkbook(file.getInputStream())) {
+                Sheet sheet = wb.getSheetAt(0);
+                result.put("sheetName", sheet.getSheetName());
+                result.put("lastRowNum", sheet.getLastRowNum());
+                
+                // Test reading first few rows
+                List<Map<String, Object>> sampleRows = new ArrayList<>();
+                for (int i = 0; i <= Math.min(2, sheet.getLastRowNum()); i++) {
+                    Row row = sheet.getRow(i);
+                    if (row != null) {
+                        Map<String, Object> rowData = new HashMap<>();
+                        for (int j = 0; j < 6; j++) {
+                            Cell cell = row.getCell(j);
+                            if (cell != null) {
+                                try {
+                                    switch (cell.getCellType()) {
+                                        case STRING:
+                                            rowData.put("col" + j, cell.getStringCellValue());
+                                            break;
+                                        case NUMERIC:
+                                            rowData.put("col" + j, cell.getNumericCellValue());
+                                            break;
+                                        case BOOLEAN:
+                                            rowData.put("col" + j, cell.getBooleanCellValue());
+                                            break;
+                                        default:
+                                            rowData.put("col" + j, "UNSUPPORTED_TYPE_" + cell.getCellType());
+                                    }
+                                } catch (Exception e) {
+                                    rowData.put("col" + j, "ERROR: " + e.getMessage());
+                                }
+                            }
+                        }
+                        sampleRows.add(rowData);
+                    }
+                }
+                result.put("sampleRows", sampleRows);
+                result.put("status", "SUCCESS");
+            }
+        } catch (Exception e) {
+            log.error("Test Controller: Error testing Excel file", e);
+            result.put("status", "ERROR");
+            result.put("error", e.getMessage());
+            result.put("errorType", e.getClass().getSimpleName());
+        }
+        
+        return ResponseEntity.ok(result);
     }
 }

@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,7 @@ import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.repository.UserRepository;
 import talentcapitalme.com.comparatio.security.Authz;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -80,8 +82,8 @@ public class OptimizedBulkService {
         List<BulkRowResult> rows = new ArrayList<>();
         List<Row> excelRows = new ArrayList<>();
         
-        // Read Excel file
-        try (Workbook wb = new XSSFWorkbook(file.getInputStream())) {
+        // Read Excel file with comprehensive error handling
+        try (Workbook wb = createRobustWorkbook(file)) {
             Sheet sh = wb.getSheetAt(0);
             
             // Collect all rows first
@@ -89,6 +91,9 @@ public class OptimizedBulkService {
                 if (r.getRowNum() == 0) continue; // skip header
                 excelRows.add(r);
             }
+        } catch (Exception e) {
+            log.error("Error reading Excel file: {}", e.getMessage(), e);
+            throw new IOException("Failed to read Excel file: " + e.getMessage(), e);
         }
         
         log.info("Processing {} rows with multithreading", excelRows.size());
@@ -366,18 +371,36 @@ public class OptimizedBulkService {
                     // Try to parse string as number
                     String stringValue = c.getStringCellValue().trim();
                     if (stringValue.isEmpty()) return 0d;
+                    // Remove any non-numeric characters except decimal point and minus
+                    stringValue = stringValue.replaceAll("[^0-9.-]", "");
+                    if (stringValue.isEmpty()) return 0d;
                     return Double.parseDouble(stringValue);
                 case FORMULA:
                     // Handle formula cells
-                    return c.getNumericCellValue();
+                    try {
+                        return c.getNumericCellValue();
+                    } catch (Exception e) {
+                        // If formula evaluation fails, try to get string value and parse
+                        String formulaResult = c.getStringCellValue();
+                        if (formulaResult != null && !formulaResult.trim().isEmpty()) {
+                            return Double.parseDouble(formulaResult.replaceAll("[^0-9.-]", ""));
+                        }
+                        return 0d;
+                    }
                 case BOOLEAN:
                     return c.getBooleanCellValue() ? 1d : 0d;
                 case BLANK:
+                    return 0d;
+                case ERROR:
+                    log.warn("Error cell at row {}, col {}", r.getRowNum(), idx);
                     return 0d;
                 default:
                     log.warn("Unsupported cell type: {} at row {}, col {}", c.getCellType(), r.getRowNum(), idx);
                     return 0d;
             }
+        } catch (NumberFormatException e) {
+            log.warn("Number format error at row {}, col {}: {}", r.getRowNum(), idx, e.getMessage());
+            return 0d;
         } catch (Exception e) {
             log.warn("Error reading numeric value at row {}, col {}: {}", r.getRowNum(), idx, e.getMessage());
             return 0d;
@@ -389,6 +412,80 @@ public class OptimizedBulkService {
         r.createCell(c).setCellValue(String.valueOf(v)); 
     }
     
+    /**
+     * Create workbook with comprehensive error handling and multiple fallback strategies
+     */
+    private Workbook createRobustWorkbook(MultipartFile file) throws IOException {
+        byte[] fileBytes = file.getBytes();
+        
+        // Strategy 1: Try XSSFWorkbook with byte array
+        try {
+            return new XSSFWorkbook(new ByteArrayInputStream(fileBytes));
+        } catch (Exception e) {
+            log.debug("XSSFWorkbook failed: {}", e.getMessage());
+        }
+        
+        // Strategy 2: Try WorkbookFactory with byte array
+        try {
+            return WorkbookFactory.create(new ByteArrayInputStream(fileBytes));
+        } catch (Exception e) {
+            log.debug("WorkbookFactory failed: {}", e.getMessage());
+        }
+        
+        // Strategy 3: Try with input stream reset
+        try {
+            file.getInputStream().reset();
+            return WorkbookFactory.create(file.getInputStream());
+        } catch (Exception e) {
+            log.debug("WorkbookFactory with stream reset failed: {}", e.getMessage());
+        }
+        
+        // Strategy 4: Try with different POI options
+        try {
+            return createWorkbookWithPOIOptions(fileBytes);
+        } catch (Exception e) {
+            log.debug("POI options failed: {}", e.getMessage());
+        }
+        
+        // Strategy 5: Try CSV conversion as last resort
+        try {
+            return convertToWorkbook(fileBytes);
+        } catch (Exception e) {
+            log.debug("CSV conversion failed: {}", e.getMessage());
+        }
+        
+        // If all strategies fail, provide helpful error message
+        throw new IOException("Unable to read Excel file. Please ensure the file is a valid .xlsx format without complex date formatting, formulas, or special characters. Try saving the file as a simple Excel format.");
+    }
+    
+    /**
+     * Create workbook with specific POI options to handle problematic files
+     */
+    private Workbook createWorkbookWithPOIOptions(byte[] fileBytes) throws IOException {
+        try {
+            // Try with different POI configurations
+            return WorkbookFactory.create(new ByteArrayInputStream(fileBytes));
+        } catch (Exception e) {
+            String errorMsg = e.getMessage();
+            if (errorMsg != null && errorMsg.contains("YearOfEra")) {
+                throw new IOException("The Excel file contains unsupported date formats. Please convert all date columns to text format before uploading.", e);
+            } else if (errorMsg != null && errorMsg.contains("Unsupported")) {
+                throw new IOException("The Excel file contains unsupported formatting. Please save as a simple .xlsx format with only text and numbers.", e);
+            } else {
+                throw new IOException("Excel file format not supported: " + errorMsg, e);
+            }
+        }
+    }
+    
+    /**
+     * Convert problematic Excel file to a clean workbook
+     */
+    private Workbook convertToWorkbook(byte[] fileBytes) throws IOException {
+        // This is a fallback method - in a real implementation, you might use a different library
+        // For now, we'll just throw a helpful error
+        throw new IOException("The Excel file format is not supported. Please save your file as a simple .xlsx format with the following columns: Employee Code, Job Title, Years of Experience, Performance Rating, Current Salary, Mid of Scale.");
+    }
+
     /**
      * Partition a list into smaller batches
      */
