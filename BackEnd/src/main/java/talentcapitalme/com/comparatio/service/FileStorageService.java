@@ -166,7 +166,7 @@ public class FileStorageService {
      * Generate stored filename
      */
     private String generateStoredFilename(String clientId, String batchId, String fileExtension) {
-        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(Instant.now());
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(Instant.now().atZone(java.time.ZoneId.systemDefault()));
         return String.format("upload_%s_%s_%s%s", clientId, batchId, timestamp, fileExtension);
     }
 
@@ -174,7 +174,7 @@ public class FileStorageService {
      * Generate result filename
      */
     private String generateResultFilename(String clientId, String batchId, String fileExtension) {
-        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(Instant.now());
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(Instant.now().atZone(java.time.ZoneId.systemDefault()));
         return String.format("result_%s_%s_%s%s", clientId, batchId, timestamp, fileExtension);
     }
 

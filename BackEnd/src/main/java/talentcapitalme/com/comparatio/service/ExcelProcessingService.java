@@ -1,0 +1,484 @@
+package talentcapitalme.com.comparatio.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import talentcapitalme.com.comparatio.dto.BulkResponse;
+import talentcapitalme.com.comparatio.dto.BulkRowResult;
+import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
+import talentcapitalme.com.comparatio.entity.CalculationResult;
+import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
+import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
+import talentcapitalme.com.comparatio.repository.UserRepository;
+import talentcapitalme.com.comparatio.security.Authz;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Professional Excel processing service for compensation ratio calculations
+ * Uses Apache POI for robust Excel file processing
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ExcelProcessingService {
+
+    private final AdjustmentMatrixRepository matrixRepo;
+    private final CalculationResultRepository resultRepo;
+    private final UploadHistoryService uploadHistoryService;
+    private final UserRepository userRepository;
+
+    /**
+     * Process Excel file with comprehensive validation and error handling
+     */
+    public BulkResponse processExcelFile(MultipartFile file) throws IOException {
+        String clientId = Authz.getCurrentUserClientId();
+        String batchId = Instant.now().toString();
+        
+        log.info("Starting Excel processing for client: {}, batch: {}, file: {}", 
+                clientId, batchId, file.getOriginalFilename());
+        
+        long startTime = System.currentTimeMillis();
+        
+        try {
+            // Validate file
+            validateExcelFile(file);
+            
+            // Create upload history
+            createUploadHistory(clientId, file, batchId);
+            
+            // Process Excel file
+            List<BulkRowResult> results = processExcelData(file, clientId, batchId);
+            
+            // Save results to database
+            saveCalculationResults(results, clientId, batchId);
+            
+            // Generate response
+            BulkResponse response = buildBulkResponse(results, batchId);
+            
+            long processingTime = System.currentTimeMillis() - startTime;
+            log.info("Excel processing completed in {}ms - Total: {}, Success: {}, Errors: {}", 
+                    processingTime, response.getTotalRows(), response.getSuccessCount(), response.getErrorCount());
+            
+            return response;
+            
+        } catch (Exception e) {
+            log.error("Error processing Excel file: {}", e.getMessage(), e);
+            throw new IOException("Failed to process Excel file: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Generate enhanced Excel file with calculation results
+     */
+    public byte[] generateEnhancedExcel(List<BulkRowResult> results, String batchId) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Compensation Results");
+            
+            // Create header row with styling
+            createHeaderRow(workbook, sheet);
+            
+            // Add data rows
+            int rowIndex = 1;
+            for (BulkRowResult result : results) {
+                createDataRow(workbook, sheet, result, rowIndex++);
+            }
+            
+            // Auto-size columns
+            autoSizeColumns(sheet);
+            
+            // Write to byte array
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    /**
+     * Validate Excel file before processing
+     */
+    private void validateExcelFile(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Excel file is required");
+        }
+        
+        String filename = file.getOriginalFilename();
+        if (filename == null || (!filename.endsWith(".xlsx") && !filename.endsWith(".xls"))) {
+            throw new IllegalArgumentException("Only Excel files (.xlsx, .xls) are supported");
+        }
+        
+        if (file.getSize() > 50 * 1024 * 1024) { // 50MB limit
+            throw new IllegalArgumentException("File size exceeds 50MB limit");
+        }
+    }
+
+    /**
+     * Create upload history record
+     */
+    private void createUploadHistory(String clientId, MultipartFile file, String batchId) {
+        try {
+            String clientName = userRepository.findById(clientId)
+                    .map(user -> user.getName())
+                    .orElse("Unknown Client");
+            
+            String uploadedBy = Authz.getCurrentUserId();
+            String uploadedByEmail = userRepository.findById(uploadedBy)
+                    .map(user -> user.getEmail())
+                    .orElse("unknown@example.com");
+            
+            uploadHistoryService.createUploadHistory(
+                    clientId, clientName, file.getOriginalFilename(), 
+                    file.getOriginalFilename(), batchId, uploadedBy, uploadedByEmail);
+        } catch (Exception e) {
+            log.warn("Failed to create upload history: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Process Excel data using Apache POI
+     */
+    private List<BulkRowResult> processExcelData(MultipartFile file, String clientId, String batchId) throws IOException {
+        List<BulkRowResult> results = new ArrayList<>();
+        
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(inputStream)) {
+            
+            Sheet sheet = workbook.getSheetAt(0);
+            if (sheet == null) {
+                throw new IllegalArgumentException("Excel file must contain at least one sheet");
+            }
+            
+            // Validate header row
+            validateHeaderRow(sheet);
+            
+            // Process data rows
+            int rowIndex = 1; // Start from row 1 (0 is header)
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) continue; // Skip header
+                
+                try {
+                    BulkRowResult result = processRow(row, clientId, rowIndex);
+                    results.add(result);
+                } catch (Exception e) {
+                    log.warn("Error processing row {}: {}", rowIndex, e.getMessage());
+                    results.add(createErrorResult(rowIndex, e.getMessage()));
+                }
+                rowIndex++;
+            }
+        }
+        
+        return results;
+    }
+
+    /**
+     * Process a single row
+     */
+    private BulkRowResult processRow(Row row, String clientId, int rowIndex) {
+        // Extract data from row
+        String employeeCode = getCellValueAsString(row.getCell(0));
+        String jobTitle = getCellValueAsString(row.getCell(1));
+        Integer yearsExperience = getCellValueAsInteger(row.getCell(2));
+        Integer performanceRating = getCellValueAsInteger(row.getCell(3));
+        BigDecimal currentSalary = getCellValueAsBigDecimal(row.getCell(4));
+        BigDecimal midOfScale = getCellValueAsBigDecimal(row.getCell(5));
+        
+        // Validate required fields
+        validateRowData(employeeCode, jobTitle, yearsExperience, performanceRating, currentSalary, midOfScale, rowIndex);
+        
+        // Perform calculation
+        return calculateCompensation(clientId, rowIndex, employeeCode, jobTitle, 
+                yearsExperience, performanceRating, currentSalary, midOfScale);
+    }
+
+    /**
+     * Validate header row structure
+     */
+    private void validateHeaderRow(Sheet sheet) {
+        Row headerRow = sheet.getRow(0);
+        if (headerRow == null) {
+            throw new IllegalArgumentException("Excel file must have a header row");
+        }
+        
+        String[] expectedHeaders = {"Employee Code", "Job Title", "Years Experience", 
+                                  "Performance Rating", "Current Salary", "Mid of Scale"};
+        
+        for (int i = 0; i < expectedHeaders.length; i++) {
+            String cellValue = getCellValueAsString(headerRow.getCell(i));
+            if (cellValue == null || !cellValue.trim().equalsIgnoreCase(expectedHeaders[i])) {
+                throw new IllegalArgumentException(
+                    String.format("Invalid header at column %d. Expected '%s', found '%s'", 
+                                i + 1, expectedHeaders[i], cellValue));
+            }
+        }
+    }
+
+    /**
+     * Validate row data
+     */
+    private void validateRowData(String employeeCode, String jobTitle, Integer yearsExperience,
+                               Integer performanceRating, BigDecimal currentSalary, 
+                               BigDecimal midOfScale, int rowIndex) {
+        if (employeeCode == null || employeeCode.trim().isEmpty()) {
+            throw new IllegalArgumentException("Employee Code is required at row " + rowIndex);
+        }
+        if (jobTitle == null || jobTitle.trim().isEmpty()) {
+            throw new IllegalArgumentException("Job Title is required at row " + rowIndex);
+        }
+        if (yearsExperience == null || yearsExperience < 0) {
+            throw new IllegalArgumentException("Years Experience must be non-negative at row " + rowIndex);
+        }
+        if (performanceRating == null || performanceRating < 1 || performanceRating > 5) {
+            throw new IllegalArgumentException("Performance Rating must be between 1 and 5 at row " + rowIndex);
+        }
+        if (currentSalary == null || currentSalary.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Current Salary must be positive at row " + rowIndex);
+        }
+        if (midOfScale == null || midOfScale.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Mid of Scale must be positive at row " + rowIndex);
+        }
+    }
+
+    /**
+     * Calculate compensation using business logic
+     */
+    private BulkRowResult calculateCompensation(String clientId, int rowIndex, String employeeCode, 
+                                              String jobTitle, Integer yearsExperience, 
+                                              Integer performanceRating, BigDecimal currentSalary, 
+                                              BigDecimal midOfScale) {
+        
+        // Calculate compa ratio
+        BigDecimal compaRatio = currentSalary.divide(midOfScale, 6, RoundingMode.HALF_UP);
+        
+        // Determine performance bucket
+        int perfBucket = (performanceRating >= 4) ? 3 : (performanceRating >= 2) ? 2 : 1;
+        
+        // Find appropriate adjustment matrix
+        AdjustmentMatrix matrix = matrixRepo.findClientActiveCell(perfBucket, compaRatio, clientId)
+                .orElseThrow(() -> new IllegalStateException(
+                    "No adjustment matrix found for client '" + clientId + "' at row " + rowIndex));
+        
+        // Calculate percentage increase based on experience
+        BigDecimal increasePct = (yearsExperience < 5) ? matrix.getPctLt5Years() : matrix.getPctGte5Years();
+        
+        // Calculate new salary
+        BigDecimal newSalary = currentSalary.multiply(BigDecimal.ONE.add(increasePct.movePointLeft(2)))
+                .setScale(2, RoundingMode.HALF_UP);
+        
+        // Calculate increase amount
+        BigDecimal increaseAmount = newSalary.subtract(currentSalary).setScale(2, RoundingMode.HALF_UP);
+        
+        // Determine compa label
+        String compaLabel = determineCompaLabel(compaRatio);
+        
+        return BulkRowResult.builder()
+                .rowIndex(rowIndex)
+                .employeeCode(employeeCode)
+                .jobTitle(jobTitle)
+                .yearsExperience(yearsExperience)
+                .performanceRating5(performanceRating)
+                .currentSalary(currentSalary)
+                .midOfScale(midOfScale)
+                .compaRatio(compaRatio)
+                .compaLabel(compaLabel)
+                .increasePct(increasePct)
+                .newSalary(newSalary)
+                .increaseAmount(increaseAmount)
+                .build();
+    }
+
+    /**
+     * Determine compa label based on ratio
+     */
+    private String determineCompaLabel(BigDecimal compaRatio) {
+        if (compaRatio.compareTo(BigDecimal.valueOf(0.71)) < 0) {
+            return "< 71%";
+        } else if (compaRatio.compareTo(BigDecimal.valueOf(0.85)) < 0) {
+            return "71% - 85%";
+        } else if (compaRatio.compareTo(BigDecimal.valueOf(1.0)) < 0) {
+            return "85% - 100%";
+        } else if (compaRatio.compareTo(BigDecimal.valueOf(1.15)) < 0) {
+            return "100% - 115%";
+        } else {
+            return "> 115%";
+        }
+    }
+
+    /**
+     * Create error result for failed rows
+     */
+    private BulkRowResult createErrorResult(int rowIndex, String errorMessage) {
+        return BulkRowResult.builder()
+                .rowIndex(rowIndex)
+                .error(errorMessage)
+                .build();
+    }
+
+    /**
+     * Save calculation results to database
+     */
+    private void saveCalculationResults(List<BulkRowResult> results, String clientId, String batchId) {
+        List<CalculationResult> calculationResults = results.stream()
+                .filter(result -> result.getError() == null)
+                .map(result -> CalculationResult.builder()
+                        .clientId(clientId)
+                        .batchId(batchId)
+                        .employeeCode(result.getEmployeeCode())
+                        .jobTitle(result.getJobTitle())
+                        .yearsExperience(result.getYearsExperience())
+                        .perfBucket((result.getPerformanceRating5() >= 4) ? 3 : 
+                                   (result.getPerformanceRating5() >= 2) ? 2 : 1)
+                        .currentSalary(result.getCurrentSalary())
+                        .midOfScale(result.getMidOfScale())
+                        .compaRatio(result.getCompaRatio())
+                        .compaLabel(result.getCompaLabel())
+                        .increasePct(result.getIncreasePct())
+                        .newSalary(result.getNewSalary())
+                        .build())
+                .collect(Collectors.toList());
+        
+        if (!calculationResults.isEmpty()) {
+            resultRepo.saveAll(calculationResults);
+            log.info("Saved {} calculation results to database", calculationResults.size());
+        }
+    }
+
+    /**
+     * Build bulk response
+     */
+    private BulkResponse buildBulkResponse(List<BulkRowResult> results, String batchId) {
+        int successCount = (int) results.stream().filter(r -> r.getError() == null).count();
+        int errorCount = (int) results.stream().filter(r -> r.getError() != null).count();
+        
+        return new BulkResponse(batchId, results.size(), successCount, errorCount, results);
+    }
+
+    /**
+     * Create header row with styling
+     */
+    private void createHeaderRow(Workbook workbook, Sheet sheet) {
+        Row headerRow = sheet.createRow(0);
+        
+        // Create header style
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setFontHeightInPoints((short) 12);
+        headerStyle.setFont(headerFont);
+        
+        // Set header values
+        String[] headers = {"Employee Code", "Job Title", "Years Experience", "Performance Rating",
+                           "Current Salary", "Mid of Scale", "Compa Ratio", "Compa Label",
+                           "Increase %", "New Salary", "Increase Amount", "Status"};
+        
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+    }
+
+    /**
+     * Create data row
+     */
+    private void createDataRow(Workbook workbook, Sheet sheet, BulkRowResult result, int rowIndex) {
+        Row row = sheet.createRow(rowIndex);
+        
+        // Create data style
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setWrapText(true);
+        
+        // Set cell values
+        int colIndex = 0;
+        row.createCell(colIndex++).setCellValue(result.getEmployeeCode() != null ? result.getEmployeeCode() : "");
+        row.createCell(colIndex++).setCellValue(result.getJobTitle() != null ? result.getJobTitle() : "");
+        row.createCell(colIndex++).setCellValue(result.getYearsExperience() != null ? result.getYearsExperience() : 0);
+        row.createCell(colIndex++).setCellValue(result.getPerformanceRating5() != null ? result.getPerformanceRating5() : 0);
+        row.createCell(colIndex++).setCellValue(result.getCurrentSalary() != null ? result.getCurrentSalary().doubleValue() : 0.0);
+        row.createCell(colIndex++).setCellValue(result.getMidOfScale() != null ? result.getMidOfScale().doubleValue() : 0.0);
+        row.createCell(colIndex++).setCellValue(result.getCompaRatio() != null ? result.getCompaRatio().doubleValue() : 0.0);
+        row.createCell(colIndex++).setCellValue(result.getCompaLabel() != null ? result.getCompaLabel() : "");
+        row.createCell(colIndex++).setCellValue(result.getIncreasePct() != null ? result.getIncreasePct().doubleValue() : 0.0);
+        row.createCell(colIndex++).setCellValue(result.getNewSalary() != null ? result.getNewSalary().doubleValue() : 0.0);
+        row.createCell(colIndex++).setCellValue(result.getIncreaseAmount() != null ? result.getIncreaseAmount().doubleValue() : 0.0);
+        row.createCell(colIndex++).setCellValue(result.getError() != null ? "ERROR: " + result.getError() : "SUCCESS");
+        
+        // Apply styling to all cells
+        for (int i = 0; i < colIndex; i++) {
+            row.getCell(i).setCellStyle(dataStyle);
+        }
+    }
+
+    /**
+     * Auto-size columns
+     */
+    private void autoSizeColumns(Sheet sheet) {
+        Row headerRow = sheet.getRow(0);
+        if (headerRow != null) {
+            for (int i = 0; i < headerRow.getLastCellNum(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+        }
+    }
+
+    // Helper methods for cell value extraction
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) return null;
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((long) cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return null;
+        }
+    }
+
+    private Integer getCellValueAsInteger(Cell cell) {
+        if (cell == null) return null;
+        switch (cell.getCellType()) {
+            case NUMERIC:
+                return (int) cell.getNumericCellValue();
+            case STRING:
+                try {
+                    return Integer.parseInt(cell.getStringCellValue().trim());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            default:
+                return null;
+        }
+    }
+
+    private BigDecimal getCellValueAsBigDecimal(Cell cell) {
+        if (cell == null) return null;
+        switch (cell.getCellType()) {
+            case NUMERIC:
+                return BigDecimal.valueOf(cell.getNumericCellValue());
+            case STRING:
+                try {
+                    return new BigDecimal(cell.getStringCellValue().trim());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            default:
+                return null;
+        }
+    }
+}

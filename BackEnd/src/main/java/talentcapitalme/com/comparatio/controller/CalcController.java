@@ -19,7 +19,7 @@ import talentcapitalme.com.comparatio.dto.CalcRequest;
 import talentcapitalme.com.comparatio.dto.CalcResponse;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.security.Authz;
-import talentcapitalme.com.comparatio.service.OptimizedBulkService;
+import talentcapitalme.com.comparatio.service.ExcelProcessingService;
 import talentcapitalme.com.comparatio.service.CompensationService;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ import java.io.IOException;
 @Tag(name = "Calculations", description = "Individual and bulk compensation calculations")
 public class CalcController {
     private final CompensationService service;
-    private final OptimizedBulkService bulkService;
+    private final ExcelProcessingService excelProcessingService;
     private final CalculationResultRepository resultRepo;
 
     @Operation(summary = "Individual Calculation", description = "Calculate compensation for a single employee")
@@ -60,34 +60,13 @@ public class CalcController {
                 file.getOriginalFilename(), file.getSize());
         
         try {
-            // Process the file and get the enhanced results
-            BulkResponse response = bulkService.process(file);
+            // Process the file using the new Excel processing service
+            BulkResponse response = excelProcessingService.processExcelFile(file);
             log.info("Calculation Controller: Bulk processing completed - Total: {}, Success: {}, Errors: {}", 
                     response.getTotalRows(), response.getSuccessCount(), response.getErrorCount());
             
-            // Get the calculation results for the batch
-            String clientId = Authz.getCurrentUserClientId();
-            var rows = resultRepo.findByBatchId(response.getBatchId()).stream()
-                    .filter(r -> clientId.equals(r.getClientId()))
-                    .map(r -> BulkRowResult.builder()
-                            .employeeCode(r.getEmployeeCode())
-                            .employeeName("N/A") // Employee name not stored in CalculationResult
-                            .jobTitle(r.getJobTitle())
-                            .yearsExperience(r.getYearsExperience())
-                            .performanceRating5(r.getPerfBucket()==3?4: r.getPerfBucket()==2?3:1)
-                            .currentSalary(r.getCurrentSalary())
-                            .midOfScale(r.getMidOfScale())
-                            .compaRatio(r.getCompaRatio())
-                            .compaLabel(r.getCompaLabel())
-                            .increasePct(r.getIncreasePct())
-                            .newSalary(r.getNewSalary())
-                            .increaseAmount(r.getNewSalary().subtract(r.getCurrentSalary()))
-                            .build()).toList();
-
-            log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), response.getBatchId());
-            
-            // Generate Excel file with enhanced data
-            byte[] xlsx = bulkService.exportExcel(rows);
+            // Generate enhanced Excel file with results
+            byte[] xlsx = excelProcessingService.generateEnhancedExcel(response.getRows(), response.getBatchId());
             
             // Set up response headers for Excel download
             HttpHeaders headers = new HttpHeaders();
@@ -158,7 +137,7 @@ public class CalcController {
                         .build()).toList();
 
         log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), batchId);
-        byte[] xlsx = bulkService.exportExcel(rows);
+        byte[] xlsx = excelProcessingService.generateEnhancedExcel(rows, batchId);
         HttpHeaders h = new HttpHeaders();
         h.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         h.setContentDisposition(ContentDisposition.attachment().filename("bulk-results-"+batchId+".xlsx").build());
