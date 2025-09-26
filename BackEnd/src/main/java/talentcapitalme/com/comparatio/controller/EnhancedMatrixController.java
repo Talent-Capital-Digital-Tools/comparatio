@@ -187,8 +187,7 @@ public class EnhancedMatrixController {
                         .compaTo(req.getCompaTo())
                         .pctLt5Years(req.getPctLt5Years())
                         .pctGte5Years(req.getPctGte5Years())
-                        .effectiveFrom(req.getEffectiveFrom())
-                        .effectiveTo(req.getEffectiveTo())
+                       
                         .active(req.getActive())
                         .build())
                 .collect(Collectors.toList());
@@ -293,8 +292,6 @@ public class EnhancedMatrixController {
                         .compaTo(req.getCompaTo())
                         .pctLt5Years(req.getPctLt5Years())
                         .pctGte5Years(req.getPctGte5Years())
-                        .effectiveFrom(req.getEffectiveFrom())
-                        .effectiveTo(req.getEffectiveTo())
                         .active(req.getActive())
                         .build())
                 .collect(Collectors.toList());
