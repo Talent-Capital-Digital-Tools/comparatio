@@ -136,9 +136,67 @@ public class BulkService {
                 .build();
     }
 
-    private static String getString(Row r, int idx) { Cell c = r.getCell(idx); return c == null ? null : c.getStringCellValue(); }
-    private static double getNumeric(Row r, int idx) { Cell c = r.getCell(idx); return c == null ? 0d : c.getNumericCellValue(); }
-    private static void set(Row r, int c, Object v) { if (v == null) return; r.createCell(c).setCellValue(String.valueOf(v)); }
+    private static String getString(Row r, int idx) { 
+        Cell c = r.getCell(idx); 
+        if (c == null) return null;
+        
+        try {
+            switch (c.getCellType()) {
+                case STRING:
+                    return c.getStringCellValue();
+                case NUMERIC:
+                    // Convert numeric to string
+                    return String.valueOf(c.getNumericCellValue());
+                case FORMULA:
+                    return c.getStringCellValue();
+                case BOOLEAN:
+                    return String.valueOf(c.getBooleanCellValue());
+                case BLANK:
+                    return null;
+                default:
+                    System.out.println("Unsupported cell type for string: " + c.getCellType() + " at row " + r.getRowNum() + ", col " + idx);
+                    return null;
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading string value at row " + r.getRowNum() + ", col " + idx + ": " + e.getMessage());
+            return null;
+        }
+    }
+    
+    private static double getNumeric(Row r, int idx) { 
+        Cell c = r.getCell(idx); 
+        if (c == null) return 0d;
+        
+        try {
+            switch (c.getCellType()) {
+                case NUMERIC:
+                    return c.getNumericCellValue();
+                case STRING:
+                    // Try to parse string as number
+                    String stringValue = c.getStringCellValue().trim();
+                    if (stringValue.isEmpty()) return 0d;
+                    return Double.parseDouble(stringValue);
+                case FORMULA:
+                    // Handle formula cells
+                    return c.getNumericCellValue();
+                case BOOLEAN:
+                    return c.getBooleanCellValue() ? 1d : 0d;
+                case BLANK:
+                    return 0d;
+                default:
+                    System.out.println("Unsupported cell type: " + c.getCellType() + " at row " + r.getRowNum() + ", col " + idx);
+                    return 0d;
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading numeric value at row " + r.getRowNum() + ", col " + idx + ": " + e.getMessage());
+            return 0d;
+        }
+    }
+    
+    private static void set(Row r, int c, Object v) { 
+        if (v == null) return; 
+        r.createCell(c).setCellValue(String.valueOf(v)); 
+    }
 
     private String label(AdjustmentMatrix c) {
         BigDecimal from = c.getCompaFrom().multiply(BigDecimal.valueOf(100));
