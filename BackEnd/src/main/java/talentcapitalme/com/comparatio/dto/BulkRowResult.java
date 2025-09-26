@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 public class BulkRowResult {
     private int rowIndex;
     private String employeeCode;
+    private String employeeName;
     private String jobTitle;
     private Integer yearsExperience;
     private Integer performanceRating5;
@@ -23,5 +24,6 @@ public class BulkRowResult {
     private String compaLabel;
     private BigDecimal increasePct;
     private BigDecimal newSalary;
+    private BigDecimal increaseAmount; // New salary - Current salary
     private String error; // null if ok
 }

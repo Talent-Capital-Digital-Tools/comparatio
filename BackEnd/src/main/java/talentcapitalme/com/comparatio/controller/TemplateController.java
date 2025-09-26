@@ -1,15 +1,18 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import talentcapitalme.com.comparatio.service.TemplateService;
+
+import java.io.IOException;
 
 /**
  * Template Controller
@@ -24,17 +27,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/template")
 @RequiredArgsConstructor
+@Tag(name = "Template Management", description = "Excel template download for bulk operations")
 public class TemplateController {
-    @Value("${app.template.path}")
-    private Resource template;
+    
+    private final TemplateService templateService;
 
-    @GetMapping
-    public ResponseEntity<Resource> download() {
-        log.info("Template Controller: Processing template download request");
-        log.info("Template Controller: Serving template file: compa_template.csv");
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=compa_template.csv")
-                .body(template);
+    @Operation(summary = "Download Bulk Upload Template", 
+               description = "Download Excel template with pre-set columns for bulk compensation calculation upload")
+    @GetMapping("/bulk-upload")
+    public ResponseEntity<byte[]> downloadBulkUploadTemplate() {
+        log.info("Template Controller: Processing bulk upload template download request");
+        
+        try {
+            byte[] templateData = templateService.generateBulkUploadTemplate();
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            headers.setContentDispositionFormData("attachment", "compensation_upload_template.xlsx");
+            
+            log.info("Template Controller: Template generated successfully ({} bytes)", templateData.length);
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(templateData);
+                    
+        } catch (IOException e) {
+            log.error("Template Controller: Error generating template: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

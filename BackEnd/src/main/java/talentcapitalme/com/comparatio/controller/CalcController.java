@@ -71,6 +71,7 @@ public class CalcController {
                     .filter(r -> clientId.equals(r.getClientId()))
                     .map(r -> BulkRowResult.builder()
                             .employeeCode(r.getEmployeeCode())
+                            .employeeName("N/A") // Employee name not stored in CalculationResult
                             .jobTitle(r.getJobTitle())
                             .yearsExperience(r.getYearsExperience())
                             .performanceRating5(r.getPerfBucket()==3?4: r.getPerfBucket()==2?3:1)
@@ -80,6 +81,7 @@ public class CalcController {
                             .compaLabel(r.getCompaLabel())
                             .increasePct(r.getIncreasePct())
                             .newSalary(r.getNewSalary())
+                            .increaseAmount(r.getNewSalary().subtract(r.getCurrentSalary()))
                             .build()).toList();
 
             log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), response.getBatchId());
@@ -142,6 +144,7 @@ public class CalcController {
                 .filter(r -> clientId.equals(r.getClientId()))
                 .map(r -> BulkRowResult.builder()
                         .employeeCode(r.getEmployeeCode())
+                        .employeeName("N/A") // Employee name not stored in CalculationResult
                         .jobTitle(r.getJobTitle())
                         .yearsExperience(r.getYearsExperience())
                         .performanceRating5(r.getPerfBucket()==3?4: r.getPerfBucket()==2?3:1)
@@ -151,6 +154,7 @@ public class CalcController {
                         .compaLabel(r.getCompaLabel())
                         .increasePct(r.getIncreasePct())
                         .newSalary(r.getNewSalary())
+                        .increaseAmount(r.getNewSalary().subtract(r.getCurrentSalary()))
                         .build()).toList();
 
         log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), batchId);

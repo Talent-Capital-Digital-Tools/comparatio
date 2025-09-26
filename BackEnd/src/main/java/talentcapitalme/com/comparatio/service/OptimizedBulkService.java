@@ -179,13 +179,14 @@ public class OptimizedBulkService {
      */
     private BulkRowResult processRow(String clientId, Row row) {
         String code = getString(row, 0);
-        String jobTitle = getString(row, 1);
-        Integer years = (int) getNumeric(row, 2);
-        Integer perf5 = (int) getNumeric(row, 3);
-        BigDecimal current = BigDecimal.valueOf(getNumeric(row, 4));
-        BigDecimal mid = BigDecimal.valueOf(getNumeric(row, 5));
+        String employeeName = getString(row, 1);
+        String jobTitle = getString(row, 2);
+        Integer years = (int) getNumeric(row, 3);
+        Integer perf5 = (int) getNumeric(row, 4);
+        BigDecimal current = BigDecimal.valueOf(getNumeric(row, 5));
+        BigDecimal mid = BigDecimal.valueOf(getNumeric(row, 6));
 
-        return computeRow(clientId, row.getRowNum(), code, jobTitle, years, perf5, current, mid);
+        return computeRow(clientId, row.getRowNum(), code, employeeName, jobTitle, years, perf5, current, mid);
     }
 
     /**
@@ -233,9 +234,9 @@ public class OptimizedBulkService {
             // Create header
             Row headerRow = sh.createRow(0);
             String[] headers = {
-                "EmployeeCode", "JobTitle", "YearsExperience", "PerfRating5", 
-                "CurrentSalary", "MidOfScale", "CompaRatio", "Band", 
-                "Increase%", "NewSalary", "Error"
+                "Employee Code", "Employee Name", "Job Title", "Years of Experience", "Performance Rating", 
+                "Current Salary", "Mid of Scale", "Compa Ratio %", "Band", 
+                "Increase %", "New Salary", "Increase Amount", "Error"
             };
             
             for (int c = 0; c < headers.length; c++) {
@@ -248,16 +249,18 @@ public class OptimizedBulkService {
                 Row row = sh.createRow(r + 1);
                 
                 setCellValue(row, 0, br.getEmployeeCode());
-                setCellValue(row, 1, br.getJobTitle());
-                setCellValue(row, 2, br.getYearsExperience());
-                setCellValue(row, 3, br.getPerformanceRating5());
-                setCellValue(row, 4, br.getCurrentSalary());
-                setCellValue(row, 5, br.getMidOfScale());
-                setCellValue(row, 6, br.getCompaRatio());
-                setCellValue(row, 7, br.getCompaLabel());
-                setCellValue(row, 8, br.getIncreasePct());
-                setCellValue(row, 9, br.getNewSalary());
-                setCellValue(row, 10, br.getError());
+                setCellValue(row, 1, br.getEmployeeName());
+                setCellValue(row, 2, br.getJobTitle());
+                setCellValue(row, 3, br.getYearsExperience());
+                setCellValue(row, 4, br.getPerformanceRating5());
+                setCellValue(row, 5, br.getCurrentSalary());
+                setCellValue(row, 6, br.getMidOfScale());
+                setCellValue(row, 7, br.getCompaRatio());
+                setCellValue(row, 8, br.getCompaLabel());
+                setCellValue(row, 9, br.getIncreasePct());
+                setCellValue(row, 10, br.getNewSalary());
+                setCellValue(row, 11, br.getIncreaseAmount());
+                setCellValue(row, 12, br.getError());
             }
             
             // Auto-size columns
@@ -274,7 +277,7 @@ public class OptimizedBulkService {
     /**
      * Compute calculation for a single row
      */
-    private BulkRowResult computeRow(String clientId, int rowIndex, String code, String jobTitle, 
+    private BulkRowResult computeRow(String clientId, int rowIndex, String code, String employeeName, String jobTitle, 
                                    Integer years, Integer perf5, BigDecimal current, BigDecimal mid) {
         // Validation
         if (mid == null || mid.compareTo(BigDecimal.ZERO) <= 0) {
@@ -301,10 +304,12 @@ public class OptimizedBulkService {
         BigDecimal pct = (years < 5) ? cell.getPctLt5Years() : cell.getPctGte5Years();
         BigDecimal newSalary = current.multiply(BigDecimal.ONE.add(pct.movePointLeft(2)))
                 .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal increaseAmount = newSalary.subtract(current).setScale(2, RoundingMode.HALF_UP);
 
         return BulkRowResult.builder()
                 .rowIndex(rowIndex)
                 .employeeCode(code)
+                .employeeName(employeeName)
                 .jobTitle(jobTitle)
                 .yearsExperience(years)
                 .performanceRating5(perf5)
@@ -314,6 +319,7 @@ public class OptimizedBulkService {
                 .compaLabel(createCompaLabel(cell))
                 .increasePct(pct)
                 .newSalary(newSalary)
+                .increaseAmount(increaseAmount)
                 .build();
     }
 
@@ -503,9 +509,9 @@ public class OptimizedBulkService {
             // Create header row
             Row headerRow = sheet.createRow(0);
             String[] headers = {
-                "Row Index", "Employee Code", "Job Title", "Years Experience", 
+                "Row Index", "Employee Code", "Employee Name", "Job Title", "Years Experience", 
                 "Performance Rating", "Current Salary", "Mid of Scale", 
-                "Compa Ratio", "Compa Label", "Increase %", "New Salary", "Error"
+                "Compa Ratio", "Compa Label", "Increase %", "New Salary", "Increase Amount", "Error"
             };
             
             for (int i = 0; i < headers.length; i++) {
@@ -520,16 +526,18 @@ public class OptimizedBulkService {
                 
                 row.createCell(0).setCellValue(result.getRowIndex());
                 row.createCell(1).setCellValue(result.getEmployeeCode());
-                row.createCell(2).setCellValue(result.getJobTitle());
-                row.createCell(3).setCellValue(result.getYearsExperience());
-                row.createCell(4).setCellValue(result.getPerformanceRating5());
-                row.createCell(5).setCellValue(result.getCurrentSalary().doubleValue());
-                row.createCell(6).setCellValue(result.getMidOfScale().doubleValue());
-                row.createCell(7).setCellValue(result.getCompaRatio().doubleValue());
-                row.createCell(8).setCellValue(result.getCompaLabel());
-                row.createCell(9).setCellValue(result.getIncreasePct().doubleValue());
-                row.createCell(10).setCellValue(result.getNewSalary().doubleValue());
-                row.createCell(11).setCellValue(result.getError() != null ? result.getError() : "");
+                row.createCell(2).setCellValue(result.getEmployeeName());
+                row.createCell(3).setCellValue(result.getJobTitle());
+                row.createCell(4).setCellValue(result.getYearsExperience());
+                row.createCell(5).setCellValue(result.getPerformanceRating5());
+                row.createCell(6).setCellValue(result.getCurrentSalary().doubleValue());
+                row.createCell(7).setCellValue(result.getMidOfScale().doubleValue());
+                row.createCell(8).setCellValue(result.getCompaRatio().doubleValue());
+                row.createCell(9).setCellValue(result.getCompaLabel());
+                row.createCell(10).setCellValue(result.getIncreasePct().doubleValue());
+                row.createCell(11).setCellValue(result.getNewSalary().doubleValue());
+                row.createCell(12).setCellValue(result.getIncreaseAmount().doubleValue());
+                row.createCell(13).setCellValue(result.getError() != null ? result.getError() : "");
             }
             
             // Auto-size columns
