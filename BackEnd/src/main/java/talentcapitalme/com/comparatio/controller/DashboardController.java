@@ -1,4 +1,7 @@
 package talentcapitalme.com.comparatio.controller;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,21 +26,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/dashboard")
 @RequiredArgsConstructor
+@Tag(name = "Dashboard", description = "Analytics and dashboard data (Super Admin only)")
 public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    /**
-     * Get dashboard data with pagination
-     * GET /api/admin/dashboard?page=0&size=10&sortBy=companyName&sortDir=asc
-     */
+    @Operation(summary = "Get Dashboard Data", description = "Get paginated dashboard data with sorting")
     @GetMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<DashboardResponse> getDashboard(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "companyName") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort field") @RequestParam(defaultValue = "companyName") String sortBy,
+            @Parameter(description = "Sort direction (asc/desc)") @RequestParam(defaultValue = "asc") String sortDir) {
         
         log.info("Dashboard request - page: {}, size: {}, sortBy: {}, sortDir: {}", 
                 page, size, sortBy, sortDir);
@@ -51,10 +52,7 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Get all client accounts without pagination
-     * GET /api/admin/dashboard/clients
-     */
+    @Operation(summary = "Get All Client Accounts", description = "Get all client accounts without pagination")
     @GetMapping("/clients")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<ClientAccountSummary>> getAllClientAccounts() {

@@ -1,5 +1,8 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +37,13 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/calc")
 @RequiredArgsConstructor
+@Tag(name = "Calculations", description = "Individual and bulk compensation calculations")
 public class CalcController {
     private final CompensationService service;
     private final OptimizedBulkService bulkService;
     private final CalculationResultRepository resultRepo;
 
+    @Operation(summary = "Individual Calculation", description = "Calculate compensation for a single employee")
     @PostMapping("/individual")
     public CalcResponse calc(@Valid @RequestBody CalcRequest req) { 
         log.info("Calculation Controller: Processing individual calculation for employee: {}", req.getEmployeeCode());
@@ -48,8 +53,9 @@ public class CalcController {
         return response; 
     }
 
+    @Operation(summary = "Bulk Calculation", description = "Process Excel file with multiple employee calculations")
     @PostMapping(value="/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BulkResponse bulk(@RequestPart("file") MultipartFile file) throws IOException { 
+    public BulkResponse bulk(@Parameter(description = "Excel file with employee data") @RequestPart("file") MultipartFile file) throws IOException { 
         log.info("Calculation Controller: Processing bulk Excel file upload: {} ({} bytes)", 
                 file.getOriginalFilename(), file.getSize());
         BulkResponse response = bulkService.process(file);
@@ -58,8 +64,9 @@ public class CalcController {
         return response; 
     }
 
+    @Operation(summary = "Download Results", description = "Download Excel file with calculation results for a batch")
     @GetMapping("/bulk/{batchId}")
-    public ResponseEntity<byte[]> download(@PathVariable String batchId) throws IOException {
+    public ResponseEntity<byte[]> download(@Parameter(description = "Batch ID from bulk calculation") @PathVariable String batchId) throws IOException {
         log.info("Calculation Controller: Processing download request for batch: {}", batchId);
         String clientId = Authz.getCurrentUserClientId();
         var rows = resultRepo.findByBatchId(batchId).stream()

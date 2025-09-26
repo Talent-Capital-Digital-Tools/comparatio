@@ -1,9 +1,11 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import talentcapitalme.com.comparatio.dto.ChangePasswordRequest;
@@ -25,10 +27,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Tag(name = "User Management", description = "User profile and account management")
 public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "Get All Users", description = "Retrieve all users (admin only)")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         log.info("User Management Controller: Retrieving all users");
@@ -39,8 +43,9 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @Operation(summary = "Get User by ID", description = "Retrieve a specific user by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
+    public ResponseEntity<User> getUserById(@Parameter(description = "User ID") @PathVariable String id) {
         log.info("User Management Controller: Retrieving user by ID: {}", id);
         User user = userService.getUserById(id);
         // Remove password hash from response
@@ -49,8 +54,9 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @Operation(summary = "Update User", description = "Update user information")
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User userUpdate) {
+    public ResponseEntity<User> updateUser(@Parameter(description = "User ID") @PathVariable String id, @RequestBody User userUpdate) {
         log.info("User Management Controller: Updating user with ID: {}", id);
         User updatedUser = userService.updateUser(id, userUpdate);
         // Remove password hash from response
@@ -59,16 +65,18 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @Operation(summary = "Delete User", description = "Delete a user account")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+    public ResponseEntity<Void> deleteUser(@Parameter(description = "User ID") @PathVariable String id) {
         log.info("User Management Controller: Deleting user with ID: {}", id);
         userService.deleteUser(id);
         log.info("User Management Controller: User deleted successfully for ID: {}", id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Change Password", description = "Change user password")
     @PostMapping("/{id}/change-password")
-    public ResponseEntity<Void> changePassword(@PathVariable String id, 
+    public ResponseEntity<Void> changePassword(@Parameter(description = "User ID") @PathVariable String id, 
                                              @Valid @RequestBody ChangePasswordRequest request) {
         log.info("User Management Controller: Changing password for user ID: {}", id);
         userService.changePassword(id, request.getNewPassword());

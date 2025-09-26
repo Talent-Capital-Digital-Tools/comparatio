@@ -1,5 +1,8 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,13 +30,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/matrix")
 @RequiredArgsConstructor
+@Tag(name = "Matrix Management", description = "Compensation matrix configuration and management")
 public class MatrixController {
     private final AdjustmentMatrixRepository repo;
     private final MatrixSeederService seeder;
 
+    @Operation(summary = "Get Matrices by Client", description = "Get all matrices for a specific client (Super Admin only)")
     @GetMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public List<AdjustmentMatrix> list(@RequestParam(required = true) String clientId) {
+    public List<AdjustmentMatrix> list(@Parameter(description = "Client ID") @RequestParam(required = true) String clientId) {
         log.info("Matrix Management Controller: Retrieving matrices for client: {}", clientId);
         // SUPER_ADMIN can view matrices for any client - clientId is required
         if (clientId == null || clientId.trim().isEmpty()) {

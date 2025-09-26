@@ -5,8 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/MatrixSeederService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/MatrixSeederService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/SeedService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/SeedService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/CalcController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/CalcController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/DashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/MatrixController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/MatrixController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/TestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/TestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/CalcRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/CalcRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/LoginRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/LoginRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/RegisterRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/dto/RegisterRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/Audit.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/Audit.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/Employee.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/Employee.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/JobGrade.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/entity/JobGrade.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/AuthService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,6 +154,8 @@
       <workItem from="1758810389926" duration="1554000" />
       <workItem from="1758815364856" duration="10097000" />
       <workItem from="1758831772971" duration="600000" />
+      <workItem from="1758878387621" duration="2905000" />
+      <workItem from="1758888094688" duration="970000" />
     </task>
     <servers />
   </component>

@@ -1,5 +1,7 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +24,13 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/test")
+@Tag(name = "Testing", description = "System health and testing endpoints")
 public class TestController {
 
     @Autowired
     private UserManagementService userManagementService;
 
-    /**
-     * Test endpoint to create sample CLIENT_ADMIN users and verify separation
-     */
+    @Operation(summary = "Setup Test Clients", description = "Create sample CLIENT_ADMIN users for testing (Development only)")
     @PostMapping("/setup-clients")
     public ResponseEntity<String> setupTestClients() {
         log.info("Test Controller: Setting up test CLIENT_ADMIN users for development testing");
@@ -71,9 +72,7 @@ public class TestController {
         }
     }
     
-    /**
-     * List all CLIENT_ADMIN users for testing
-     */
+    @Operation(summary = "List Test Clients", description = "List all CLIENT_ADMIN users for testing")
     @GetMapping("/clients")
     public ResponseEntity<List<User>> listClients() {
         log.info("Test Controller: Listing all CLIENT_ADMIN users for testing purposes");

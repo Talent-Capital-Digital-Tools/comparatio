@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
     
     // Methods for CLIENT_ADMIN users (replacing Client functionality)
     Optional<User> findByName(String name);

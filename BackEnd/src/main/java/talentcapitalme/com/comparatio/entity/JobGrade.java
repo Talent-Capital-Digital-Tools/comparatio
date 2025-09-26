@@ -1,5 +1,7 @@
 package talentcapitalme.com.comparatio.entity;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,7 +12,8 @@ import java.math.BigDecimal;
  * Each job grade has a unique identifier, title, and midpoint of scale.
  */
 
-
+@Data
+@EqualsAndHashCode(callSuper = false)
 @Document("job_grades")
 public class JobGrade extends Audit {
     @Id

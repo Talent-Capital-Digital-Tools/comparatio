@@ -1,5 +1,7 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +30,12 @@ import talentcapitalme.com.comparatio.service.AuthService;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "User authentication and registration")
 public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(summary = "User Login", description = "Authenticate user and get JWT token")
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("Authentication Controller: Processing user login request for email: {}", request.getEmail());
@@ -40,6 +44,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "User Registration", description = "Register a new user (requires admin privileges)")
     @PostMapping("/register")
     public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) {
         log.info("Authentication Controller: Processing user registration request for email: {} with role: {}", 
@@ -52,6 +57,25 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
+    @Operation(summary = "Register Initial Admin", description = "Register the first super admin user")
+    @PostMapping("/register-initial-admin")
+    public ResponseEntity<User> registerInitialAdmin(@Valid @RequestBody RegisterRequest request) {
+        log.info("Authentication Controller: Processing initial admin registration request for email: {}", request.getEmail());
+        
+        // Only allow SUPER_ADMIN role for initial registration
+        if (request.getRole() != talentcapitalme.com.comparatio.enumeration.UserRole.SUPER_ADMIN) {
+            throw new talentcapitalme.com.comparatio.exception.BadRequestException("Initial registration only allows SUPER_ADMIN role");
+        }
+        
+        User user = authService.registerInitialAdmin(request);
+        // Remove password hash from response
+        user.setPasswordHash(null);
+        log.info("Authentication Controller: Initial admin registration successful for email: {} with ID: {}", 
+                request.getEmail(), user.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    }
+
+    @Operation(summary = "User Logout", description = "Logout user (client should discard JWT token)")
     @PostMapping("/logout")
     public ResponseEntity<java.util.Map<String, String>> logout() {
         log.info("Authentication Controller: Processing user logout request");

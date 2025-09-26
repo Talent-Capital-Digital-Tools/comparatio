@@ -56,9 +56,14 @@ public class AuthService {
         // Check if current user has admin permissions
         Authz.requireUserManagementPermission();
 
-        // Check if user already exists
+        // Check if user already exists by email
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new UserAreadyExit("User with email " + request.getEmail() + " already exists");
+        }
+        
+        // Check if username already exists
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new UserAreadyExit("User with username " + request.getUsername() + " already exists");
         }
 
         // Create new user
@@ -69,12 +74,11 @@ public class AuthService {
         newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         newUser.setRole(request.getRole());
         newUser.setIndustry(request.getIndustry());
+        newUser.setAvatarUrl(request.getAvatarUrl());
         
-        // Set client fields for CLIENT_ADMIN users
-        if (request.getRole() == UserRole.CLIENT_ADMIN) {
-            newUser.setName(request.getName()); // Company name
-            newUser.setActive(true); // New client admins are active by default
-        }
+        // Set all fields from request
+        newUser.setName(request.getName());
+        newUser.setActive(request.getActive() != null ? request.getActive() : true);
 
         // Validate role assignment based on current user's permissions
         validateRoleAssignment(request.getRole(), request.getName());
@@ -94,6 +98,44 @@ public class AuthService {
     }
 
     /**
+     * Register initial admin user - no authentication required
+     * This is used for the first SUPER_ADMIN user creation
+     */
+    public User registerInitialAdmin(RegisterRequest request) {
+        // Check if any admin users already exist
+        if (userRepository.findByRole(talentcapitalme.com.comparatio.enumeration.UserRole.SUPER_ADMIN).size() > 0) {
+            throw new talentcapitalme.com.comparatio.exception.BadRequestException("Initial admin already exists. Use regular registration endpoint.");
+        }
+
+        // Check if user already exists by email
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new UserAreadyExit("User with email " + request.getEmail() + " already exists");
+        }
+        
+        // Check if username already exists
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new UserAreadyExit("User with username " + request.getUsername() + " already exists");
+        }
+
+        // Create new user
+        User newUser = new User();
+        newUser.setEmail(request.getEmail());
+        newUser.setUsername(request.getUsername());
+        newUser.setFullName(request.getFullName());
+        newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        newUser.setRole(request.getRole());
+        newUser.setIndustry(request.getIndustry());
+        newUser.setAvatarUrl(request.getAvatarUrl());
+        
+        // Set all fields from request
+        newUser.setName(request.getName());
+        newUser.setActive(request.getActive() != null ? request.getActive() : true);
+
+        User saved = userRepository.save(newUser);
+        return saved;
+    }
+
+    /**
      * Validate if current user can assign the requested role
      */
     private void validateRoleAssignment(UserRole requestedRole, String name) {
@@ -101,14 +143,14 @@ public class AuthService {
 
         switch (currentUserRole) {
             case SUPER_ADMIN:
-                // Super admin can assign any of the two roles
+                // Super admin can assign any role
                 break;
             case CLIENT_ADMIN:
                 // Client admins cannot create SUPER_ADMIN users
                 if (requestedRole == UserRole.SUPER_ADMIN) {
                     throw new UnauthorizedException("You cannot create users with SUPER_ADMIN role");
                 }
-                // Must specify company name for client admin users
+                // For CLIENT_ADMIN users, name (company name) is required
                 if (requestedRole == UserRole.CLIENT_ADMIN && (name == null || name.trim().isEmpty())) {
                     throw new UnauthorizedException("Company name is required for CLIENT_ADMIN users");
                 }

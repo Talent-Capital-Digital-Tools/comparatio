@@ -11,8 +11,8 @@ import java.math.BigDecimal;
     An employee record (for storing in DB instead of Excel).
  **/
 
-
-
+@Data
+@EqualsAndHashCode(callSuper = false)
 @Document("employees")
 public class Employee extends Audit {
     @Id

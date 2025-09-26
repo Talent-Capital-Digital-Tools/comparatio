@@ -9,6 +9,7 @@ import talentcapitalme.com.comparatio.enumeration.UserRole;
 @Data
 public class RegisterRequest {
 
+
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
@@ -25,7 +26,13 @@ public class RegisterRequest {
     @NotNull(message = "Role is required")
     private UserRole role;
 
-    private String name; // Company name - Required for CLIENT_ADMIN
+    private String name; 
 
     private String industry;
+    
+    private Boolean active; 
+    
+    private String avatarUrl; 
+
+
 }
