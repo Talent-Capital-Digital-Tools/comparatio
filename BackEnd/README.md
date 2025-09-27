@@ -40,8 +40,7 @@ SUPER_ADMIN    -> Manages all clients, matrices, and users
 
 ### Authentication
 - **POST** `/api/auth/login` - User login
-- **POST** `/api/auth/register` - User registration
-- **POST** `/api/auth/register-admin` - Admin registration
+- **POST** `/api/auth/register` - User registration (handles both initial admin and regular users)
 
 ### Profile Management
 - **GET** `/api/profile` - Get current user profile

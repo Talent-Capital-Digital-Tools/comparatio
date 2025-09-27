@@ -16,12 +16,7 @@ public interface IAuthService {
     TokenResponse login(LoginRequest request);
     
     /**
-     * Register user (general method)
+     * Register user (handles both initial admin and regular user registration)
      */
     User registerUser(RegisterRequest request);
-    
-    /**
-     * Register initial admin
-     */
-    User registerInitialAdmin(RegisterRequest request);
 }

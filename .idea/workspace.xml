@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/config/AdminUserConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/config/AdminUserConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/controller/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/DashboardService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/DashboardService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/ExcelProcessingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BackEnd/src/main/java/talentcapitalme/com/comparatio/service/ExcelProcessingService.java" afterDir="false" />
-    </list>
+    <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -150,7 +144,7 @@
       <workItem from="1758931884321" duration="18000" />
       <workItem from="1758957702790" duration="6170000" />
       <workItem from="1758965396651" duration="11000" />
-      <workItem from="1758977415463" duration="1946000" />
+      <workItem from="1758977415463" duration="6954000" />
     </task>
     <servers />
   </component>

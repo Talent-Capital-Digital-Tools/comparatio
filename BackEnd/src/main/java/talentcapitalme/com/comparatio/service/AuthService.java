@@ -50,11 +50,21 @@ public class AuthService implements IAuthService {
     }
 
     /**
-     * Register a new user - only admins can create users
+     * Register a new user - handles both initial admin and regular user registration
      */
     public User registerUser(RegisterRequest request) {
-        // Check if current user has admin permissions
-        Authz.requireUserManagementPermission();
+        // Check if this is the first user (no SUPER_ADMIN exists yet)
+        boolean isFirstUser = userRepository.findByRole(talentcapitalme.com.comparatio.enumeration.UserRole.SUPER_ADMIN).isEmpty();
+        
+        if (isFirstUser) {
+            // First user must be SUPER_ADMIN
+            if (request.getRole() != talentcapitalme.com.comparatio.enumeration.UserRole.SUPER_ADMIN) {
+                throw new talentcapitalme.com.comparatio.exception.BadRequestException("First user must be SUPER_ADMIN");
+            }
+        } else {
+            // For subsequent users, check if current user has admin permissions
+            Authz.requireUserManagementPermission();
+        }
 
         // Check if user already exists by email
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -97,43 +107,6 @@ public class AuthService implements IAuthService {
         return saved;
     }
 
-    /**
-     * Register initial admin user - no authentication required
-     * This is used for the first SUPER_ADMIN user creation
-     */
-    public User registerInitialAdmin(RegisterRequest request) {
-        // Check if any admin users already exist
-        if (userRepository.findByRole(talentcapitalme.com.comparatio.enumeration.UserRole.SUPER_ADMIN).size() > 0) {
-            throw new talentcapitalme.com.comparatio.exception.BadRequestException("Initial admin already exists. Use regular registration endpoint.");
-        }
-
-        // Check if user already exists by email
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new UserAreadyExit("User with email " + request.getEmail() + " already exists");
-        }
-        
-        // Check if username already exists
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new UserAreadyExit("User with username " + request.getUsername() + " already exists");
-        }
-
-        // Create new user
-        User newUser = new User();
-        newUser.setEmail(request.getEmail());
-        newUser.setUsername(request.getUsername());
-        newUser.setFullName(request.getFullName());
-        newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        newUser.setRole(request.getRole());
-        newUser.setIndustry(request.getIndustry());
-        newUser.setAvatarUrl(request.getAvatarUrl());
-        
-        // Set all fields from request
-        newUser.setName(request.getName());
-        newUser.setActive(request.getActive() != null ? request.getActive() : true);
-
-        User saved = userRepository.save(newUser);
-        return saved;
-    }
 
     /**
      * Validate if current user can assign the requested role
