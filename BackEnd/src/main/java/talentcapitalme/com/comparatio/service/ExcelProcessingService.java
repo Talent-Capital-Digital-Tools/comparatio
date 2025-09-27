@@ -186,17 +186,18 @@ public class ExcelProcessingService {
     private BulkRowResult processRow(Row row, String clientId, int rowIndex) {
         // Extract data from row
         String employeeCode = getCellValueAsString(row.getCell(0));
-        String jobTitle = getCellValueAsString(row.getCell(1));
-        Integer yearsExperience = getCellValueAsInteger(row.getCell(2));
-        Integer performanceRating = getCellValueAsInteger(row.getCell(3));
-        BigDecimal currentSalary = getCellValueAsBigDecimal(row.getCell(4));
-        BigDecimal midOfScale = getCellValueAsBigDecimal(row.getCell(5));
+        String employeeName = getCellValueAsString(row.getCell(1));
+        String jobTitle = getCellValueAsString(row.getCell(2));
+        Integer yearsExperience = getCellValueAsInteger(row.getCell(3));
+        Integer performanceRating = getCellValueAsInteger(row.getCell(4));
+        BigDecimal currentSalary = getCellValueAsBigDecimal(row.getCell(5));
+        BigDecimal midOfScale = getCellValueAsBigDecimal(row.getCell(6));
         
         // Validate required fields
-        validateRowData(employeeCode, jobTitle, yearsExperience, performanceRating, currentSalary, midOfScale, rowIndex);
+        validateRowData(employeeCode, employeeName, jobTitle, yearsExperience, performanceRating, currentSalary, midOfScale, rowIndex);
         
         // Perform calculation
-        return calculateCompensation(clientId, rowIndex, employeeCode, jobTitle, 
+        return calculateCompensation(clientId, rowIndex, employeeCode, employeeName, jobTitle, 
                 yearsExperience, performanceRating, currentSalary, midOfScale);
     }
 
@@ -209,7 +210,7 @@ public class ExcelProcessingService {
             throw new IllegalArgumentException("Excel file must have a header row");
         }
         
-        String[] expectedHeaders = {"Employee Code", "Job Title", "Years Experience", 
+        String[] expectedHeaders = {"Employee Code", "Employee Name", "Job Title", "Years Experience", 
                                   "Performance Rating", "Current Salary", "Mid of Scale"};
         
         for (int i = 0; i < expectedHeaders.length; i++) {
@@ -225,11 +226,14 @@ public class ExcelProcessingService {
     /**
      * Validate row data
      */
-    private void validateRowData(String employeeCode, String jobTitle, Integer yearsExperience,
+    private void validateRowData(String employeeCode, String employeeName, String jobTitle, Integer yearsExperience,
                                Integer performanceRating, BigDecimal currentSalary, 
                                BigDecimal midOfScale, int rowIndex) {
         if (employeeCode == null || employeeCode.trim().isEmpty()) {
             throw new IllegalArgumentException("Employee Code is required at row " + rowIndex);
+        }
+        if (employeeName == null || employeeName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Employee Name is required at row " + rowIndex);
         }
         if (jobTitle == null || jobTitle.trim().isEmpty()) {
             throw new IllegalArgumentException("Job Title is required at row " + rowIndex);
@@ -252,7 +256,7 @@ public class ExcelProcessingService {
      * Calculate compensation using business logic
      */
     private BulkRowResult calculateCompensation(String clientId, int rowIndex, String employeeCode, 
-                                              String jobTitle, Integer yearsExperience, 
+                                              String employeeName, String jobTitle, Integer yearsExperience, 
                                               Integer performanceRating, BigDecimal currentSalary, 
                                               BigDecimal midOfScale) {
         
@@ -283,6 +287,7 @@ public class ExcelProcessingService {
         return BulkRowResult.builder()
                 .rowIndex(rowIndex)
                 .employeeCode(employeeCode)
+                .employeeName(employeeName)
                 .jobTitle(jobTitle)
                 .yearsExperience(yearsExperience)
                 .performanceRating5(performanceRating)
@@ -379,7 +384,7 @@ public class ExcelProcessingService {
         headerStyle.setFont(headerFont);
         
         // Set header values
-        String[] headers = {"Employee Code", "Job Title", "Years Experience", "Performance Rating",
+        String[] headers = {"Employee Code", "Employee Name", "Job Title", "Years Experience", "Performance Rating",
                            "Current Salary", "Mid of Scale", "Compa Ratio", "Compa Label",
                            "Increase %", "New Salary", "Increase Amount", "Status"};
         
@@ -403,6 +408,7 @@ public class ExcelProcessingService {
         // Set cell values
         int colIndex = 0;
         row.createCell(colIndex++).setCellValue(result.getEmployeeCode() != null ? result.getEmployeeCode() : "");
+        row.createCell(colIndex++).setCellValue(result.getEmployeeName() != null ? result.getEmployeeName() : "");
         row.createCell(colIndex++).setCellValue(result.getJobTitle() != null ? result.getJobTitle() : "");
         row.createCell(colIndex++).setCellValue(result.getYearsExperience() != null ? result.getYearsExperience() : 0);
         row.createCell(colIndex++).setCellValue(result.getPerformanceRating5() != null ? result.getPerformanceRating5() : 0);

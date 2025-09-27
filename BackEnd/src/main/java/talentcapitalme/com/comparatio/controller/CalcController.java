@@ -89,7 +89,7 @@ public class CalcController {
             }
             
             // Create an error response as JSON
-            String errorJson = String.format("{\"error\": \"%s\", \"suggestion\": \"Please ensure your Excel file has these columns: Employee Code, Job Title, Years of Experience, Performance Rating, Current Salary, Mid of Scale\"}", 
+            String errorJson = String.format("{\"error\": \"%s\", \"suggestion\": \"Please ensure your Excel file has these columns: Employee Code, Employee Name, Job Title, Years of Experience, Performance Rating, Current Salary, Mid of Scale\"}", 
                     errorMessage.replace("\"", "\\\""));
             
             HttpHeaders headers = new HttpHeaders();
