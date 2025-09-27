@@ -18,6 +18,7 @@ public class AdminUserConfig {
                 .orElseGet(() -> {
                     User admin = new User();
                     admin.setId("admin-001");
+                    
                     admin.setEmail("admin@gmail.com");
                     admin.setUsername("admin");
                     admin.setFullName("System Administrator");

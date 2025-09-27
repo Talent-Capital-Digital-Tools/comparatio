@@ -185,7 +185,7 @@ public class ExcelProcessingService {
                     processedRows++;
                 } catch (Exception e) {
                     log.warn("Error processing Excel row {}: {}", i, e.getMessage());
-                    results.add(createErrorResult(i, e.getMessage()));
+                    results.add(createErrorResultWithOriginalData(row, i, e.getMessage()));
                     errorRows++;
                 }
             }
@@ -433,11 +433,30 @@ public class ExcelProcessingService {
     }
 
     /**
-     * Create error result for failed rows
+     * Create error result with original data preserved
      */
-    private BulkRowResult createErrorResult(int rowIndex, String errorMessage) {
+    private BulkRowResult createErrorResultWithOriginalData(Row row, int rowIndex, String errorMessage) {
+        // Extract original data even if calculation failed
+        String employeeCode = getCellValueAsString(row.getCell(0));
+        String employeeName = getCellValueAsString(row.getCell(1));
+        String jobTitle = getCellValueAsString(row.getCell(2));
+        Integer yearsExperience = getCellValueAsInteger(row.getCell(3));
+        Integer performanceRating = getCellValueAsInteger(row.getCell(4));
+        BigDecimal currentSalary = getCellValueAsBigDecimal(row.getCell(5));
+        BigDecimal midOfScale = getCellValueAsBigDecimal(row.getCell(6));
+        
+        log.info("Preserving original data for failed row {}: EmployeeCode={}, EmployeeName={}, JobTitle={}, YearsExp={}, PerfRating={}, CurrentSalary={}, MidOfScale={}", 
+                rowIndex, employeeCode, employeeName, jobTitle, yearsExperience, performanceRating, currentSalary, midOfScale);
+        
         return BulkRowResult.builder()
                 .rowIndex(rowIndex)
+                .employeeCode(employeeCode)
+                .employeeName(employeeName)
+                .jobTitle(jobTitle)
+                .yearsExperience(yearsExperience)
+                .performanceRating5(performanceRating)
+                .currentSalary(currentSalary)
+                .midOfScale(midOfScale)
                 .error(errorMessage)
                 .build();
     }
@@ -528,10 +547,19 @@ public class ExcelProcessingService {
         row.createCell(colIndex++).setCellValue(result.getPerformanceRating5() != null ? result.getPerformanceRating5() : 0);
         row.createCell(colIndex++).setCellValue(result.getCurrentSalary() != null ? result.getCurrentSalary().doubleValue() : 0.0);
         row.createCell(colIndex++).setCellValue(result.getMidOfScale() != null ? result.getMidOfScale().doubleValue() : 0.0);
-        row.createCell(colIndex++).setCellValue(result.getCompaRatio() != null ? result.getCompaRatio().doubleValue() : 0.0);
-        row.createCell(colIndex++).setCellValue(result.getIncreasePct() != null ? result.getIncreasePct().doubleValue() : 0.0);
-        row.createCell(colIndex++).setCellValue(result.getNewSalary() != null ? result.getNewSalary().doubleValue() : 0.0);
-        row.createCell(colIndex++).setCellValue(result.getIncreaseAmount() != null ? result.getIncreaseAmount().doubleValue() : 0.0);
+        
+        // For error rows, show "ERROR" in calculation columns, otherwise show calculated values
+        if (result.getError() != null) {
+            row.createCell(colIndex++).setCellValue("ERROR");
+            row.createCell(colIndex++).setCellValue("ERROR");
+            row.createCell(colIndex++).setCellValue("ERROR");
+            row.createCell(colIndex++).setCellValue("ERROR");
+        } else {
+            row.createCell(colIndex++).setCellValue(result.getCompaRatio() != null ? result.getCompaRatio().doubleValue() : 0.0);
+            row.createCell(colIndex++).setCellValue(result.getIncreasePct() != null ? result.getIncreasePct().doubleValue() : 0.0);
+            row.createCell(colIndex++).setCellValue(result.getNewSalary() != null ? result.getNewSalary().doubleValue() : 0.0);
+            row.createCell(colIndex++).setCellValue(result.getIncreaseAmount() != null ? result.getIncreaseAmount().doubleValue() : 0.0);
+        }
         
         // Apply styling to all cells
         for (int i = 0; i < colIndex; i++) {
