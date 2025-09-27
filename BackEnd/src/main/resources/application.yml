@@ -1,0 +1,25 @@
+server:
+  port: ${APP_PORT:8080}
+
+jwt:
+  secret: "fda10b388526a9b0ebda6d8a7f2d2345a1af5"
+
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017}
+      database: ${MONGO_DB:compa_demo}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  template:
+    path: ${TEMPLATE_PATH:classpath:templates/compa_template.csv}
+  file-storage:
+    base-path: ${FILE_STORAGE_PATH:./uploads}
+    retention-days: ${FILE_RETENTION_DAYS:90}
