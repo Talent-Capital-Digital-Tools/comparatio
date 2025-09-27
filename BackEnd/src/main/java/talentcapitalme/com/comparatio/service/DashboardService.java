@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DashboardService {
+public class DashboardService implements IDashboardService {
 
     private final UserRepository userRepository;
     private final EmployeeRepository employeeRepository;

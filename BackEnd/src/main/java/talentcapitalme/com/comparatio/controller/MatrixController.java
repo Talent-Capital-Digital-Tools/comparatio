@@ -13,7 +13,7 @@ import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
 import talentcapitalme.com.comparatio.exception.NotFoundException;
 import talentcapitalme.com.comparatio.exception.ValidationException;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
-import talentcapitalme.com.comparatio.service.MatrixSeederService;
+import talentcapitalme.com.comparatio.service.IMatrixSeederService;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ import java.util.List;
 @Tag(name = "Matrix Management", description = "Compensation matrix configuration and management")
 public class MatrixController {
     private final AdjustmentMatrixRepository repo;
-    private final MatrixSeederService seeder;
+    private final IMatrixSeederService seeder;
 
     @Operation(summary = "Get Matrices by Client", description = "Get all matrices for a specific client (Super Admin only)")
     @GetMapping

@@ -21,7 +21,7 @@ import talentcapitalme.com.comparatio.security.Authz;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService implements IAuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

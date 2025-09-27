@@ -18,7 +18,7 @@ import java.time.Instant;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CompensationService {
+public class CompensationService implements ICompensationService {
 
     private final AdjustmentMatrixRepository matrixRepo;
     private final CalculationResultRepository resultRepo;

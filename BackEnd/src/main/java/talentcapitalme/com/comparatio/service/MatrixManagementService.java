@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MatrixManagementService {
+public class MatrixManagementService implements IMatrixManagementService {
 
     private final AdjustmentMatrixRepository matrixRepo;
     private final UserRepository userRepo;

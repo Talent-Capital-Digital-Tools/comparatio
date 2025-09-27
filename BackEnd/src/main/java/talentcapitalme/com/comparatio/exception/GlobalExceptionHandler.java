@@ -6,12 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import talentcapitalme.com.comparatio.exception.BadRequestException;
-import talentcapitalme.com.comparatio.exception.MatrixNotFoundException;
-import talentcapitalme.com.comparatio.exception.NotFoundException;
-import talentcapitalme.com.comparatio.exception.UnauthorizedException;
-import talentcapitalme.com.comparatio.exception.UserAreadyExit;
-import talentcapitalme.com.comparatio.exception.ValidationException;
+// Exception classes are in the same package, no import needed
 
 import java.util.HashMap;
 import java.util.Map;

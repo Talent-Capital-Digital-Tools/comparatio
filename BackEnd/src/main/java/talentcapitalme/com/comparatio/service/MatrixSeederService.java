@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
-public class MatrixSeederService {
+public class MatrixSeederService implements IMatrixSeederService {
 
     private final AdjustmentMatrixRepository repo;
 

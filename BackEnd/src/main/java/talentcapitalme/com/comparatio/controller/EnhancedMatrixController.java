@@ -13,8 +13,8 @@ import talentcapitalme.com.comparatio.dto.MatrixValidationResult;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
 import talentcapitalme.com.comparatio.entity.User;
 import talentcapitalme.com.comparatio.repository.UserRepository;
-import talentcapitalme.com.comparatio.service.MatrixManagementService;
-import talentcapitalme.com.comparatio.service.MatrixValidationService;
+import talentcapitalme.com.comparatio.service.IMatrixManagementService;
+import talentcapitalme.com.comparatio.service.IMatrixValidationService;
 
 import java.util.List;
 import java.util.Map;
@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EnhancedMatrixController {
 
-    private final MatrixManagementService matrixService;
+    private final IMatrixManagementService matrixService;
     private final UserRepository userRepository;
-    private final MatrixValidationService validationService;
+    private final IMatrixValidationService validationService;
 
     /**
      * Get all matrices for a specific client with detailed information

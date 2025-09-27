@@ -20,7 +20,7 @@ import java.io.IOException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TemplateService {
+public class TemplateService implements ITemplateService {
 
     /**
      * Generate Excel template for bulk compensation calculation upload

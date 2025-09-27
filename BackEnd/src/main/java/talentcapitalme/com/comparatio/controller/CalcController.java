@@ -19,8 +19,8 @@ import talentcapitalme.com.comparatio.dto.CalcRequest;
 import talentcapitalme.com.comparatio.dto.CalcResponse;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.security.Authz;
-import talentcapitalme.com.comparatio.service.ExcelProcessingService;
-import talentcapitalme.com.comparatio.service.CompensationService;
+import talentcapitalme.com.comparatio.service.IExcelProcessingService;
+import talentcapitalme.com.comparatio.service.ICompensationService;
 
 import java.io.IOException;
 
@@ -39,8 +39,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Tag(name = "Calculations", description = "Individual and bulk compensation calculations")
 public class CalcController {
-    private final CompensationService service;
-    private final ExcelProcessingService excelProcessingService;
+    private final ICompensationService service;
+    private final IExcelProcessingService excelProcessingService;
     private final CalculationResultRepository resultRepo;
 
     @Operation(summary = "Individual Calculation", description = "Calculate compensation for a single employee")

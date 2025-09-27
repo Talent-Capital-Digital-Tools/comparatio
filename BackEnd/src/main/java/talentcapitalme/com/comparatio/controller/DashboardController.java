@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import talentcapitalme.com.comparatio.dto.ClientAccountSummary;
 import talentcapitalme.com.comparatio.dto.ClientAccountsResponse;
 import talentcapitalme.com.comparatio.dto.DashboardResponse;
-import talentcapitalme.com.comparatio.service.DashboardService;
-import java.util.List;
+import talentcapitalme.com.comparatio.service.IDashboardService;
 
 /**
  * Super Admin Dashboard Controller
@@ -30,7 +29,7 @@ import java.util.List;
 @Tag(name = "Dashboard", description = "Analytics and dashboard data (Super Admin only)")
 public class DashboardController {
 
-    private final DashboardService dashboardService;
+    private final IDashboardService dashboardService;
 
     @Operation(summary = "Get Dashboard Data", description = "Get paginated dashboard data with sorting")
     @GetMapping

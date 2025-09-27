@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ExcelProcessingService {
+public class ExcelProcessingService implements IExcelProcessingService {
 
     private final AdjustmentMatrixRepository matrixRepo;
     private final CalculationResultRepository resultRepo;

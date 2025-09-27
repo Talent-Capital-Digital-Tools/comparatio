@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import talentcapitalme.com.comparatio.entity.User;
-import talentcapitalme.com.comparatio.service.UserManagementService;
+import talentcapitalme.com.comparatio.service.IUserManagementService;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClientController {
 
-    private final UserManagementService userManagementService;
+    private final IUserManagementService userManagementService;
 
     @GetMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")

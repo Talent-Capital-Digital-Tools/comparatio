@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import talentcapitalme.com.comparatio.service.TemplateService;
+import talentcapitalme.com.comparatio.service.ITemplateService;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ import java.io.IOException;
 @Tag(name = "Template Management", description = "Excel template download for bulk operations")
 public class TemplateController {
     
-    private final TemplateService templateService;
+    private final ITemplateService templateService;
 
     @Operation(summary = "Download Bulk Upload Template", 
                description = "Download Excel template with pre-set columns for bulk compensation calculation upload")

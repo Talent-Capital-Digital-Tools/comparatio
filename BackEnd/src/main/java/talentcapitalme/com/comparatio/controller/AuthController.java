@@ -15,7 +15,7 @@ import talentcapitalme.com.comparatio.dto.LoginRequest;
 import talentcapitalme.com.comparatio.dto.RegisterRequest;
 import talentcapitalme.com.comparatio.dto.TokenResponse;
 import talentcapitalme.com.comparatio.entity.User;
-import talentcapitalme.com.comparatio.service.AuthService;
+import talentcapitalme.com.comparatio.service.IAuthService;
 
 /**
  * Authentication Controller
@@ -33,7 +33,7 @@ import talentcapitalme.com.comparatio.service.AuthService;
 @Tag(name = "Authentication", description = "User authentication and registration")
 public class AuthController {
 
-    private final AuthService authService;
+    private final IAuthService authService;
 
     @Operation(summary = "User Login", description = "Authenticate user and get JWT token")
     @PostMapping("/login")

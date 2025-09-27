@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserManagementService {
+public class UserManagementService implements IUserManagementService {
 
     private final UserRepository userRepository;
     private final AdjustmentMatrixRepository matrixRepository;
