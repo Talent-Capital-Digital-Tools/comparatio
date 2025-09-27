@@ -1,4 +1,5 @@
 # Comparatio - Compensation Ratio Calculation System
+## By Talent Capital
 
 ## Overview
 
@@ -144,6 +145,17 @@ The application uses `application.yml` for configuration. Key settings:
 - JWT secret
 - File upload settings
 - CORS configuration
+
+### Default Admin User
+
+The application automatically creates a default admin user on startup:
+- **Email:** admin@talentcapital.com
+- **Username:** admin
+- **Password:** admin
+- **Company:** Talent Capital
+- **Role:** SUPER_ADMIN
+
+**Important:** Change the default password in production!
 
 ## API Documentation
 

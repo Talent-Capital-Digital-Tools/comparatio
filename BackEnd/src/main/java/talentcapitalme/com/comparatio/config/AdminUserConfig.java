@@ -14,17 +14,19 @@ public class AdminUserConfig {
 
     @Bean
     public User adminUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        return userRepository.findByEmail("admin@gmail.com")
+        return userRepository.findByEmail("admin@talentcapital.com")
                 .orElseGet(() -> {
                     User admin = new User();
                     admin.setId("admin-001");
-
-                    admin.setEmail("admin@gmail.com");
+                    admin.setEmail("admin@talentcapital.com");
                     admin.setUsername("admin");
-                    admin.setFullName("System Administrator");
+                    admin.setFullName("Talent Capital Administrator");
                     admin.setPasswordHash(passwordEncoder.encode("admin"));
                     admin.setRole(UserRole.SUPER_ADMIN);
-                    // Super admin has no client restriction (no name/active fields needed)
+                    admin.setName("Talent Capital");
+                    admin.setIndustry("Technology");
+                    admin.setActive(true);
+                    // Super admin with Talent Capital company details
                     return userRepository.save(admin);
                 });
     }
