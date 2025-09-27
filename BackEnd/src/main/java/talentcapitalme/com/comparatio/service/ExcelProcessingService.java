@@ -440,8 +440,8 @@ public class ExcelProcessingService {
         
         // Set header values
         String[] headers = {"Employee Code", "Employee Name", "Job Title", "Years of Experience", "Performance Rating",
-                           "Current Salary", "Mid of Scale", "Compa Ratio", "Compa Label",
-                           "Increase %", "New Salary", "Increase Amount", "Status"};
+                           "Current Salary", "Mid of Scale", "Compa Ratio",
+                           "Increase %", "New Salary", "Increase Amount"};
         
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
@@ -470,11 +470,9 @@ public class ExcelProcessingService {
         row.createCell(colIndex++).setCellValue(result.getCurrentSalary() != null ? result.getCurrentSalary().doubleValue() : 0.0);
         row.createCell(colIndex++).setCellValue(result.getMidOfScale() != null ? result.getMidOfScale().doubleValue() : 0.0);
         row.createCell(colIndex++).setCellValue(result.getCompaRatio() != null ? result.getCompaRatio().doubleValue() : 0.0);
-        row.createCell(colIndex++).setCellValue(result.getCompaLabel() != null ? result.getCompaLabel() : "");
         row.createCell(colIndex++).setCellValue(result.getIncreasePct() != null ? result.getIncreasePct().doubleValue() : 0.0);
         row.createCell(colIndex++).setCellValue(result.getNewSalary() != null ? result.getNewSalary().doubleValue() : 0.0);
         row.createCell(colIndex++).setCellValue(result.getIncreaseAmount() != null ? result.getIncreaseAmount().doubleValue() : 0.0);
-        row.createCell(colIndex++).setCellValue(result.getError() != null ? "ERROR: " + result.getError() : "SUCCESS");
         
         // Apply styling to all cells
         for (int i = 0; i < colIndex; i++) {
