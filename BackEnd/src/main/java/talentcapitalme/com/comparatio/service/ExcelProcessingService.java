@@ -373,17 +373,40 @@ public class ExcelProcessingService {
                                               Integer performanceRating, BigDecimal currentSalary, 
                                               BigDecimal midOfScale) {
         
-        // Calculate compa ratio
-        BigDecimal compaRatio = currentSalary.divide(midOfScale, 6, RoundingMode.HALF_UP);
+        // Calculate compa ratio as percentage (integer)
+        BigDecimal compaRatioDecimal = currentSalary.divide(midOfScale, 4, RoundingMode.HALF_UP);
+        BigDecimal compaRatio = compaRatioDecimal.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_UP);
         
         // Determine performance bucket
         int perfBucket = (performanceRating >= 4) ? 3 : (performanceRating >= 2) ? 2 : 1;
         
-        // Find appropriate adjustment matrix
-        AdjustmentMatrix matrix = matrixRepo.findClientActiveCell(perfBucket, compaRatio, clientId)
-                .orElseThrow(() -> new IllegalStateException(
-                    "No adjustment matrix found for client '" + clientId + "' with performance bucket " + perfBucket + 
-                    " and compa ratio " + compaRatio + " at row " + rowIndex + ". Please ensure adjustment matrices are properly configured."));
+        // Find appropriate adjustment matrix (convert percentage back to decimal for lookup)
+        BigDecimal compaRatioForLookup = compaRatio.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+        Optional<AdjustmentMatrix> matrixOpt = matrixRepo.findClientActiveCell(perfBucket, compaRatioForLookup, clientId);
+        
+        if (matrixOpt.isEmpty()) {
+            // No matrix found - use default calculation or zero increase
+            log.warn("No adjustment matrix found for client '{}' with performance bucket {} and compa ratio {} at row {}. Using zero increase.", 
+                    clientId, perfBucket, compaRatio, rowIndex);
+            
+            return BulkRowResult.builder()
+                    .rowIndex(rowIndex)
+                    .employeeCode(employeeCode)
+                    .employeeName(employeeName)
+                    .jobTitle(jobTitle)
+                    .yearsExperience(yearsExperience)
+                    .performanceRating5(performanceRating)
+                    .currentSalary(currentSalary)
+                    .midOfScale(midOfScale)
+                    .compaRatio(compaRatio)
+                    .compaLabel(determineCompaLabel(compaRatio))
+                    .increasePct(BigDecimal.ZERO)
+                    .newSalary(currentSalary)
+                    .increaseAmount(BigDecimal.ZERO)
+                    .build();
+        }
+        
+        AdjustmentMatrix matrix = matrixOpt.get();
         
         // Calculate percentage increase based on experience
         BigDecimal increasePct = (yearsExperience < 5) ? matrix.getPctLt5Years() : matrix.getPctGte5Years();

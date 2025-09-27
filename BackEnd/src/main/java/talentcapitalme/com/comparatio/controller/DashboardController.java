@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import talentcapitalme.com.comparatio.dto.ClientAccountSummary;
+import talentcapitalme.com.comparatio.dto.ClientAccountsResponse;
 import talentcapitalme.com.comparatio.dto.DashboardResponse;
 import talentcapitalme.com.comparatio.service.DashboardService;
 import java.util.List;
@@ -52,17 +53,23 @@ public class DashboardController {
         }
     }
 
-    @Operation(summary = "Get All Client Accounts", description = "Get all client accounts without pagination")
+    @Operation(summary = "Get Client Accounts", description = "Get client accounts with pagination and sorting")
     @GetMapping("/clients")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<List<ClientAccountSummary>> getAllClientAccounts() {
-        log.info("Fetching all client accounts");
+    public ResponseEntity<ClientAccountsResponse> getClientAccounts(
+            @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort field") @RequestParam(defaultValue = "name") String sortBy,
+            @Parameter(description = "Sort direction (asc/desc)") @RequestParam(defaultValue = "asc") String sortDir) {
+        
+        log.info("Client accounts request - page: {}, size: {}, sortBy: {}, sortDir: {}", 
+                page, size, sortBy, sortDir);
         
         try {
-            List<ClientAccountSummary> clients = dashboardService.getAllClientAccounts();
-            return ResponseEntity.ok(clients);
+            ClientAccountsResponse response = dashboardService.getClientAccountsPaginated(page, size, sortBy, sortDir);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error fetching all client accounts", e);
+            log.error("Error fetching client accounts", e);
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import talentcapitalme.com.comparatio.dto.ClientAccountSummary;
+import talentcapitalme.com.comparatio.dto.ClientAccountsResponse;
 import talentcapitalme.com.comparatio.dto.DashboardResponse;
 import talentcapitalme.com.comparatio.dto.DashboardStats;
 import talentcapitalme.com.comparatio.entity.User;
@@ -79,6 +80,37 @@ public class DashboardService {
         return clientUsers.stream()
                 .map(this::enrichClientAccount)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Get client accounts with pagination
+     */
+    public ClientAccountsResponse getClientAccountsPaginated(int page, int size, String sortBy, String sortDir) {
+        log.info("Fetching client accounts with pagination - page: {}, size: {}, sortBy: {}, sortDir: {}", 
+                page, size, sortBy, sortDir);
+        
+        // Create pageable object
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? 
+            Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        // Get client admin users with pagination
+        Page<User> clientUsers = userRepository.findByRole(UserRole.CLIENT_ADMIN, pageable);
+        
+        // Convert to ClientAccountSummary
+        List<ClientAccountSummary> clientAccounts = clientUsers.getContent().stream()
+                .map(this::enrichClientAccount)
+                .collect(Collectors.toList());
+        
+        // Build response
+        return ClientAccountsResponse.builder()
+                .clientAccounts(clientAccounts)
+                .currentPage(clientUsers.getNumber())
+                .totalPages(clientUsers.getTotalPages())
+                .totalElements(clientUsers.getTotalElements())
+                .hasNext(clientUsers.hasNext())
+                .hasPrevious(clientUsers.hasPrevious())
+                .build();
     }
 
     /**
