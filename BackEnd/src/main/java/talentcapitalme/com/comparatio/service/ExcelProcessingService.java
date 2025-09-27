@@ -163,21 +163,58 @@ public class ExcelProcessingService {
             
             // Process data rows
             int rowIndex = 1; // Start from row 1 (0 is header)
-            for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // Skip header
+            int lastRowNum = sheet.getLastRowNum();
+            int processedRows = 0;
+            int skippedRows = 0;
+            int errorRows = 0;
+            
+            log.info("Processing Excel file with {} total rows (including header)", lastRowNum + 1);
+            
+            for (int i = 1; i <= lastRowNum; i++) {
+                Row row = sheet.getRow(i);
+                
+                // Skip completely empty rows
+                if (row == null || isRowEmpty(row)) {
+                    log.debug("Skipping empty row {}", i);
+                    skippedRows++;
+                    continue;
+                }
                 
                 try {
                     BulkRowResult result = processRow(row, clientId, rowIndex);
                     results.add(result);
+                    processedRows++;
                 } catch (Exception e) {
                     log.warn("Error processing row {}: {}", rowIndex, e.getMessage());
                     results.add(createErrorResult(rowIndex, e.getMessage()));
+                    errorRows++;
                 }
                 rowIndex++;
             }
+            
+            log.info("Excel processing summary - Processed: {}, Skipped (empty): {}, Errors: {}, Total results: {}", 
+                    processedRows, skippedRows, errorRows, results.size());
         }
         
         return results;
+    }
+
+    /**
+     * Check if a row is completely empty
+     */
+    private boolean isRowEmpty(Row row) {
+        if (row == null) return true;
+        
+        for (int i = 0; i < 7; i++) { // Check first 7 columns (required fields)
+            Cell cell = row.getCell(i);
+            if (cell != null) {
+                String cellValue = getCellValueAsString(cell);
+                if (cellValue != null && !cellValue.trim().isEmpty()) {
+                    return false; // Found non-empty cell
+                }
+            }
+        }
+        return true; // All cells are empty
     }
 
     /**
@@ -293,16 +330,28 @@ public class ExcelProcessingService {
         if (jobTitle == null || jobTitle.trim().isEmpty()) {
             throw new IllegalArgumentException("Job Title is required at row " + rowIndex);
         }
-        if (yearsExperience == null || yearsExperience < 0) {
+        if (yearsExperience == null) {
+            throw new IllegalArgumentException("Years Experience is required at row " + rowIndex);
+        }
+        if (yearsExperience < 0) {
             throw new IllegalArgumentException("Years Experience must be non-negative at row " + rowIndex);
         }
-        if (performanceRating == null || performanceRating < 1 || performanceRating > 5) {
+        if (performanceRating == null) {
+            throw new IllegalArgumentException("Performance Rating is required at row " + rowIndex);
+        }
+        if (performanceRating < 1 || performanceRating > 5) {
             throw new IllegalArgumentException("Performance Rating must be between 1 and 5 at row " + rowIndex);
         }
-        if (currentSalary == null || currentSalary.compareTo(BigDecimal.ZERO) <= 0) {
+        if (currentSalary == null) {
+            throw new IllegalArgumentException("Current Salary is required at row " + rowIndex);
+        }
+        if (currentSalary.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Current Salary must be positive at row " + rowIndex);
         }
-        if (midOfScale == null || midOfScale.compareTo(BigDecimal.ZERO) <= 0) {
+        if (midOfScale == null) {
+            throw new IllegalArgumentException("Mid of Scale is required at row " + rowIndex);
+        }
+        if (midOfScale.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Mid of Scale must be positive at row " + rowIndex);
         }
     }
@@ -324,7 +373,8 @@ public class ExcelProcessingService {
         // Find appropriate adjustment matrix
         AdjustmentMatrix matrix = matrixRepo.findClientActiveCell(perfBucket, compaRatio, clientId)
                 .orElseThrow(() -> new IllegalStateException(
-                    "No adjustment matrix found for client '" + clientId + "' at row " + rowIndex));
+                    "No adjustment matrix found for client '" + clientId + "' with performance bucket " + perfBucket + 
+                    " and compa ratio " + compaRatio + " at row " + rowIndex + ". Please ensure adjustment matrices are properly configured."));
         
         // Calculate percentage increase based on experience
         BigDecimal increasePct = (yearsExperience < 5) ? matrix.getPctLt5Years() : matrix.getPctGte5Years();
