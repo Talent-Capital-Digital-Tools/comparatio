@@ -1,0 +1,82 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🚀 Start Full Stack (Frontend + Backend)",
+            "dependsOrder": "parallel",
+            "dependsOn": [
+                "Start Backend",
+                "Start Frontend"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Start Backend",
+            "type": "shell",
+            "command": "mvn",
+            "args": [
+                "spring-boot:run"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/BackEnd"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "java",
+                "pattern": {
+                    "regexp": ".*"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*",
+                    "endsPattern": ".*Started ComparatioApplication.*"
+                }
+            }
+        },
+        {
+            "label": "Start Frontend",
+            "type": "shell",
+            "command": "npm",
+            "args": [
+                "run",
+                "dev"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/FrontEnd"
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "typescript",
+                "source": "ts",
+                "applyTo": "closedDocuments",
+                "fileLocation": "relative",
+                "pattern": "$tsc",
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": ".*",
+                    "endsPattern": ".*Local:.*http://localhost:3000.*"
+                }
+            }
+        }
+    ]
+}

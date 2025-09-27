@@ -17,7 +17,6 @@ public class AdminUserConfig {
         return userRepository.findByEmail("admin@talentcapital.com")
                 .orElseGet(() -> {
                     User admin = new User();
-                    admin.setId("admin-001");
                     admin.setEmail("admin@talentcapital.com");
                     admin.setUsername("admin");
                     admin.setFullName("Talent Capital Administrator");
