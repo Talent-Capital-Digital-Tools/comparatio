@@ -210,16 +210,69 @@ public class ExcelProcessingService {
             throw new IllegalArgumentException("Excel file must have a header row");
         }
         
-        String[] expectedHeaders = {"Employee Code", "Employee Name", "Job Title", "Years Experience", 
+        String[] expectedHeaders = {"Employee Code", "Employee Name", "Job Title", "Years of Experience", 
                                   "Performance Rating", "Current Salary", "Mid of Scale"};
         
         for (int i = 0; i < expectedHeaders.length; i++) {
             String cellValue = getCellValueAsString(headerRow.getCell(i));
-            if (cellValue == null || !cellValue.trim().equalsIgnoreCase(expectedHeaders[i])) {
+            if (cellValue == null || !isValidHeader(cellValue.trim(), expectedHeaders[i])) {
                 throw new IllegalArgumentException(
                     String.format("Invalid header at column %d. Expected '%s', found '%s'", 
                                 i + 1, expectedHeaders[i], cellValue));
             }
+        }
+    }
+
+    /**
+     * Check if header value matches expected header (case-insensitive and flexible)
+     */
+    private boolean isValidHeader(String actualHeader, String expectedHeader) {
+        if (actualHeader == null || expectedHeader == null) {
+            return false;
+        }
+        
+        // Normalize both strings for comparison
+        String normalizedActual = actualHeader.toLowerCase().replaceAll("\\s+", " ").trim();
+        String normalizedExpected = expectedHeader.toLowerCase().replaceAll("\\s+", " ").trim();
+        
+        // Direct match
+        if (normalizedActual.equals(normalizedExpected)) {
+            return true;
+        }
+        
+        // Handle common variations
+        switch (normalizedExpected) {
+            case "years of experience":
+                return normalizedActual.equals("years of experience") || 
+                       normalizedActual.equals("years experience") ||
+                       normalizedActual.equals("experience years");
+            case "performance rating":
+                return normalizedActual.equals("performance rating") ||
+                       normalizedActual.equals("rating") ||
+                       normalizedActual.equals("perf rating");
+            case "current salary":
+                return normalizedActual.equals("current salary") ||
+                       normalizedActual.equals("salary") ||
+                       normalizedActual.equals("current pay");
+            case "mid of scale":
+                return normalizedActual.equals("mid of scale") ||
+                       normalizedActual.equals("mid scale") ||
+                       normalizedActual.equals("midpoint") ||
+                       normalizedActual.equals("mid point");
+            case "employee code":
+                return normalizedActual.equals("employee code") ||
+                       normalizedActual.equals("emp code") ||
+                       normalizedActual.equals("employee id");
+            case "employee name":
+                return normalizedActual.equals("employee name") ||
+                       normalizedActual.equals("name") ||
+                       normalizedActual.equals("emp name");
+            case "job title":
+                return normalizedActual.equals("job title") ||
+                       normalizedActual.equals("title") ||
+                       normalizedActual.equals("position");
+            default:
+                return false;
         }
     }
 
@@ -384,7 +437,7 @@ public class ExcelProcessingService {
         headerStyle.setFont(headerFont);
         
         // Set header values
-        String[] headers = {"Employee Code", "Employee Name", "Job Title", "Years Experience", "Performance Rating",
+        String[] headers = {"Employee Code", "Employee Name", "Job Title", "Years of Experience", "Performance Rating",
                            "Current Salary", "Mid of Scale", "Compa Ratio", "Compa Label",
                            "Increase %", "New Salary", "Increase Amount", "Status"};
         
