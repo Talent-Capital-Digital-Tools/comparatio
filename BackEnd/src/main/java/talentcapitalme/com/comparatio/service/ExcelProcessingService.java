@@ -162,7 +162,6 @@ public class ExcelProcessingService {
             validateHeaderRow(sheet);
             
             // Process data rows
-            int rowIndex = 1; // Start from row 1 (0 is header)
             int lastRowNum = sheet.getLastRowNum();
             int processedRows = 0;
             int skippedRows = 0;
@@ -181,15 +180,14 @@ public class ExcelProcessingService {
                 }
                 
                 try {
-                    BulkRowResult result = processRow(row, clientId, rowIndex);
+                    BulkRowResult result = processRow(row, clientId, i); // Use actual Excel row number
                     results.add(result);
                     processedRows++;
                 } catch (Exception e) {
-                    log.warn("Error processing row {}: {}", rowIndex, e.getMessage());
-                    results.add(createErrorResult(rowIndex, e.getMessage()));
+                    log.warn("Error processing Excel row {}: {}", i, e.getMessage());
+                    results.add(createErrorResult(i, e.getMessage()));
                     errorRows++;
                 }
-                rowIndex++;
             }
             
             log.info("Excel processing summary - Processed: {}, Skipped (empty): {}, Errors: {}, Total results: {}", 
@@ -205,16 +203,23 @@ public class ExcelProcessingService {
     private boolean isRowEmpty(Row row) {
         if (row == null) return true;
         
-        for (int i = 0; i < 7; i++) { // Check first 7 columns (required fields)
+        // Check if the row has any cells at all
+        if (row.getLastCellNum() == -1) return true;
+        
+        // Check first 3 columns (Employee Code, Name, Job Title) - if all are empty, consider row empty
+        boolean hasAnyData = false;
+        for (int i = 0; i < 3; i++) {
             Cell cell = row.getCell(i);
             if (cell != null) {
                 String cellValue = getCellValueAsString(cell);
                 if (cellValue != null && !cellValue.trim().isEmpty()) {
-                    return false; // Found non-empty cell
+                    hasAnyData = true;
+                    break;
                 }
             }
         }
-        return true; // All cells are empty
+        
+        return !hasAnyData;
     }
 
     /**
@@ -229,6 +234,10 @@ public class ExcelProcessingService {
         Integer performanceRating = getCellValueAsInteger(row.getCell(4));
         BigDecimal currentSalary = getCellValueAsBigDecimal(row.getCell(5));
         BigDecimal midOfScale = getCellValueAsBigDecimal(row.getCell(6));
+        
+        // Log the extracted data for debugging
+        log.info("Processing Excel row {}: EmployeeCode={}, EmployeeName={}, JobTitle={}, YearsExp={}, PerfRating={}, CurrentSalary={}, MidOfScale={}", 
+                rowIndex, employeeCode, employeeName, jobTitle, yearsExperience, performanceRating, currentSalary, midOfScale);
         
         // Validate required fields
         validateRowData(employeeCode, employeeName, jobTitle, yearsExperience, performanceRating, currentSalary, midOfScale, rowIndex);
@@ -549,7 +558,13 @@ public class ExcelProcessingService {
             case STRING:
                 return cell.getStringCellValue();
             case NUMERIC:
-                return String.valueOf((long) cell.getNumericCellValue());
+                // Check if it's a whole number (likely an ID/code)
+                double numericValue = cell.getNumericCellValue();
+                if (numericValue == Math.floor(numericValue) && !Double.isInfinite(numericValue)) {
+                    return String.valueOf((long) numericValue);
+                } else {
+                    return String.valueOf(numericValue);
+                }
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
