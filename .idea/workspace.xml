@@ -4,18 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="75454320-8c2c-4c68-add0-2559f8812652" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Interface" />
+        <option value="Exception" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="development" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -25,27 +33,66 @@
   &quot;associatedIndex&quot;: 8
 }</component>
   <component name="ProjectId" id="334c8HUKHVxLBwDkQdxI34KkIDx" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "development",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHELLCHECK.PATH&quot;: &quot;C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\IntelliJIdea2025.2\\plugins\\Shell Script\\shellcheck.exe&quot;,
+    &quot;Spring Boot.ComparatioApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;backend-dev&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/springboot_ws/compa-ratio/BackEnd/src/main/java/talentcapitalme/com/comparatio&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\springboot_ws\compa-ratio\BackEnd\src\main\java\talentcapitalme\com\comparatio" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="talentcapitalme.com.comparatio.dto" />
+      <recent name="talentcapitalme.com.comparatio.service" />
+      <recent name="talentcapitalme.com.comparatio.repository" />
+    </key>
+  </component>
   <component name="RunManager">
+    <configuration default="true" type="ShConfigurationType">
+      <option name="SCRIPT_TEXT" value="" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="false" />
+      <option name="INTERPRETER_PATH" value="&quot;$PROJECT_DIR$/../../Program Files/Git/bin/bash.exe&quot;" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <configuration name="ComparatioApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="comparatio" />
@@ -71,7 +118,33 @@
       <option name="presentableId" value="Default" />
       <updated>1758579626110</updated>
       <workItem from="1758579627987" duration="114000" />
-      <workItem from="1758579847948" duration="1864000" />
+      <workItem from="1758579847948" duration="3725000" />
+      <workItem from="1758586346540" duration="62000" />
+      <workItem from="1758609874034" duration="15000" />
+      <workItem from="1758621127455" duration="1980000" />
+      <workItem from="1758628944340" duration="505000" />
+      <workItem from="1758630058722" duration="354000" />
+      <workItem from="1758631135237" duration="5559000" />
+      <workItem from="1758645928977" duration="72000" />
+      <workItem from="1758647296529" duration="709000" />
+      <workItem from="1758649712130" duration="793000" />
+      <workItem from="1758654814952" duration="747000" />
+      <workItem from="1758705534592" duration="14333000" />
+      <workItem from="1758738400130" duration="4353000" />
+      <workItem from="1758752638620" duration="6552000" />
+      <workItem from="1758807524376" duration="762000" />
+      <workItem from="1758808325250" duration="193000" />
+      <workItem from="1758809213302" duration="688000" />
+      <workItem from="1758810389926" duration="1554000" />
+      <workItem from="1758815364856" duration="10097000" />
+      <workItem from="1758831772971" duration="600000" />
+      <workItem from="1758878387621" duration="2905000" />
+      <workItem from="1758888094688" duration="4612000" />
+      <workItem from="1758895377985" duration="14969000" />
+      <workItem from="1758931884321" duration="18000" />
+      <workItem from="1758957702790" duration="6170000" />
+      <workItem from="1758965396651" duration="11000" />
+      <workItem from="1758977415463" duration="7669000" />
     </task>
     <servers />
   </component>
@@ -88,5 +161,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
