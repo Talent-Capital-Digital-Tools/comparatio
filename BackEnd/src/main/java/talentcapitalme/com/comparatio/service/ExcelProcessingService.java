@@ -249,7 +249,9 @@ public class ExcelProcessingService {
             case "performance rating":
                 return normalizedActual.equals("performance rating") ||
                        normalizedActual.equals("rating") ||
-                       normalizedActual.equals("perf rating");
+                       normalizedActual.equals("perf rating") ||
+                       normalizedActual.contains("performance rating") ||
+                       normalizedActual.startsWith("performance rating");
             case "current salary":
                 return normalizedActual.equals("current salary") ||
                        normalizedActual.equals("salary") ||
