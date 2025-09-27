@@ -13,8 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import talentcapitalme.com.comparatio.entity.UploadHistory;
 import talentcapitalme.com.comparatio.security.Authz;
-import talentcapitalme.com.comparatio.service.FileStorageService;
-import talentcapitalme.com.comparatio.service.UploadHistoryService;
+import talentcapitalme.com.comparatio.service.IFileStorageService;
+import talentcapitalme.com.comparatio.service.IUploadHistoryService;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +34,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UploadHistoryController {
 
-    private final UploadHistoryService uploadHistoryService;
-    private final FileStorageService fileStorageService;
+    private final IUploadHistoryService uploadHistoryService;
+    private final IFileStorageService fileStorageService;
 
     /**
      * Get upload history for current client
@@ -189,12 +189,12 @@ public class UploadHistoryController {
      */
     @GetMapping("/statistics")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
-    public ResponseEntity<UploadHistoryService.UploadStatistics> getUploadStatistics() {
+    public ResponseEntity<IUploadHistoryService.UploadStatistics> getUploadStatistics() {
         log.info("Getting upload statistics for current client");
         
         try {
             String clientId = getCurrentClientId();
-            UploadHistoryService.UploadStatistics stats = uploadHistoryService.getUploadStatistics(clientId);
+            IUploadHistoryService.UploadStatistics stats = uploadHistoryService.getUploadStatistics(clientId);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             log.error("Error getting upload statistics", e);

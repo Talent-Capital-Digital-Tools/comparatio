@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FileStorageService {
+public class FileStorageService implements IFileStorageService {
 
     @Value("${app.file-storage.base-path:./uploads}")
     private String basePath;
@@ -200,5 +200,53 @@ public class FileStorageService {
      */
     public Instant calculateExpirationDate() {
         return Instant.now().plusSeconds(retentionDays * 24 * 60 * 60);
+    }
+
+    /**
+     * Store profile image
+     */
+    public String storeProfileImage(MultipartFile file, String userId) throws IOException {
+        log.info("Storing profile image for user: {}", userId);
+        
+        // Create user-specific directory for profile images
+        Path userDir = createUserProfileDirectory(userId);
+        
+        // Generate unique filename for profile image with timestamp
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = getFileExtension(originalFilename);
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS").format(Instant.now().atZone(java.time.ZoneId.systemDefault()));
+        String storedFilename = String.format("profile_image_%s_%s%s", userId, timestamp, fileExtension);
+        
+        // Store file
+        Path targetLocation = userDir.resolve(storedFilename);
+        Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+        
+        log.info("Profile image stored successfully: {}", targetLocation);
+        return targetLocation.toString();
+    }
+
+    /**
+     * Create user-specific directory for profile images
+     */
+    private Path createUserProfileDirectory(String userId) throws IOException {
+        Path userDir = Paths.get(basePath, "profiles", userId);
+        Files.createDirectories(userDir);
+        return userDir;
+    }
+
+    /**
+     * Generate unique avatar URL for a user
+     */
+    public String generateUniqueAvatarUrl(String userId, String fileExtension) {
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS").format(Instant.now().atZone(java.time.ZoneId.systemDefault()));
+        String filename = String.format("profile_image_%s_%s%s", userId, timestamp, fileExtension);
+        return Paths.get(basePath, "profiles", userId, filename).toString();
+    }
+
+    /**
+     * Get the base directory for profile images
+     */
+    public String getProfileImagesBaseDirectory() {
+        return Paths.get(basePath, "profiles").toString();
     }
 }

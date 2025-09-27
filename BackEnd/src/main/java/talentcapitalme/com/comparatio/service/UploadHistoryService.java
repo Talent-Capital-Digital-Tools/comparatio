@@ -18,10 +18,10 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UploadHistoryService {
+public class UploadHistoryService implements IUploadHistoryService {
 
     private final UploadHistoryRepository uploadHistoryRepository;
-    private final FileStorageService fileStorageService;
+    private final IFileStorageService fileStorageService;
 
     /**
      * Create upload history record
@@ -174,7 +174,7 @@ public class UploadHistoryService {
     /**
      * Get upload statistics for client
      */
-    public UploadStatistics getUploadStatistics(String clientId) {
+    public IUploadHistoryService.UploadStatistics getUploadStatistics(String clientId) {
         log.debug("Getting upload statistics for client: {}", clientId);
         
         List<UploadHistory> uploads = uploadHistoryRepository.findUploadStatisticsByClient(clientId);
@@ -194,16 +194,16 @@ public class UploadHistoryService {
         
         long totalProcessingTime = uploads.stream().mapToLong(UploadHistory::getProcessingTimeMs).sum();
         
-        return UploadStatistics.builder()
-                .totalUploads(totalUploads)
-                .successfulUploads(successfulUploads)
-                .failedUploads(failedUploads)
-                .totalRows(totalRows)
-                .successRows(successRows)
-                .errorRows(errorRows)
-                .totalProcessingTimeMs(totalProcessingTime)
-                .averageProcessingTimeMs(totalUploads > 0 ? totalProcessingTime / totalUploads : 0)
-                .build();
+        IUploadHistoryService.UploadStatistics stats = new IUploadHistoryService.UploadStatistics();
+        stats.setTotalUploads(totalUploads);
+        stats.setSuccessfulUploads(successfulUploads);
+        stats.setFailedUploads(failedUploads);
+        stats.setTotalRows(totalRows);
+        stats.setSuccessRows(successRows);
+        stats.setErrorRows(errorRows);
+        stats.setTotalProcessingTimeMs(totalProcessingTime);
+        stats.setAverageProcessingTimeMs(totalUploads > 0 ? totalProcessingTime / totalUploads : 0);
+        return stats;
     }
 
     /**
@@ -239,21 +239,4 @@ public class UploadHistoryService {
         return deletedFiles;
     }
 
-    /**
-     * Upload statistics DTO
-     */
-    @lombok.Data
-    @lombok.Builder
-    @lombok.NoArgsConstructor
-    @lombok.AllArgsConstructor
-    public static class UploadStatistics {
-        private int totalUploads;
-        private int successfulUploads;
-        private int failedUploads;
-        private int totalRows;
-        private int successRows;
-        private int errorRows;
-        private long totalProcessingTimeMs;
-        private long averageProcessingTimeMs;
-    }
 }

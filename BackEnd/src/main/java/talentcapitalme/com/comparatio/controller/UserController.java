@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import talentcapitalme.com.comparatio.dto.ChangePasswordRequest;
 import talentcapitalme.com.comparatio.entity.User;
-import talentcapitalme.com.comparatio.service.UserService;
+import talentcapitalme.com.comparatio.service.IUserService;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import java.util.List;
 @Tag(name = "User Management", description = "User profile and account management")
 public class UserController {
 
-    private final UserService userService;
+    private final IUserService userService;
 
     @Operation(summary = "Get All Users", description = "Retrieve all users (admin only)")
     @GetMapping
