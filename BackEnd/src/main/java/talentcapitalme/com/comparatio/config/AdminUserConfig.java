@@ -1,6 +1,5 @@
 package talentcapitalme.com.comparatio.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,7 +9,6 @@ import talentcapitalme.com.comparatio.repository.UserRepository;
 
 @Configuration
 public class AdminUserConfig {
-
 
     @Bean
     public User adminUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
