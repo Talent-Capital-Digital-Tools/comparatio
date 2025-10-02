@@ -37,6 +37,9 @@ public class CalcRequest {
     @Schema(description = "Employee code/ID", example = "EMP001")
     private String employeeCode;
     
+    @Schema(description = "Employee name", example = "John Doe")
+    private String employeeName;
+    
     @Schema(description = "Job title", example = "Software Engineer")
     private String jobTitle;
     

@@ -22,6 +22,7 @@ public class CalculationResult extends Audit {
     private String clientId;
     private String batchId;         // for bulk uploads
     private String employeeCode;
+    private String employeeName;    // Added employee name field
     private String jobTitle;
     private Integer yearsExperience;
     private Integer perfBucket;

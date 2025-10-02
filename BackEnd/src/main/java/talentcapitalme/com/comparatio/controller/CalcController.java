@@ -141,7 +141,7 @@ public class CalcController {
                 .filter(r -> clientId.equals(r.getClientId()))
                 .map(r -> BulkRowResult.builder()
                         .employeeCode(r.getEmployeeCode())
-                        .employeeName("N/A") // Employee name not stored in CalculationResult
+                        .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A") // Use stored employee name
                         .jobTitle(r.getJobTitle())
                         .yearsExperience(r.getYearsExperience())
                         .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)
@@ -183,7 +183,7 @@ public class CalcController {
                 .filter(r -> clientId.equals(r.getClientId()))
                 .map(r -> BulkRowResult.builder()
                         .employeeCode(r.getEmployeeCode())
-                        .employeeName("N/A") // Employee name not stored in CalculationResult
+                        .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A") // Use stored employee name
                         .jobTitle(r.getJobTitle())
                         .yearsExperience(r.getYearsExperience())
                         .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)

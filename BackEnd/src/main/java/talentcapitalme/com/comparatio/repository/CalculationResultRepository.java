@@ -12,6 +12,9 @@ public interface CalculationResultRepository extends MongoRepository<Calculation
 
     List<CalculationResult> findByClientIdAndBatchId(String clientId, String batchId);
 
+    // Find bulk calculation results only (exclude individual calculations)
+    List<CalculationResult> findByClientIdAndBatchIdAndBatchIdNotLike(String clientId, String batchId, String excludePattern);
+
     long countByClientId(String clientId);
 
     // Pageable queries for efficient database pagination

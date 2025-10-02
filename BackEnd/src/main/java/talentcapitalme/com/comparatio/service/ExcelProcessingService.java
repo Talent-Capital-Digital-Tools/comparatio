@@ -494,6 +494,7 @@ public class ExcelProcessingService implements IExcelProcessingService {
                         .clientId(clientId)
                         .batchId(batchId)
                         .employeeCode(result.getEmployeeCode())
+                        .employeeName(result.getEmployeeName())  // Now saving employee name
                         .jobTitle(result.getJobTitle())
                         .yearsExperience(result.getYearsExperience())
                         .perfBucket((result.getPerformanceRating5() >= 4) ? 3 : 

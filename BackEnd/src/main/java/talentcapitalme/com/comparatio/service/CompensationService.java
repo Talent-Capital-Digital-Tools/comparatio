@@ -59,6 +59,7 @@ public class CompensationService implements ICompensationService {
                     .clientId(clientId)
                     .batchId("single-" + Instant.now())
                     .employeeCode(req.getEmployeeCode())
+                    .employeeName(req.getEmployeeName())  // Include employee name if available
                     .jobTitle(req.getJobTitle())
                     .yearsExperience(req.getYearsExperience())
                     .perfBucket(perfBucket)
