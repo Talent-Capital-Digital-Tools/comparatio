@@ -126,6 +126,8 @@ public class UserService implements IUserService {
                 .avatarUrl(user.getAvatarUrl())
                 .role(user.getRole().name())
                 .active(user.getActive())
+                .performanceRatingScale(user.getPerformanceRatingScale())
+                .currency(user.getCurrency())
                 .build();
     }
 
@@ -153,6 +155,12 @@ public class UserService implements IUserService {
         if (request.getAvatarUrl() != null) {
             user.setAvatarUrl(request.getAvatarUrl());
         }
+        if (request.getPerformanceRatingScale() != null) {
+            user.setPerformanceRatingScale(request.getPerformanceRatingScale());
+        }
+        if (request.getCurrency() != null) {
+            user.setCurrency(request.getCurrency());
+        }
 
         User savedUser = userRepository.save(user);
         
@@ -166,6 +174,8 @@ public class UserService implements IUserService {
                 .avatarUrl(savedUser.getAvatarUrl())
                 .role(savedUser.getRole().name())
                 .active(savedUser.getActive())
+                .performanceRatingScale(savedUser.getPerformanceRatingScale())
+                .currency(savedUser.getCurrency())
                 .build();
     }
 
@@ -216,6 +226,12 @@ public class UserService implements IUserService {
         if (request.getAvatarUrl() != null) {
             user.setAvatarUrl(request.getAvatarUrl());
         }
+        if (request.getPerformanceRatingScale() != null) {
+            user.setPerformanceRatingScale(request.getPerformanceRatingScale());
+        }
+        if (request.getCurrency() != null) {
+            user.setCurrency(request.getCurrency());
+        }
 
         User savedUser = userRepository.save(user);
         
@@ -229,6 +245,8 @@ public class UserService implements IUserService {
                 .avatarUrl(savedUser.getAvatarUrl())
                 .role(savedUser.getRole().name())
                 .active(savedUser.getActive())
+                .performanceRatingScale(savedUser.getPerformanceRatingScale())
+                .currency(savedUser.getCurrency())
                 .build();
     }
 }

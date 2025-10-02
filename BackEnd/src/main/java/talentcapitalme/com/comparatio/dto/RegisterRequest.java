@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import talentcapitalme.com.comparatio.enumeration.UserRole;
+import talentcapitalme.com.comparatio.enumeration.PerformanceRatingScale;
+import talentcapitalme.com.comparatio.enumeration.Currency;
 
 @Data
 public class RegisterRequest {
@@ -32,7 +34,11 @@ public class RegisterRequest {
     
     private Boolean active; 
     
-    private String avatarUrl; 
+    private String avatarUrl;
+    
+    private PerformanceRatingScale performanceRatingScale; // Performance rating scale configuration
+    
+    private Currency currency; // Currency configuration 
 
 
 }

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import talentcapitalme.com.comparatio.enumeration.PerformanceRatingScale;
+import talentcapitalme.com.comparatio.enumeration.Currency;
 
 /**
  * DTO for user profile response
@@ -22,4 +24,6 @@ public class ProfileResponse {
     private String avatarUrl;    // profile image URL
     private String role;
     private Boolean active;      // for CLIENT_ADMIN users
+    private PerformanceRatingScale performanceRatingScale; // performance rating scale configuration
+    private Currency currency;   // currency configuration
 }

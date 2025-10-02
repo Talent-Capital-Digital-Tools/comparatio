@@ -22,6 +22,7 @@ public class CompensationService implements ICompensationService {
 
     private final AdjustmentMatrixRepository matrixRepo;
     private final CalculationResultRepository resultRepo;
+    private final PerformanceRatingService performanceRatingService;
 
     public CalcResponse calculate(CalcRequest req) {
         log.info("Starting individual calculation for employee: {}", req.getEmployeeCode());
@@ -39,9 +40,8 @@ public class CompensationService implements ICompensationService {
             BigDecimal compa = req.getCurrentSalary()
                     .divide(req.getMidOfScale(), 6, RoundingMode.HALF_UP);
 
-            // Determine performance bucket
-            int perfBucket = (req.getPerformanceRating() >= 4) ? 3 :
-                    (req.getPerformanceRating() >= 2) ? 2 : 1;
+            // Determine performance bucket using user's rating scale
+            int perfBucket = performanceRatingService.calculatePerformanceBucket(req.getPerformanceRating());
 
             // Find appropriate adjustment matrix
             AdjustmentMatrix cell = matrixRepo.findClientActiveCell(perfBucket, compa, clientId)
@@ -111,8 +111,11 @@ public class CompensationService implements ICompensationService {
         if (req.getMidOfScale().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Mid of scale must be positive");
         }
-        if (req.getPerformanceRating() < 1 || req.getPerformanceRating() > 5) {
-            throw new ValidationException("Performance rating must be between 1 and 5");
+        // Validate performance rating against user's scale
+        if (!performanceRatingService.isValidPerformanceRating(req.getPerformanceRating())) {
+            var scale = performanceRatingService.getUserPerformanceRatingScale();
+            throw new ValidationException(String.format("Performance rating must be between 1 and %d for %s", 
+                    scale.getMaxRating(), scale.getDisplayName()));
         }
         if (req.getYearsExperience() < 0) {
             throw new ValidationException("Years of experience cannot be negative");

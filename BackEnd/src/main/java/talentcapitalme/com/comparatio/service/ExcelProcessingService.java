@@ -37,6 +37,7 @@ public class ExcelProcessingService implements IExcelProcessingService {
     private final CalculationResultRepository resultRepo;
     private final UploadHistoryService uploadHistoryService;
     private final UserRepository userRepository;
+    private final PerformanceRatingService performanceRatingService;
 
     /**
      * Process Excel file with comprehensive validation and error handling
@@ -348,8 +349,11 @@ public class ExcelProcessingService implements IExcelProcessingService {
         if (performanceRating == null) {
             throw new IllegalArgumentException("Performance Rating is required at row " + rowIndex);
         }
-        if (performanceRating < 1 || performanceRating > 5) {
-            throw new IllegalArgumentException("Performance Rating must be between 1 and 5 at row " + rowIndex);
+        // Validate performance rating against user's scale
+        if (!performanceRatingService.isValidPerformanceRating(performanceRating)) {
+            var scale = performanceRatingService.getUserPerformanceRatingScale();
+            throw new IllegalArgumentException(String.format("Performance Rating must be between 1 and %d for %s at row %d", 
+                    scale.getMaxRating(), scale.getDisplayName(), rowIndex));
         }
         if (currentSalary == null) {
             throw new IllegalArgumentException("Current Salary is required at row " + rowIndex);
@@ -377,8 +381,8 @@ public class ExcelProcessingService implements IExcelProcessingService {
         BigDecimal compaRatioDecimal = currentSalary.divide(midOfScale, 4, RoundingMode.HALF_UP);
         BigDecimal compaRatio = compaRatioDecimal.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_UP);
         
-        // Determine performance bucket
-        int perfBucket = (performanceRating >= 4) ? 3 : (performanceRating >= 2) ? 2 : 1;
+        // Determine performance bucket using user's rating scale
+        int perfBucket = performanceRatingService.calculatePerformanceBucket(performanceRating);
         
         // Find appropriate adjustment matrix (convert percentage back to decimal for lookup)
         BigDecimal compaRatioForLookup = compaRatio.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
@@ -497,8 +501,7 @@ public class ExcelProcessingService implements IExcelProcessingService {
                         .employeeName(result.getEmployeeName())  // Now saving employee name
                         .jobTitle(result.getJobTitle())
                         .yearsExperience(result.getYearsExperience())
-                        .perfBucket((result.getPerformanceRating5() >= 4) ? 3 : 
-                                   (result.getPerformanceRating5() >= 2) ? 2 : 1)
+                        .perfBucket(performanceRatingService.calculatePerformanceBucket(result.getPerformanceRating5()))
                         .currentSalary(result.getCurrentSalary())
                         .midOfScale(result.getMidOfScale())
                         .compaRatio(result.getCompaRatio())

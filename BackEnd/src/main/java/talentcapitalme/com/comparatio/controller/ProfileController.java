@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import talentcapitalme.com.comparatio.dto.ProfileResponse;
 import talentcapitalme.com.comparatio.dto.ProfileUpdateRequest;
+import talentcapitalme.com.comparatio.enumeration.PerformanceRatingScale;
+import talentcapitalme.com.comparatio.enumeration.Currency;
 import talentcapitalme.com.comparatio.service.IFileStorageService;
 import talentcapitalme.com.comparatio.service.IUserService;
 
@@ -167,6 +169,53 @@ public class ProfileController {
         response.put("example", "uploads/profiles/user123/profile_image_user123_20250127_182345_123.jpg");
         
         log.info("Profile Controller: Directory info retrieved");
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Get Performance Rating Scales", description = "Get available performance rating scale options")
+    @GetMapping("/performance-rating-scales")
+    public ResponseEntity<Map<String, Object>> getPerformanceRatingScales() {
+        log.info("Profile Controller: Retrieving performance rating scale options");
+        
+        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> scales = new HashMap<>();
+        
+        for (PerformanceRatingScale scale : PerformanceRatingScale.values()) {
+            Map<String, Object> scaleInfo = new HashMap<>();
+            scaleInfo.put("maxRating", scale.getMaxRating());
+            scaleInfo.put("displayName", scale.getDisplayName());
+            scales.put(scale.name(), scaleInfo);
+        }
+        
+        response.put("scales", scales);
+        response.put("default", PerformanceRatingScale.getDefault().name());
+        
+        log.info("Profile Controller: Retrieved {} performance rating scale options", scales.size());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Get Available Currencies", description = "Get available currency options with details")
+    @GetMapping("/currencies")
+    public ResponseEntity<Map<String, Object>> getAvailableCurrencies() {
+        log.info("Profile Controller: Retrieving available currency options");
+        
+        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> currencies = new HashMap<>();
+        
+        for (Currency currency : Currency.values()) {
+            Map<String, Object> currencyInfo = new HashMap<>();
+            currencyInfo.put("code", currency.getCode());
+            currencyInfo.put("symbol", currency.getSymbol());
+            currencyInfo.put("shortName", currency.getShortName());
+            currencyInfo.put("fullName", currency.getFullName());
+            currencyInfo.put("displayName", currency.getDisplayName());
+            currencies.put(currency.name(), currencyInfo);
+        }
+        
+        response.put("currencies", currencies);
+        response.put("default", Currency.getDefault().name());
+        
+        log.info("Profile Controller: Retrieved {} currency options", currencies.size());
         return ResponseEntity.ok(response);
     }
 }

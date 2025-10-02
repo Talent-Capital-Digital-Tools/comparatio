@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import talentcapitalme.com.comparatio.enumeration.PerformanceRatingScale;
+import talentcapitalme.com.comparatio.enumeration.Currency;
 
 /**
  * DTO for profile update request
@@ -34,4 +36,8 @@ public class ProfileUpdateRequest {
     private String industry;
     
     private String avatarUrl;  // Optional - can be set via file upload
+    
+    private PerformanceRatingScale performanceRatingScale; // Performance rating scale configuration
+    
+    private Currency currency; // Currency configuration
 }

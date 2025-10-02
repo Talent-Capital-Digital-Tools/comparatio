@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import talentcapitalme.com.comparatio.enumeration.UserRole;
+import talentcapitalme.com.comparatio.enumeration.PerformanceRatingScale;
+import talentcapitalme.com.comparatio.enumeration.Currency;
 
 /**
  * User entity representing a user in the system.
@@ -36,6 +38,12 @@ public class User extends Audit {
     private String fullName;
     private String industry;
     private String avatarUrl;
+    
+    // Performance rating configuration
+    private PerformanceRatingScale performanceRatingScale = PerformanceRatingScale.FIVE_POINT; // Default to 5-point scale
+    
+    // Currency configuration
+    private Currency currency = Currency.USD; // Default to USD for international compatibility
 
 
 }

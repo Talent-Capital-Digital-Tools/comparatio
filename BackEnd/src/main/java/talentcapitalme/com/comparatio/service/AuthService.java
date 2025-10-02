@@ -13,6 +13,8 @@ import talentcapitalme.com.comparatio.dto.RegisterRequest;
 import talentcapitalme.com.comparatio.dto.TokenResponse;
 import talentcapitalme.com.comparatio.entity.User;
 import talentcapitalme.com.comparatio.enumeration.UserRole;
+import talentcapitalme.com.comparatio.enumeration.PerformanceRatingScale;
+import talentcapitalme.com.comparatio.enumeration.Currency;
 import talentcapitalme.com.comparatio.exception.UnauthorizedException;
 import talentcapitalme.com.comparatio.exception.ValidationException;
 import talentcapitalme.com.comparatio.exception.UserAreadyExit;
@@ -89,6 +91,10 @@ public class AuthService implements IAuthService {
         // Set all fields from request
         newUser.setName(request.getName());
         newUser.setActive(request.getActive() != null ? request.getActive() : true);
+        newUser.setPerformanceRatingScale(request.getPerformanceRatingScale() != null ? 
+                request.getPerformanceRatingScale() : PerformanceRatingScale.FIVE_POINT);
+        newUser.setCurrency(request.getCurrency() != null ? 
+                request.getCurrency() : Currency.USD);
 
         // Validate role assignment based on current user's permissions
         validateRoleAssignment(request.getRole(), request.getName());
