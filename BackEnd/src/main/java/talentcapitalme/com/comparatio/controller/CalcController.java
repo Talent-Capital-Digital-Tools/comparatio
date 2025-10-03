@@ -310,7 +310,7 @@ public class CalcController {
     private BulkRowResult convertToRowResult(CalculationResult r) {
         return BulkRowResult.builder()
                 .employeeCode(r.getEmployeeCode())
-                .employeeName("N/A")
+                .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
                 .jobTitle(r.getJobTitle())
                 .yearsExperience(r.getYearsExperience())
                 .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)

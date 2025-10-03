@@ -21,4 +21,7 @@ public interface CalculationResultRepository extends MongoRepository<Calculation
     Page<CalculationResult> findByClientId(String clientId, Pageable pageable);
 
     Page<CalculationResult> findByClientIdAndBatchId(String clientId, String batchId, Pageable pageable);
+    
+    // Duplicate prevention: Delete existing results by client and employee codes
+    long deleteByClientIdAndEmployeeCodeIn(String clientId, List<String> employeeCodes);
 }

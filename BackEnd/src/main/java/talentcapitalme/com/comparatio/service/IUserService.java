@@ -2,6 +2,8 @@ package talentcapitalme.com.comparatio.service;
 
 import talentcapitalme.com.comparatio.dto.ProfileResponse;
 import talentcapitalme.com.comparatio.dto.ProfileUpdateRequest;
+import talentcapitalme.com.comparatio.dto.PerformanceRatingScaleUpdateRequest;
+import talentcapitalme.com.comparatio.dto.PerformanceRatingScaleResponse;
 import talentcapitalme.com.comparatio.entity.User;
 
 import java.util.List;
@@ -61,4 +63,14 @@ public interface IUserService {
      * Update user profile by ID (admin only)
      */
     ProfileResponse updateUserProfile(String userId, ProfileUpdateRequest request);
+    
+    /**
+     * Get current user's performance rating scale
+     */
+    PerformanceRatingScaleResponse getCurrentPerformanceRatingScale();
+    
+    /**
+     * Update current user's performance rating scale
+     */
+    PerformanceRatingScaleResponse updatePerformanceRatingScale(PerformanceRatingScaleUpdateRequest request);
 }

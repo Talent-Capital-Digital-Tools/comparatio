@@ -1,9 +1,12 @@
 package talentcapitalme.com.comparatio.service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import talentcapitalme.com.comparatio.dto.ProfileResponse;
 import talentcapitalme.com.comparatio.dto.ProfileUpdateRequest;
+import talentcapitalme.com.comparatio.dto.PerformanceRatingScaleUpdateRequest;
+import talentcapitalme.com.comparatio.dto.PerformanceRatingScaleResponse;
 import talentcapitalme.com.comparatio.entity.User;
 import talentcapitalme.com.comparatio.enumeration.UserRole;
 import talentcapitalme.com.comparatio.exception.NotFoundException;
@@ -13,6 +16,7 @@ import talentcapitalme.com.comparatio.security.Authz;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService {
@@ -248,5 +252,39 @@ public class UserService implements IUserService {
                 .performanceRatingScale(savedUser.getPerformanceRatingScale())
                 .currency(savedUser.getCurrency())
                 .build();
+    }
+
+    /**
+     * Get current user's performance rating scale
+     */
+    public PerformanceRatingScaleResponse getCurrentPerformanceRatingScale() {
+        String currentUserId = Authz.getCurrentUserId();
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        
+        log.info("Retrieved performance rating scale for user {}: {}", 
+                currentUserId, user.getPerformanceRatingScale());
+        
+        return PerformanceRatingScaleResponse.from(user.getPerformanceRatingScale());
+    }
+
+    /**
+     * Update current user's performance rating scale
+     */
+    public PerformanceRatingScaleResponse updatePerformanceRatingScale(PerformanceRatingScaleUpdateRequest request) {
+        String currentUserId = Authz.getCurrentUserId();
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        
+        log.info("Updating performance rating scale for user {} from {} to {}", 
+                currentUserId, user.getPerformanceRatingScale(), request.getPerformanceRatingScale());
+        
+        user.setPerformanceRatingScale(request.getPerformanceRatingScale());
+        User savedUser = userRepository.save(user);
+        
+        log.info("Performance rating scale updated successfully for user {}: {}", 
+                currentUserId, savedUser.getPerformanceRatingScale());
+        
+        return PerformanceRatingScaleResponse.from(savedUser.getPerformanceRatingScale());
     }
 }

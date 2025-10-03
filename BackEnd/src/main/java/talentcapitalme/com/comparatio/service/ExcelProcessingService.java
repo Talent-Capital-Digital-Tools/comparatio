@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import talentcapitalme.com.comparatio.dto.BulkResponse;
 import talentcapitalme.com.comparatio.dto.BulkRowResult;
@@ -490,7 +491,10 @@ public class ExcelProcessingService implements IExcelProcessingService {
 
     /**
      * Save calculation results to database
+     * Implements duplicate prevention by deleting existing results for the same employees before inserting new ones
+     * Uses @Transactional to ensure atomicity - both delete and insert happen together or not at all
      */
+    @Transactional
     private void saveCalculationResults(List<BulkRowResult> results, String clientId, String batchId) {
         List<CalculationResult> calculationResults = results.stream()
                 .filter(result -> result.getError() == null)
@@ -512,8 +516,23 @@ public class ExcelProcessingService implements IExcelProcessingService {
                 .collect(Collectors.toList());
         
         if (!calculationResults.isEmpty()) {
+            // DUPLICATE PREVENTION: Delete existing results for these employees before saving new ones
+            List<String> employeeCodes = calculationResults.stream()
+                    .map(CalculationResult::getEmployeeCode)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            
+            if (!employeeCodes.isEmpty()) {
+                long deletedCount = resultRepo.deleteByClientIdAndEmployeeCodeIn(clientId, employeeCodes);
+                if (deletedCount > 0) {
+                    log.info("Deleted {} existing calculation results for {} employees to prevent duplicates", 
+                            deletedCount, employeeCodes.size());
+                }
+            }
+            
+            // Save new calculation results
             resultRepo.saveAll(calculationResults);
-            log.info("Saved {} calculation results to database", calculationResults.size());
+            log.info("Saved {} new calculation results to database", calculationResults.size());
         }
     }
 

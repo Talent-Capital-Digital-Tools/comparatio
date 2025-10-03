@@ -5,15 +5,12 @@ import org.springframework.stereotype.Service;
 import talentcapitalme.com.comparatio.dto.CalcRequest;
 import talentcapitalme.com.comparatio.dto.CalcResponse;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
-import talentcapitalme.com.comparatio.entity.CalculationResult;
 import talentcapitalme.com.comparatio.exception.MatrixNotFoundException;
 import talentcapitalme.com.comparatio.exception.ValidationException;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
-import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.security.Authz;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
 
 @Slf4j
 @Service
@@ -21,7 +18,6 @@ import java.time.Instant;
 public class CompensationService implements ICompensationService {
 
     private final AdjustmentMatrixRepository matrixRepo;
-    private final CalculationResultRepository resultRepo;
     private final PerformanceRatingService performanceRatingService;
 
     public CalcResponse calculate(CalcRequest req) {
@@ -54,27 +50,11 @@ public class CompensationService implements ICompensationService {
                     .multiply(BigDecimal.ONE.add(pct.movePointLeft(2)))
                     .setScale(2, RoundingMode.HALF_UP);
 
-            // Save calculation result for audit
-            CalculationResult result = CalculationResult.builder()
-                    .clientId(clientId)
-                    .batchId("single-" + Instant.now())
-                    .employeeCode(req.getEmployeeCode())
-                    .employeeName(req.getEmployeeName())  // Include employee name if available
-                    .jobTitle(req.getJobTitle())
-                    .yearsExperience(req.getYearsExperience())
-                    .perfBucket(perfBucket)
-                    .currentSalary(req.getCurrentSalary())
-                    .midOfScale(req.getMidOfScale())
-                    .compaRatio(compa)
-                    .compaLabel(compaLabel(cell))
-                    .increasePct(pct)
-                    .newSalary(newSalary)
-                    .build();
-            
-            resultRepo.save(result);
+            // Individual calculations are NOT saved to database (only bulk uploads are saved)
             
             long processingTime = System.currentTimeMillis() - startTime;
-            log.info("Calculation completed for employee: {} in {}ms", req.getEmployeeCode(), processingTime);
+            log.info("Individual calculation completed for employee: {} in {}ms (not saved to database)", 
+                    req.getEmployeeCode(), processingTime);
             
             return new CalcResponse(compa, compaLabel(cell), pct, newSalary);
             

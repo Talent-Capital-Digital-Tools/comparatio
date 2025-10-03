@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import talentcapitalme.com.comparatio.dto.ProfileResponse;
 import talentcapitalme.com.comparatio.dto.ProfileUpdateRequest;
+import talentcapitalme.com.comparatio.dto.PerformanceRatingScaleUpdateRequest;
+import talentcapitalme.com.comparatio.dto.PerformanceRatingScaleResponse;
 import talentcapitalme.com.comparatio.enumeration.PerformanceRatingScale;
 import talentcapitalme.com.comparatio.enumeration.Currency;
 import talentcapitalme.com.comparatio.service.IFileStorageService;
@@ -216,6 +218,28 @@ public class ProfileController {
         response.put("default", Currency.getDefault().name());
         
         log.info("Profile Controller: Retrieved {} currency options", currencies.size());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Get Current Performance Rating Scale", 
+               description = "Get current user's performance rating scale configuration")
+    @GetMapping("/performance-rating-scale")
+    public ResponseEntity<PerformanceRatingScaleResponse> getCurrentPerformanceRatingScale() {
+        log.info("Profile Controller: Getting current performance rating scale");
+        PerformanceRatingScaleResponse response = userService.getCurrentPerformanceRatingScale();
+        log.info("Profile Controller: Current performance rating scale is {}", response.getPerformanceRatingScale());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Update Performance Rating Scale", 
+               description = "Update current user's performance rating scale (3-point or 5-point)")
+    @PatchMapping("/performance-rating-scale")
+    public ResponseEntity<PerformanceRatingScaleResponse> updatePerformanceRatingScale(
+            @Valid @RequestBody PerformanceRatingScaleUpdateRequest request) {
+        log.info("Profile Controller: Updating performance rating scale to {}", request.getPerformanceRatingScale());
+        PerformanceRatingScaleResponse response = userService.updatePerformanceRatingScale(request);
+        log.info("Profile Controller: Performance rating scale updated successfully to {}", 
+                response.getPerformanceRatingScale());
         return ResponseEntity.ok(response);
     }
 }
