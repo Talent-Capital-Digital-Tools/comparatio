@@ -491,7 +491,9 @@ public class ExcelProcessingService implements IExcelProcessingService {
 
     /**
      * Save calculation results to database
-     * Implements duplicate prevention by deleting existing results for the same employees before inserting new ones
+     * Implements comprehensive cleanup strategy:
+     * 1. Delete all previous bulk calculation results for the client (fresh start)
+     * 2. Save new calculation results
      * Uses @Transactional to ensure atomicity - both delete and insert happen together or not at all
      */
     @Transactional
@@ -516,23 +518,19 @@ public class ExcelProcessingService implements IExcelProcessingService {
                 .collect(Collectors.toList());
         
         if (!calculationResults.isEmpty()) {
-            // DUPLICATE PREVENTION: Delete existing results for these employees before saving new ones
-            List<String> employeeCodes = calculationResults.stream()
-                    .map(CalculationResult::getEmployeeCode)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            
-            if (!employeeCodes.isEmpty()) {
-                long deletedCount = resultRepo.deleteByClientIdAndEmployeeCodeIn(clientId, employeeCodes);
-                if (deletedCount > 0) {
-                    log.info("Deleted {} existing calculation results for {} employees to prevent duplicates", 
-                            deletedCount, employeeCodes.size());
-                }
+            // COMPREHENSIVE CLEANUP: Delete all previous bulk calculation results for this client
+            // This ensures a clean slate for each bulk upload, preventing data accumulation
+            long deletedCount = resultRepo.deleteByClientId(clientId);
+            if (deletedCount > 0) {
+                log.info("Cleaned up {} previous calculation results for client {} to ensure fresh bulk upload", 
+                        deletedCount, clientId);
             }
             
             // Save new calculation results
             resultRepo.saveAll(calculationResults);
-            log.info("Saved {} new calculation results to database", calculationResults.size());
+            log.info("Saved {} new calculation results to database for batch {}", calculationResults.size(), batchId);
+        } else {
+            log.warn("No valid calculation results to save for batch {}", batchId);
         }
     }
 

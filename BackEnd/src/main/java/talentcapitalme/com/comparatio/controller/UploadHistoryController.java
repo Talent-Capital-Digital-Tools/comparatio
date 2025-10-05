@@ -1,5 +1,8 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -32,15 +35,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/upload-history")
 @RequiredArgsConstructor
+@Tag(name = "Upload History", description = "Historical tracking and file management for Excel uploads")
 public class UploadHistoryController {
 
     private final IUploadHistoryService uploadHistoryService;
     private final IFileStorageService fileStorageService;
 
-    /**
-     * Get upload history for current client
-     * GET /api/upload-history
-     */
+    @Operation(summary = "Get Upload History", description = "Retrieve upload history for current client")
     @GetMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
     public ResponseEntity<List<UploadHistory>> getUploadHistory() {
@@ -57,10 +58,7 @@ public class UploadHistoryController {
         }
     }
 
-    /**
-     * Get paginated upload history for current client
-     * GET /api/upload-history/paginated?page=0&size=10
-     */
+    @Operation(summary = "Get Paginated Upload History", description = "Retrieve paginated upload history for current client")
     @GetMapping("/paginated")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
     public ResponseEntity<Page<UploadHistory>> getUploadHistoryPaginated(Pageable pageable) {
@@ -76,13 +74,10 @@ public class UploadHistoryController {
         }
     }
 
-    /**
-     * Get upload history by batch ID
-     * GET /api/upload-history/batch/{batchId}
-     */
+    @Operation(summary = "Get Upload History by Batch", description = "Retrieve upload history for a specific batch ID")
     @GetMapping("/batch/{batchId}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
-    public ResponseEntity<UploadHistory> getUploadHistoryByBatch(@PathVariable String batchId) {
+    public ResponseEntity<UploadHistory> getUploadHistoryByBatch(@Parameter(description = "Batch ID") @PathVariable String batchId) {
         log.info("Getting upload history for batch: {}", batchId);
         
         try {
@@ -103,13 +98,10 @@ public class UploadHistoryController {
         }
     }
 
-    /**
-     * Download original uploaded file
-     * GET /api/upload-history/batch/{batchId}/download/original
-     */
+    @Operation(summary = "Download Original File", description = "Download the original Excel file that was uploaded for a specific batch")
     @GetMapping("/batch/{batchId}/download/original")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
-    public ResponseEntity<Resource> downloadOriginalFile(@PathVariable String batchId) {
+    public ResponseEntity<Resource> downloadOriginalFile(@Parameter(description = "Batch ID") @PathVariable String batchId) {
         log.info("Downloading original file for batch: {}", batchId);
         
         try {
@@ -142,13 +134,10 @@ public class UploadHistoryController {
         }
     }
 
-    /**
-     * Download result file
-     * GET /api/upload-history/batch/{batchId}/download/result
-     */
+    @Operation(summary = "Download Result File", description = "Download the processed Excel file with calculation results for a specific batch")
     @GetMapping("/batch/{batchId}/download/result")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
-    public ResponseEntity<Resource> downloadResultFile(@PathVariable String batchId) {
+    public ResponseEntity<Resource> downloadResultFile(@Parameter(description = "Batch ID") @PathVariable String batchId) {
         log.info("Downloading result file for batch: {}", batchId);
         
         try {
@@ -183,10 +172,7 @@ public class UploadHistoryController {
         }
     }
 
-    /**
-     * Get upload statistics for current client
-     * GET /api/upload-history/statistics
-     */
+    @Operation(summary = "Get Upload Statistics", description = "Retrieve upload statistics and analytics for current client")
     @GetMapping("/statistics")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
     public ResponseEntity<IUploadHistoryService.UploadStatistics> getUploadStatistics() {
@@ -202,13 +188,10 @@ public class UploadHistoryController {
         }
     }
 
-    /**
-     * Search uploads by filename
-     * GET /api/upload-history/search?filename=pattern
-     */
+    @Operation(summary = "Search Uploads by Filename", description = "Search upload history by filename pattern")
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
-    public ResponseEntity<List<UploadHistory>> searchUploads(@RequestParam String filename) {
+    public ResponseEntity<List<UploadHistory>> searchUploads(@Parameter(description = "Filename pattern to search") @RequestParam String filename) {
         log.info("Searching uploads by filename: {}", filename);
         
         try {
@@ -221,13 +204,10 @@ public class UploadHistoryController {
         }
     }
 
-    /**
-     * Get recent uploads
-     * GET /api/upload-history/recent?days=7
-     */
+    @Operation(summary = "Get Recent Uploads", description = "Retrieve recent uploads within specified number of days")
     @GetMapping("/recent")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'CLIENT_ADMIN')")
-    public ResponseEntity<List<UploadHistory>> getRecentUploads(@RequestParam(defaultValue = "7") int days) {
+    public ResponseEntity<List<UploadHistory>> getRecentUploads(@Parameter(description = "Number of days to look back") @RequestParam(defaultValue = "7") int days) {
         log.info("Getting recent uploads for last {} days", days);
         
         try {
@@ -240,10 +220,7 @@ public class UploadHistoryController {
         }
     }
 
-    /**
-     * Clean up expired files (Admin only)
-     * POST /api/upload-history/cleanup
-     */
+    @Operation(summary = "Cleanup Expired Files", description = "Clean up expired upload files and history (Super Admin only)")
     @PostMapping("/cleanup")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<String> cleanupExpiredFiles() {

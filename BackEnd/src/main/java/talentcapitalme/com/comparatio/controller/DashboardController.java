@@ -73,13 +73,10 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Get specific client account by ID
-     * GET /api/admin/dashboard/clients/{clientId}
-     */
+    @Operation(summary = "Get Client Account by ID", description = "Retrieve specific client account details by ID")
     @GetMapping("/clients/{clientId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<ClientAccountSummary> getClientAccount(@PathVariable String clientId) {
+    public ResponseEntity<ClientAccountSummary> getClientAccount(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Fetching client account by ID: {}", clientId);
         
         try {
@@ -94,13 +91,10 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Toggle client account status (active/inactive)
-     * PUT /api/admin/dashboard/clients/{clientId}/toggle-status
-     */
+    @Operation(summary = "Toggle Client Status", description = "Toggle client account status between active and inactive")
     @PutMapping("/clients/{clientId}/toggle-status")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<ClientAccountSummary> toggleClientStatus(@PathVariable String clientId) {
+    public ResponseEntity<ClientAccountSummary> toggleClientStatus(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Toggling client status for ID: {}", clientId);
         
         try {
@@ -115,13 +109,10 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Activate client account
-     * PUT /api/admin/dashboard/clients/{clientId}/activate
-     */
+    @Operation(summary = "Activate Client", description = "Activate a client account")
     @PutMapping("/clients/{clientId}/activate")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<ClientAccountSummary> activateClient(@PathVariable String clientId) {
+    public ResponseEntity<ClientAccountSummary> activateClient(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Activating client account: {}", clientId);
         
         try {
@@ -141,13 +132,10 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Deactivate client account
-     * PUT /api/admin/dashboard/clients/{clientId}/deactivate
-     */
+    @Operation(summary = "Deactivate Client", description = "Deactivate a client account")
     @PutMapping("/clients/{clientId}/deactivate")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<ClientAccountSummary> deactivateClient(@PathVariable String clientId) {
+    public ResponseEntity<ClientAccountSummary> deactivateClient(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Deactivating client account: {}", clientId);
         
         try {
@@ -167,10 +155,7 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Get dashboard statistics only
-     * GET /api/admin/dashboard/stats
-     */
+    @Operation(summary = "Get Dashboard Statistics", description = "Retrieve dashboard statistics and metrics only")
     @GetMapping("/stats")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<DashboardResponse> getDashboardStats() {

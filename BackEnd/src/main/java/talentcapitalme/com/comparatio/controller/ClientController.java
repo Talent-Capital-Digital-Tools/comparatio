@@ -1,5 +1,8 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +28,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/clients")
 @RequiredArgsConstructor
+@Tag(name = "Client Management", description = "Client admin user management operations (Super Admin only)")
 public class ClientController {
 
     private final IUserManagementService userManagementService;
 
+    @Operation(summary = "Get All Client Admins", description = "Retrieve all client admin users (Super Admin only)")
     @GetMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<List<User>> getAllClientAdmins() {
@@ -38,15 +43,17 @@ public class ClientController {
         return ResponseEntity.ok(clientAdmins);
     }
 
+    @Operation(summary = "Get Client Admin by ID", description = "Retrieve a specific client admin by ID (Super Admin only)")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<User> getClientAdminById(@PathVariable String id) {
+    public ResponseEntity<User> getClientAdminById(@Parameter(description = "Client Admin ID") @PathVariable String id) {
         log.info("Client Management Controller: Retrieving client admin by ID: {}", id);
         User clientAdmin = userManagementService.getClientAdminById(id);
         log.info("Client Management Controller: Retrieved client admin: {} for ID: {}", clientAdmin.getUsername(), id);
         return ResponseEntity.ok(clientAdmin);
     }
 
+    @Operation(summary = "Create Client Admin", description = "Create a new client admin user (Super Admin only)")
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<User> createClientAdmin(@Valid @RequestBody User user) {
@@ -57,27 +64,30 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdClientAdmin);
     }
 
+    @Operation(summary = "Update Client Admin", description = "Update an existing client admin user (Super Admin only)")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<User> updateClientAdmin(@PathVariable String id, @Valid @RequestBody User user) {
+    public ResponseEntity<User> updateClientAdmin(@Parameter(description = "Client Admin ID") @PathVariable String id, @Valid @RequestBody User user) {
         log.info("Client Management Controller: Updating client admin with ID: {} for company: {}", id, user.getName());
         User updatedClientAdmin = userManagementService.updateClientAdmin(id, user);
         log.info("Client Management Controller: Client admin updated successfully for ID: {}", id);
         return ResponseEntity.ok(updatedClientAdmin);
     }
 
+    @Operation(summary = "Delete Client Admin", description = "Delete a client admin user (Super Admin only)")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Void> deleteClientAdmin(@PathVariable String id) {
+    public ResponseEntity<Void> deleteClientAdmin(@Parameter(description = "Client Admin ID") @PathVariable String id) {
         log.info("Client Management Controller: Deleting client admin with ID: {}", id);
         userManagementService.deleteClientAdmin(id);
         log.info("Client Management Controller: Client admin deleted successfully for ID: {}", id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Activate Client Admin", description = "Activate a client admin user account (Super Admin only)")
     @PostMapping("/{id}/activate")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<User> activateClientAdmin(@PathVariable String id) {
+    public ResponseEntity<User> activateClientAdmin(@Parameter(description = "Client Admin ID") @PathVariable String id) {
         log.info("Client Management Controller: Activating client admin with ID: {}", id);
         User clientAdmin = userManagementService.activateClientAdmin(id);
         log.info("Client Management Controller: Client admin activated successfully for ID: {} - Company: {}", 
@@ -85,9 +95,10 @@ public class ClientController {
         return ResponseEntity.ok(clientAdmin);
     }
 
+    @Operation(summary = "Deactivate Client Admin", description = "Deactivate a client admin user account (Super Admin only)")
     @PostMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<User> deactivateClientAdmin(@PathVariable String id) {
+    public ResponseEntity<User> deactivateClientAdmin(@Parameter(description = "Client Admin ID") @PathVariable String id) {
         log.info("Client Management Controller: Deactivating client admin with ID: {}", id);
         User clientAdmin = userManagementService.deactivateClientAdmin(id);
         log.info("Client Management Controller: Client admin deactivated successfully for ID: {} - Company: {}", 

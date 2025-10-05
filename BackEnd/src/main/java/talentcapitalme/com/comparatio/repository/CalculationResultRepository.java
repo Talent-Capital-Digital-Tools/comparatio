@@ -24,4 +24,10 @@ public interface CalculationResultRepository extends MongoRepository<Calculation
     
     // Duplicate prevention: Delete existing results by client and employee codes
     long deleteByClientIdAndEmployeeCodeIn(String clientId, List<String> employeeCodes);
+    
+    // Complete cleanup: Delete all calculation results for a client (for fresh bulk uploads)
+    long deleteByClientId(String clientId);
+    
+    // Cleanup specific batch: Delete all results for a specific batch
+    long deleteByClientIdAndBatchId(String clientId, String batchId);
 }

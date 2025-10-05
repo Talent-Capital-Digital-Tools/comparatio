@@ -28,6 +28,7 @@ import talentcapitalme.com.comparatio.service.IExcelProcessingService;
 import talentcapitalme.com.comparatio.service.ICompensationService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -136,24 +137,33 @@ public class CalcController {
                 batchId, page, size);
         String clientId = Authz.getCurrentUserClientId();
 
-        // Get all results first to calculate totals
-        var allRows = resultRepo.findByBatchId(batchId).stream()
+        // Get all results first to calculate totals with proper row indexing
+        List<CalculationResult> dbResults = resultRepo.findByBatchId(batchId).stream()
                 .filter(r -> clientId.equals(r.getClientId()))
-                .map(r -> BulkRowResult.builder()
-                        .employeeCode(r.getEmployeeCode())
-                        .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A") // Use stored employee name
-                        .jobTitle(r.getJobTitle())
-                        .yearsExperience(r.getYearsExperience())
-                        .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)
-                        .currentSalary(r.getCurrentSalary())
-                        .midOfScale(r.getMidOfScale())
-                        .compaRatio(r.getCompaRatio())
-                        .compaLabel(r.getCompaLabel())
-                        .increasePct(r.getIncreasePct())
-                        .newSalary(r.getNewSalary())
-                        .increaseAmount(r.getNewSalary().subtract(r.getCurrentSalary()))
-                        .build())
+                .sorted((r1, r2) -> r1.getEmployeeCode().compareTo(r2.getEmployeeCode())) // Sort by employee code for consistent ordering
                 .toList();
+        
+        // Convert to BulkRowResult with proper row indexing (starting from 1)
+        var allRows = new ArrayList<BulkRowResult>();
+        for (int i = 0; i < dbResults.size(); i++) {
+            CalculationResult r = dbResults.get(i);
+            BulkRowResult rowResult = BulkRowResult.builder()
+                    .rowIndex(i + 1) // Excel rows start from 1, ensures no missing first row
+                    .employeeCode(r.getEmployeeCode())
+                    .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
+                    .jobTitle(r.getJobTitle())
+                    .yearsExperience(r.getYearsExperience())
+                    .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)
+                    .currentSalary(r.getCurrentSalary())
+                    .midOfScale(r.getMidOfScale())
+                    .compaRatio(r.getCompaRatio())
+                    .compaLabel(r.getCompaLabel())
+                    .increasePct(r.getIncreasePct())
+                    .newSalary(r.getNewSalary())
+                    .increaseAmount(r.getNewSalary().subtract(r.getCurrentSalary()))
+                    .build();
+            allRows.add(rowResult);
+        }
 
         int successCount = (int) allRows.stream().filter(r -> r.getError() == null).count();
         int errorCount = allRows.size() - successCount;
@@ -179,23 +189,34 @@ public class CalcController {
             throws IOException {
         log.info("Calculation Controller: Processing download request for batch: {}", batchId);
         String clientId = Authz.getCurrentUserClientId();
-        var rows = resultRepo.findByBatchId(batchId).stream()
+        
+        // Get results with proper sorting and indexing
+        List<CalculationResult> dbResults = resultRepo.findByBatchId(batchId).stream()
                 .filter(r -> clientId.equals(r.getClientId()))
-                .map(r -> BulkRowResult.builder()
-                        .employeeCode(r.getEmployeeCode())
-                        .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A") // Use stored employee name
-                        .jobTitle(r.getJobTitle())
-                        .yearsExperience(r.getYearsExperience())
-                        .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)
-                        .currentSalary(r.getCurrentSalary())
-                        .midOfScale(r.getMidOfScale())
-                        .compaRatio(r.getCompaRatio())
-                        .compaLabel(r.getCompaLabel())
-                        .increasePct(r.getIncreasePct())
-                        .newSalary(r.getNewSalary())
-                        .increaseAmount(r.getNewSalary().subtract(r.getCurrentSalary()))
-                        .build())
+                .sorted((r1, r2) -> r1.getEmployeeCode().compareTo(r2.getEmployeeCode()))
                 .toList();
+        
+        // Convert to BulkRowResult with proper row indexing
+        var rows = new ArrayList<BulkRowResult>();
+        for (int i = 0; i < dbResults.size(); i++) {
+            CalculationResult r = dbResults.get(i);
+            BulkRowResult rowResult = BulkRowResult.builder()
+                    .rowIndex(i + 1) // Excel rows start from 1
+                    .employeeCode(r.getEmployeeCode())
+                    .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
+                    .jobTitle(r.getJobTitle())
+                    .yearsExperience(r.getYearsExperience())
+                    .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)
+                    .currentSalary(r.getCurrentSalary())
+                    .midOfScale(r.getMidOfScale())
+                    .compaRatio(r.getCompaRatio())
+                    .compaLabel(r.getCompaLabel())
+                    .increasePct(r.getIncreasePct())
+                    .newSalary(r.getNewSalary())
+                    .increaseAmount(r.getNewSalary().subtract(r.getCurrentSalary()))
+                    .build();
+            rows.add(rowResult);
+        }
 
         log.info("Calculation Controller: Found {} calculation results for batch: {}", rows.size(), batchId);
         byte[] xlsx = excelProcessingService.generateEnhancedExcel(rows, batchId);
@@ -306,9 +327,11 @@ public class CalcController {
 
     /**
      * Helper method to convert CalculationResult entity to BulkRowResult DTO
+     * Note: This method doesn't set rowIndex as it's used in pagination contexts where row indexing is handled separately
      */
     private BulkRowResult convertToRowResult(CalculationResult r) {
         return BulkRowResult.builder()
+                .rowIndex(0) // Will be set by the calling method based on context
                 .employeeCode(r.getEmployeeCode())
                 .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
                 .jobTitle(r.getJobTitle())

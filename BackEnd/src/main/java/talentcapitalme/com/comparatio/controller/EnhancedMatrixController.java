@@ -1,5 +1,8 @@
 package talentcapitalme.com.comparatio.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,18 +37,17 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/admin/matrix")
 @RequiredArgsConstructor
+@Tag(name = "Enhanced Matrix Management", description = "Advanced matrix management for super administrators")
 public class EnhancedMatrixController {
 
     private final IMatrixManagementService matrixService;
     private final UserRepository userRepository;
     private final IMatrixValidationService validationService;
 
-    /**
-     * Get all matrices for a specific client with detailed information
-     */
+    @Operation(summary = "Get Client Matrices", description = "Retrieve all matrices for a specific client with detailed information")
     @GetMapping("/client/{clientId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<List<MatrixResponse>> getClientMatrices(@PathVariable String clientId) {
+    public ResponseEntity<List<MatrixResponse>> getClientMatrices(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Retrieving matrices for client: {}", clientId);
         
         List<AdjustmentMatrix> matrices = matrixService.getClientMatrices(clientId);
@@ -60,12 +62,10 @@ public class EnhancedMatrixController {
         return ResponseEntity.ok(responses);
     }
 
-    /**
-     * Get matrices grouped by performance bucket
-     */
+    @Operation(summary = "Get Grouped Matrices", description = "Retrieve matrices grouped by performance bucket for a client")
     @GetMapping("/client/{clientId}/grouped")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Map<String, Object>> getClientMatricesGrouped(@PathVariable String clientId) {
+    public ResponseEntity<Map<String, Object>> getClientMatricesGrouped(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Retrieving grouped matrices for client: {}", clientId);
         
         List<AdjustmentMatrix> matrices = matrixService.getClientMatrices(clientId);
@@ -88,13 +88,11 @@ public class EnhancedMatrixController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get a specific matrix by ID
-     */
+    @Operation(summary = "Get Matrix by ID", description = "Retrieve a specific matrix by ID for a client")
     @GetMapping("/{matrixId}/client/{clientId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<MatrixResponse> getMatrix(@PathVariable String matrixId, 
-                                                   @PathVariable String clientId) {
+    public ResponseEntity<MatrixResponse> getMatrix(@Parameter(description = "Matrix ID") @PathVariable String matrixId, 
+                                                   @Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Retrieving matrix {} for client {}", matrixId, clientId);
         
         AdjustmentMatrix matrix = matrixService.getMatrixById(matrixId, clientId);
@@ -105,12 +103,10 @@ public class EnhancedMatrixController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Create a new matrix
-     */
+    @Operation(summary = "Create Matrix", description = "Create a new adjustment matrix for a client")
     @PostMapping("/client/{clientId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<MatrixResponse> createMatrix(@PathVariable String clientId,
+    public ResponseEntity<MatrixResponse> createMatrix(@Parameter(description = "Client ID") @PathVariable String clientId,
                                                       @Valid @RequestBody MatrixUpdateRequest request) {
         log.info("Creating matrix for client {} with performance bucket {}", clientId, request.getPerfBucket());
         
@@ -131,13 +127,11 @@ public class EnhancedMatrixController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Update an existing matrix
-     */
+    @Operation(summary = "Update Matrix", description = "Update an existing adjustment matrix for a client")
     @PutMapping("/{matrixId}/client/{clientId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<MatrixResponse> updateMatrix(@PathVariable String matrixId,
-                                                      @PathVariable String clientId,
+    public ResponseEntity<MatrixResponse> updateMatrix(@Parameter(description = "Matrix ID") @PathVariable String matrixId,
+                                                      @Parameter(description = "Client ID") @PathVariable String clientId,
                                                       @Valid @RequestBody MatrixUpdateRequest request) {
         log.info("Updating matrix {} for client {}", matrixId, clientId);
         
@@ -158,25 +152,21 @@ public class EnhancedMatrixController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Delete a matrix
-     */
+    @Operation(summary = "Delete Matrix", description = "Delete an adjustment matrix for a client")
     @DeleteMapping("/{matrixId}/client/{clientId}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Void> deleteMatrix(@PathVariable String matrixId,
-                                            @PathVariable String clientId) {
+    public ResponseEntity<Void> deleteMatrix(@Parameter(description = "Matrix ID") @PathVariable String matrixId,
+                                            @Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Deleting matrix {} for client {}", matrixId, clientId);
         
         matrixService.deleteMatrix(matrixId, clientId);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Bulk update matrices for a client
-     */
+    @Operation(summary = "Bulk Update Matrices", description = "Update multiple matrices for a client in a single operation")
     @PutMapping("/client/{clientId}/bulk")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<List<MatrixResponse>> bulkUpdateMatrices(@PathVariable String clientId,
+    public ResponseEntity<List<MatrixResponse>> bulkUpdateMatrices(@Parameter(description = "Client ID") @PathVariable String clientId,
                                                                   @Valid @RequestBody List<MatrixUpdateRequest> requests) {
         log.info("Bulk updating {} matrices for client {}", requests.size(), clientId);
         
@@ -204,12 +194,10 @@ public class EnhancedMatrixController {
         return ResponseEntity.ok(responses);
     }
 
-    /**
-     * Reset matrices to default for a client
-     */
+    @Operation(summary = "Reset to Default Matrices", description = "Reset all matrices to default values for a client")
     @PostMapping("/client/{clientId}/reset")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<List<MatrixResponse>> resetToDefaultMatrices(@PathVariable String clientId) {
+    public ResponseEntity<List<MatrixResponse>> resetToDefaultMatrices(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Resetting matrices to default for client {}", clientId);
         
         List<AdjustmentMatrix> defaultMatrices = matrixService.resetToDefaultMatrices(clientId);
@@ -224,12 +212,10 @@ public class EnhancedMatrixController {
         return ResponseEntity.ok(responses);
     }
 
-    /**
-     * Get matrix statistics for a client
-     */
+    @Operation(summary = "Get Matrix Statistics", description = "Retrieve matrix statistics and analytics for a client")
     @GetMapping("/client/{clientId}/stats")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<Map<String, Object>> getMatrixStats(@PathVariable String clientId) {
+    public ResponseEntity<Map<String, Object>> getMatrixStats(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Retrieving matrix statistics for client {}", clientId);
         
         List<AdjustmentMatrix> matrices = matrixService.getClientMatrices(clientId);
@@ -258,12 +244,10 @@ public class EnhancedMatrixController {
         return ResponseEntity.ok(stats);
     }
 
-    /**
-     * Validate matrix configuration for a client
-     */
+    @Operation(summary = "Validate Matrix Configuration", description = "Validate existing matrix configuration for a client")
     @GetMapping("/client/{clientId}/validate")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<MatrixValidationResult> validateMatrices(@PathVariable String clientId) {
+    public ResponseEntity<MatrixValidationResult> validateMatrices(@Parameter(description = "Client ID") @PathVariable String clientId) {
         log.info("Validating matrix configuration for client {}", clientId);
         
         List<AdjustmentMatrix> matrices = matrixService.getClientMatrices(clientId);
@@ -275,13 +259,11 @@ public class EnhancedMatrixController {
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * Validate matrix configuration before saving
-     */
+    @Operation(summary = "Validate Matrix Configuration Before Save", description = "Validate matrix configuration before saving changes")
     @PostMapping("/client/{clientId}/validate")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<MatrixValidationResult> validateMatrixConfiguration(
-            @PathVariable String clientId,
+            @Parameter(description = "Client ID") @PathVariable String clientId,
             @Valid @RequestBody List<MatrixUpdateRequest> requests) {
         log.info("Validating {} matrix configurations for client {}", requests.size(), clientId);
         

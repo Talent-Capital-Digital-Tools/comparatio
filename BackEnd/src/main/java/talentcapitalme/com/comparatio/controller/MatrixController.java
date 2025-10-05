@@ -49,9 +49,10 @@ public class MatrixController {
         return matrices;
     }
 
+    @Operation(summary = "Create Matrix", description = "Create a new adjustment matrix for a specific client (Super Admin only)")
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public AdjustmentMatrix create(@RequestParam(required = true) String clientId,
+    public AdjustmentMatrix create(@Parameter(description = "Client ID") @RequestParam(required = true) String clientId,
                                    @RequestBody AdjustmentMatrix m) {
         log.info("Matrix Management Controller: Creating new matrix for client: {}", clientId);
         // SUPER_ADMIN creates matrices for specific client
@@ -65,10 +66,11 @@ public class MatrixController {
         return saved;
     }
 
+    @Operation(summary = "Update Matrix", description = "Update an existing adjustment matrix for a specific client (Super Admin only)")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public AdjustmentMatrix update(@PathVariable String id,
-                                   @RequestParam(required = true) String clientId,
+    public AdjustmentMatrix update(@Parameter(description = "Matrix ID") @PathVariable String id,
+                                   @Parameter(description = "Client ID") @RequestParam(required = true) String clientId,
                                    @RequestBody AdjustmentMatrix m) {
         log.info("Matrix Management Controller: Updating matrix ID: {} for client: {}", id, clientId);
         // SUPER_ADMIN updates matrices for specific client
@@ -91,11 +93,12 @@ public class MatrixController {
         return updated;
     }
 
+    @Operation(summary = "Delete Matrix", description = "Delete an adjustment matrix for a specific client (Super Admin only)")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable String id,
-                       @RequestParam(required = true) String clientId) {
+    public void delete(@Parameter(description = "Matrix ID") @PathVariable String id,
+                       @Parameter(description = "Client ID") @RequestParam(required = true) String clientId) {
         log.info("Matrix Management Controller: Deleting matrix ID: {} for client: {}", id, clientId);
         // SUPER_ADMIN deletes matrices for specific client
         if (clientId == null || clientId.trim().isEmpty()) {
@@ -113,9 +116,10 @@ public class MatrixController {
         log.info("Matrix Management Controller: Matrix deleted successfully for ID: {} and client: {}", id, clientId);
     }
 
+    @Operation(summary = "Seed Default Matrices", description = "Create default adjustment matrices for a new client (Super Admin only)")
     @PostMapping("/seed-client")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    public ResponseEntity<String> seedClientMatrices(@RequestParam(required = true) String clientId) {
+    public ResponseEntity<String> seedClientMatrices(@Parameter(description = "Client ID") @RequestParam(required = true) String clientId) {
         log.info("Matrix Management Controller: Seeding default matrices for client: {}", clientId);
         // SUPER_ADMIN can seed default matrices for a new client
         if (clientId == null || clientId.trim().isEmpty()) {
