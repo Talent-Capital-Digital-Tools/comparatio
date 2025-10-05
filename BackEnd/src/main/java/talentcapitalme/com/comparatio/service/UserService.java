@@ -202,6 +202,8 @@ public class UserService implements IUserService {
                 .avatarUrl(user.getAvatarUrl())
                 .role(user.getRole().name())
                 .active(user.getActive())
+                .performanceRatingScale(user.getPerformanceRatingScale())
+                .currency(user.getCurrency())
                 .build();
     }
 
