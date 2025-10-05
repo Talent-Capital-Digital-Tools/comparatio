@@ -37,7 +37,7 @@ public class CalculationResultMapper {
                 .employeeName(result.getEmployeeName() != null ? result.getEmployeeName() : "N/A")
                 .jobTitle(result.getJobTitle())
                 .yearsExperience(result.getYearsExperience())
-                .performanceRating5(result.getPerfBucket() == 3 ? 4 : result.getPerfBucket() == 2 ? 3 : 1)
+                .performanceRating5(result.getPerfBucket() == 3 ? 5 : result.getPerfBucket() == 2 ? 3 : 2)
                 .currentSalary(result.getCurrentSalary())
                 .midOfScale(result.getMidOfScale())
                 .compaRatio(result.getCompaRatio())

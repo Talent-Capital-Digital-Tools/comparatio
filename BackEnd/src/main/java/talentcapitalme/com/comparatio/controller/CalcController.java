@@ -31,7 +31,6 @@ import talentcapitalme.com.comparatio.util.CalculationResultMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Calculation Controller
@@ -155,7 +154,7 @@ public class CalcController {
                     .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
                     .jobTitle(r.getJobTitle())
                     .yearsExperience(r.getYearsExperience())
-                    .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)
+                    .performanceRating5(r.getPerfBucket() == 3 ? 5 : r.getPerfBucket() == 2 ? 3 : 2)
                     .currentSalary(r.getCurrentSalary())
                     .midOfScale(r.getMidOfScale())
                     .compaRatio(r.getCompaRatio())
@@ -208,7 +207,7 @@ public class CalcController {
                     .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
                     .jobTitle(r.getJobTitle())
                     .yearsExperience(r.getYearsExperience())
-                    .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)
+                    .performanceRating5(r.getPerfBucket() == 3 ? 5 : r.getPerfBucket() == 2 ? 3 : 2)
                     .currentSalary(r.getCurrentSalary())
                     .midOfScale(r.getMidOfScale())
                     .compaRatio(r.getCompaRatio())
@@ -334,7 +333,7 @@ public class CalcController {
                 .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
                 .jobTitle(r.getJobTitle())
                 .yearsExperience(r.getYearsExperience())
-                .performanceRating5(r.getPerfBucket() == 3 ? 4 : r.getPerfBucket() == 2 ? 3 : 1)
+                .performanceRating5(r.getPerfBucket() == 3 ? 5 : r.getPerfBucket() == 2 ? 3 : 2)
                 .currentSalary(r.getCurrentSalary())
                 .midOfScale(r.getMidOfScale())
                 .compaRatio(r.getCompaRatio())
