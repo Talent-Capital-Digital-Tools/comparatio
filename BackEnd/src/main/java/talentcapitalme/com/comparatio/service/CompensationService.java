@@ -1,4 +1,6 @@
 package talentcapitalme.com.comparatio.service;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,8 @@ public class CompensationService implements ICompensationService {
     private final AdjustmentMatrixRepository matrixRepo;
     private final PerformanceRatingService performanceRatingService;
 
+    @Timed(name = "calculation.time", description = "Time taken for compensation calculations")
+    @Counted(name = "calculation.count", description = "Number of compensation calculations performed")
     public CalcResponse calculate(CalcRequest req) {
         log.info("Starting individual calculation for employee: {}", req.getEmployeeCode());
         long startTime = System.currentTimeMillis();

@@ -2,6 +2,8 @@ package talentcapitalme.com.comparatio.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
@@ -28,6 +30,7 @@ public class MatrixManagementService implements IMatrixManagementService {
     /**
      * Get all matrices for a specific client with comprehensive validation
      */
+    @Cacheable(value = "matrices", key = "#clientId")
     public List<AdjustmentMatrix> getClientMatrices(String clientId) {
         validateClientAccess(clientId);
         log.info("Retrieving matrices for client: {}", clientId);
@@ -55,6 +58,7 @@ public class MatrixManagementService implements IMatrixManagementService {
      * Create a new matrix with comprehensive validation
      */
     @Transactional
+    @CacheEvict(value = "matrices", key = "#clientId")
     public AdjustmentMatrix createMatrix(String clientId, AdjustmentMatrix matrix) {
         validateClientAccess(clientId);
         validateMatrixData(matrix);

@@ -9,12 +9,27 @@ spring:
     mongodb:
       uri: ${MONGO_URI:mongodb://localhost:27017}
       database: ${MONGO_DB:compa_demo}
+  cache:
+    type: simple
+    cache-names:
+      - matrices
+      - users
+      - performanceScales
+      - clientData
+      - templates
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 app:
   template:
@@ -22,3 +37,49 @@ app:
   file-storage:
     base-path: ${FILE_STORAGE_PATH:./uploads}
     retention-days: ${FILE_RETENTION_DAYS:90}
+  jwt:
+    secret: "fda10b388526a9b0ebda6d8a7f2d2345a1af5"
+    expiration: 86400000 # 24 hours
+    refreshExpiration: 604800000 # 7 days
+    issuer: Comparatio
+    audience: Comparatio-Users
+  fileUpload:
+    uploadPath: uploads
+    profileImagesPath: uploads/profiles
+    clientFilesPath: uploads/clients
+    maxFileSize: 52428800 # 50MB
+    maxImageSize: 5242880 # 5MB
+    allowedExcelExtensions:
+      - .xlsx
+      - .xls
+    allowedImageExtensions:
+      - .jpg
+      - .jpeg
+      - .png
+      - .gif
+      - .bmp
+  database:
+    connectionTimeout: 30000 # 30 seconds
+    socketTimeout: 30000 # 30 seconds
+    maxPoolSize: 100
+    minPoolSize: 5
+    maxIdleTime: 60000 # 1 minute
+  security:
+    enableCors: true
+    corsAllowedOrigins: "*"
+    corsAllowedMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    corsAllowedHeaders: "*"
+    enableCsrf: false
+    maxLoginAttempts: 5
+    lockoutDuration: 300 # 5 minutes
+  monitoring:
+    enableMetrics: true
+    enableHealthChecks: true
+    enableRequestLogging: true
+    slowQueryThreshold: 1000 # 1 second
+    maxLogEntries: 10000

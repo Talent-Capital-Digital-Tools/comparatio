@@ -26,6 +26,7 @@ import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.security.Authz;
 import talentcapitalme.com.comparatio.service.IExcelProcessingService;
 import talentcapitalme.com.comparatio.service.ICompensationService;
+import talentcapitalme.com.comparatio.util.CalculationResultMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class CalcController {
     private final ICompensationService service;
     private final IExcelProcessingService excelProcessingService;
     private final CalculationResultRepository resultRepo;
+    private final CalculationResultMapper resultMapper;
 
     @Operation(summary = "Individual Calculation", description = "Calculate compensation for a single employee")
     @PostMapping("/individual")
@@ -250,10 +252,8 @@ public class CalcController {
         // Fetch page from database (efficient - only loads requested page!)
         Page<CalculationResult> resultPage = resultRepo.findByClientId(clientId, pageable);
 
-        // Convert to BulkRowResult DTOs
-        List<BulkRowResult> rows = resultPage.getContent().stream()
-                .map(this::convertToRowResult)
-                .collect(Collectors.toList());
+        // Convert to BulkRowResult DTOs using utility mapper
+        List<BulkRowResult> rows = resultMapper.convertToBulkRowResults(resultPage.getContent());
 
         // Build response with pagination metadata
         BulkResponse response = BulkResponse.builder()
@@ -299,10 +299,8 @@ public class CalcController {
         // Fetch page from database (efficient - only loads requested page!)
         Page<CalculationResult> resultPage = resultRepo.findByClientIdAndBatchId(clientId, batchId, pageable);
 
-        // Convert to BulkRowResult DTOs
-        List<BulkRowResult> rows = resultPage.getContent().stream()
-                .map(this::convertToRowResult)
-                .collect(Collectors.toList());
+        // Convert to BulkRowResult DTOs using utility mapper
+        List<BulkRowResult> rows = resultMapper.convertToBulkRowResults(resultPage.getContent());
 
         // Build response with pagination metadata
         BulkResponse response = BulkResponse.builder()
