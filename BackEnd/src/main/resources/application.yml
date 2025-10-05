@@ -17,6 +17,8 @@ spring:
       - performanceScales
       - clientData
       - templates
+  aop:
+    auto: true
 
 management:
   endpoints:

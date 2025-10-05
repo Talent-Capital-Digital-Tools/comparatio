@@ -71,7 +71,7 @@ public class SeedService implements CommandLineRunner {
     private void seedRow(String clientId, int perf, double from, double to, double l, double r) {
         matrixRepo.save(AdjustmentMatrix.builder()
                 .id(clientId + "_m_" + perf + "_" + from + "_" + to)
-                .clientId(clientId) // Client-specific matrices
+                .clientId(clientId)
                 .perfBucket(perf)
                 .compaFrom(BigDecimal.valueOf(from))
                 .compaTo(BigDecimal.valueOf(to))

@@ -22,8 +22,8 @@ public class CompensationService implements ICompensationService {
     private final AdjustmentMatrixRepository matrixRepo;
     private final PerformanceRatingService performanceRatingService;
 
-    @Timed(name = "calculation.time", description = "Time taken for compensation calculations")
-    @Counted(name = "calculation.count", description = "Number of compensation calculations performed")
+    @Timed(value = "calculation.time", description = "Time taken for compensation calculations")
+    @Counted(value = "calculation.count", description = "Number of compensation calculations performed")
     public CalcResponse calculate(CalcRequest req) {
         log.info("Starting individual calculation for employee: {}", req.getEmployeeCode());
         long startTime = System.currentTimeMillis();
