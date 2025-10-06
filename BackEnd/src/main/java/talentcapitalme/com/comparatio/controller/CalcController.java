@@ -26,6 +26,7 @@ import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.security.Authz;
 import talentcapitalme.com.comparatio.service.IExcelProcessingService;
 import talentcapitalme.com.comparatio.service.ICompensationService;
+import talentcapitalme.com.comparatio.service.PerformanceRatingService;
 import talentcapitalme.com.comparatio.util.CalculationResultMapper;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ public class CalcController {
     private final IExcelProcessingService excelProcessingService;
     private final CalculationResultRepository resultRepo;
     private final CalculationResultMapper resultMapper;
+    private final PerformanceRatingService performanceRatingService;
 
     @Operation(summary = "Individual Calculation", description = "Calculate compensation for a single employee")
     @PostMapping("/individual")
@@ -154,7 +156,7 @@ public class CalcController {
                     .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
                     .jobTitle(r.getJobTitle())
                     .yearsExperience(r.getYearsExperience())
-                    .performanceRating5(r.getPerfBucket() == 3 ? 5 : r.getPerfBucket() == 2 ? 3 : 2)
+                    .performanceRating5(convertBucketToRating(r.getPerfBucket()))
                     .currentSalary(r.getCurrentSalary())
                     .midOfScale(r.getMidOfScale())
                     .compaRatio(r.getCompaRatio())
@@ -207,7 +209,7 @@ public class CalcController {
                     .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
                     .jobTitle(r.getJobTitle())
                     .yearsExperience(r.getYearsExperience())
-                    .performanceRating5(r.getPerfBucket() == 3 ? 5 : r.getPerfBucket() == 2 ? 3 : 2)
+                    .performanceRating5(convertBucketToRating(r.getPerfBucket()))
                     .currentSalary(r.getCurrentSalary())
                     .midOfScale(r.getMidOfScale())
                     .compaRatio(r.getCompaRatio())
@@ -323,6 +325,34 @@ public class CalcController {
     }
 
     /**
+     * Convert performance bucket back to the correct rating based on user's scale
+     * @param perfBucket the stored performance bucket (1, 2, or 3)
+     * @return the correct performance rating for display
+     */
+    private int convertBucketToRating(int perfBucket) {
+        var userScale = performanceRatingService.getUserPerformanceRatingScale();
+        
+        switch (userScale) {
+            case THREE_POINT:
+                // 3-point scale: bucket = rating (direct mapping)
+                return perfBucket;
+            case FIVE_POINT:
+                // 5-point scale: convert back using reverse mapping
+                // Since we map: 1→1, 2→2, 3→2, 4→3, 5→3
+                // Reverse: bucket 1 → rating 1, bucket 2 → rating 2, bucket 3 → rating 4
+                switch (perfBucket) {
+                    case 1: return 1;
+                    case 2: return 2; // Both rating 2 and 3 map to bucket 2, so show 2
+                    case 3: return 4; // Both rating 4 and 5 map to bucket 3, so show 4
+                    default: return 1;
+                }
+            default:
+                log.warn("Unknown performance rating scale: {}, defaulting to 5-point conversion", userScale);
+                return perfBucket == 3 ? 4 : perfBucket;
+        }
+    }
+
+    /**
      * Helper method to convert CalculationResult entity to BulkRowResult DTO
      * Note: This method doesn't set rowIndex as it's used in pagination contexts where row indexing is handled separately
      */
@@ -333,7 +363,7 @@ public class CalcController {
                 .employeeName(r.getEmployeeName() != null ? r.getEmployeeName() : "N/A")
                 .jobTitle(r.getJobTitle())
                 .yearsExperience(r.getYearsExperience())
-                .performanceRating5(r.getPerfBucket() == 3 ? 5 : r.getPerfBucket() == 2 ? 3 : 2)
+                .performanceRating5(convertBucketToRating(r.getPerfBucket()))
                 .currentSalary(r.getCurrentSalary())
                 .midOfScale(r.getMidOfScale())
                 .compaRatio(r.getCompaRatio())

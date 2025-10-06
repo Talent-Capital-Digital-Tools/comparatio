@@ -11,6 +11,7 @@ import talentcapitalme.com.comparatio.dto.BulkResponse;
 import talentcapitalme.com.comparatio.dto.BulkRowResult;
 import talentcapitalme.com.comparatio.entity.AdjustmentMatrix;
 import talentcapitalme.com.comparatio.entity.CalculationResult;
+import talentcapitalme.com.comparatio.enumeration.PerformanceRatingScale;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
 import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.repository.UserRepository;
@@ -350,12 +351,33 @@ public class ExcelProcessingService implements IExcelProcessingService {
         if (performanceRating == null) {
             throw new IllegalArgumentException("Performance Rating is required at row " + rowIndex);
         }
+        // Validate and potentially convert performance rating
+        var userScale = performanceRatingService.getUserPerformanceRatingScale();
+        int originalRating = performanceRating;
+        
+        // If Excel has 5-point data but user uses 3-point scale, convert it
+        if (performanceRating > 3 && userScale == PerformanceRatingScale.THREE_POINT) {
+            log.info("Converting 5-point rating {} to 3-point scale for row {} (user scale: {})", 
+                    performanceRating, rowIndex, userScale);
+            // Convert 5-point to 3-point: 4,5 → 3
+            if (performanceRating >= 4) {
+                performanceRating = 3;
+            } else if (performanceRating == 3) {
+                performanceRating = 3; // Already correct
+            }
+            log.info("Rating converted from {} to {} for row {}", originalRating, performanceRating, rowIndex);
+        }
+        
         // Validate performance rating against user's scale
         if (!performanceRatingService.isValidPerformanceRating(performanceRating)) {
-            var scale = performanceRatingService.getUserPerformanceRatingScale();
+            log.error("Validation failed for rating {} (original: {}) at row {} with scale {}", 
+                    performanceRating, originalRating, rowIndex, userScale);
             throw new IllegalArgumentException(String.format("Performance Rating must be between 1 and %d for %s at row %d", 
-                    scale.getMaxRating(), scale.getDisplayName(), rowIndex));
+                    userScale.getMaxRating(), userScale.getDisplayName(), rowIndex));
         }
+        
+        log.debug("Performance rating validation passed: {} for row {} with scale {}", 
+                performanceRating, rowIndex, userScale);
         if (currentSalary == null) {
             throw new IllegalArgumentException("Current Salary is required at row " + rowIndex);
         }

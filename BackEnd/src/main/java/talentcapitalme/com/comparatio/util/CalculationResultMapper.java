@@ -1,9 +1,11 @@
 package talentcapitalme.com.comparatio.util;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import talentcapitalme.com.comparatio.dto.BulkRowResult;
 import talentcapitalme.com.comparatio.entity.CalculationResult;
+import talentcapitalme.com.comparatio.service.PerformanceRatingService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +16,38 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CalculationResultMapper {
+    
+    private final PerformanceRatingService performanceRatingService;
+
+    /**
+     * Convert performance bucket back to the correct rating based on user's scale
+     * @param perfBucket the stored performance bucket (1, 2, or 3)
+     * @return the correct performance rating for display
+     */
+    private int convertBucketToRating(int perfBucket) {
+        var userScale = performanceRatingService.getUserPerformanceRatingScale();
+        
+        switch (userScale) {
+            case THREE_POINT:
+                // 3-point scale: bucket = rating (direct mapping)
+                return perfBucket;
+            case FIVE_POINT:
+                // 5-point scale: convert back using reverse mapping
+                // Since we map: 1→1, 2→2, 3→2, 4→3, 5→3
+                // Reverse: bucket 1 → rating 1, bucket 2 → rating 2, bucket 3 → rating 4
+                switch (perfBucket) {
+                    case 1: return 1;
+                    case 2: return 2; // Both rating 2 and 3 map to bucket 2, so show 2
+                    case 3: return 4; // Both rating 4 and 5 map to bucket 3, so show 4
+                    default: return 1;
+                }
+            default:
+                log.warn("Unknown performance rating scale: {}, defaulting to 5-point conversion", userScale);
+                return perfBucket == 3 ? 4 : perfBucket;
+        }
+    }
 
     /**
      * Convert list of CalculationResult entities to BulkRowResult DTOs
@@ -37,7 +70,7 @@ public class CalculationResultMapper {
                 .employeeName(result.getEmployeeName() != null ? result.getEmployeeName() : "N/A")
                 .jobTitle(result.getJobTitle())
                 .yearsExperience(result.getYearsExperience())
-                .performanceRating5(result.getPerfBucket() == 3 ? 5 : result.getPerfBucket() == 2 ? 3 : 2)
+                .performanceRating5(convertBucketToRating(result.getPerfBucket()))
                 .currentSalary(result.getCurrentSalary())
                 .midOfScale(result.getMidOfScale())
                 .compaRatio(result.getCompaRatio())
