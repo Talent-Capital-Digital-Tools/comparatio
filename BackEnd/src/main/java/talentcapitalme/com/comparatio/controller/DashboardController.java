@@ -9,7 +9,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import talentcapitalme.com.comparatio.dto.ClientAccountSummary;
 import talentcapitalme.com.comparatio.dto.ClientAccountsResponse;
+import talentcapitalme.com.comparatio.dto.ClientDashboardStatistics;
 import talentcapitalme.com.comparatio.dto.DashboardResponse;
+import talentcapitalme.com.comparatio.security.Authz;
 import talentcapitalme.com.comparatio.service.IDashboardService;
 
 /**
@@ -166,6 +168,47 @@ public class DashboardController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error fetching dashboard statistics", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Client Dashboard Statistics Endpoint
+     * 
+     * GET /api/admin/dashboard/client-statistics
+     * 
+     * Purpose: Provides comprehensive analytics for CLIENT_ADMIN users based on their calculation results
+     * Access: CLIENT_ADMIN role (gets their own statistics) or SUPER_ADMIN with clientId parameter
+     * 
+     * Returns comprehensive statistics including:
+     * - Total employees count
+     * - Total current salary, total new salary, total percentage change
+     * - Compa ratio analysis (min > 0, max, average)
+     * - Percentage increase analysis (min, max, average)
+     * - Amount increase analysis (min, max, average)
+     */
+    @Operation(
+        summary = "Get Client Dashboard Statistics", 
+        description = "Get comprehensive dashboard statistics for a client based on calculation results from bulk uploads. " +
+                     "CLIENT_ADMIN users get their own statistics. SUPER_ADMIN can specify clientId parameter to view any client's statistics."
+    )
+    @GetMapping("/client-statistics")
+    @PreAuthorize("hasAnyRole('CLIENT_ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<ClientDashboardStatistics> getClientDashboardStatistics(
+            @Parameter(description = "Client ID (optional for CLIENT_ADMIN, required for SUPER_ADMIN)") 
+            @RequestParam(required = false) String clientId) {
+        
+        try {
+            // Determine the client ID to use based on user role and request parameter
+            String effectiveClientId = Authz.requireClientScope(clientId);
+            
+            log.info("Fetching client dashboard statistics for clientId: {}", effectiveClientId);
+            
+            ClientDashboardStatistics statistics = dashboardService.getClientDashboardStatistics(effectiveClientId);
+            return ResponseEntity.ok(statistics);
+            
+        } catch (Exception e) {
+            log.error("Error fetching client dashboard statistics: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }

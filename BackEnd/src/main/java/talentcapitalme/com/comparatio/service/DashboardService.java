@@ -9,8 +9,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import talentcapitalme.com.comparatio.dto.ClientAccountSummary;
 import talentcapitalme.com.comparatio.dto.ClientAccountsResponse;
+import talentcapitalme.com.comparatio.dto.ClientDashboardStatistics;
 import talentcapitalme.com.comparatio.dto.DashboardResponse;
 import talentcapitalme.com.comparatio.dto.DashboardStats;
+import talentcapitalme.com.comparatio.entity.CalculationResult;
 import talentcapitalme.com.comparatio.entity.User;
 import talentcapitalme.com.comparatio.enumeration.UserRole;
 import talentcapitalme.com.comparatio.repository.AdjustmentMatrixRepository;
@@ -18,7 +20,10 @@ import talentcapitalme.com.comparatio.repository.CalculationResultRepository;
 import talentcapitalme.com.comparatio.repository.EmployeeRepository;
 import talentcapitalme.com.comparatio.repository.UserRepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -236,5 +241,212 @@ public class DashboardService implements IDashboardService {
         
         int rating = Math.min(5, Math.max(1, score));
         return rating + "/5";
+    }
+
+    /**
+     * Get comprehensive dashboard statistics for a specific client
+     * Based on calculation results from bulk calculations stored in the database
+     * 
+     * @param clientId The client ID
+     * @return ClientDashboardStatistics containing all analytics
+     */
+    @Override
+    public ClientDashboardStatistics getClientDashboardStatistics(String clientId) {
+        log.info("Fetching dashboard statistics for client: {}", clientId);
+        
+        // Fetch all calculation results for this client
+        List<CalculationResult> results = calculationResultRepository.findByClientId(clientId, Pageable.unpaged()).getContent();
+        
+        // If no results found, return empty statistics
+        if (results == null || results.isEmpty()) {
+            log.warn("No calculation results found for client: {}", clientId);
+            return buildEmptyStatistics(clientId);
+        }
+        
+        log.info("Found {} calculation results for client: {}", results.size(), clientId);
+        
+        // Calculate basic metrics
+        int totalEmployees = results.size();
+        BigDecimal totalCurrentSalary = results.stream()
+                .map(CalculationResult::getCurrentSalary)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal totalNewSalary = results.stream()
+                .map(CalculationResult::getNewSalary)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // Calculate total percentage change: ((totalNew - totalOld) / totalOld) * 100
+        BigDecimal totalPercentageChange = BigDecimal.ZERO;
+        if (totalCurrentSalary.compareTo(BigDecimal.ZERO) > 0) {
+            totalPercentageChange = totalNewSalary.subtract(totalCurrentSalary)
+                    .divide(totalCurrentSalary, 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100))
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
+        
+        // Calculate Compa Ratio Analysis
+        ClientDashboardStatistics.CompaRatioAnalysis compaRatioAnalysis = calculateCompaRatioAnalysis(results);
+        
+        // Calculate Percentage Increase Analysis
+        ClientDashboardStatistics.PercentageIncreaseAnalysis percentageIncreaseAnalysis = calculatePercentageIncreaseAnalysis(results);
+        
+        // Calculate Amount Increase Analysis
+        ClientDashboardStatistics.AmountIncreaseAnalysis amountIncreaseAnalysis = calculateAmountIncreaseAnalysis(results);
+        
+        // Build and return the response
+        return ClientDashboardStatistics.builder()
+                .clientId(clientId)
+                .totalEmployees(totalEmployees)
+                .totalCurrentSalary(totalCurrentSalary.setScale(2, RoundingMode.HALF_UP))
+                .totalNewSalary(totalNewSalary.setScale(2, RoundingMode.HALF_UP))
+                .totalPercentageChange(totalPercentageChange)
+                .compaRatioAnalysis(compaRatioAnalysis)
+                .percentageIncreaseAnalysis(percentageIncreaseAnalysis)
+                .amountIncreaseAnalysis(amountIncreaseAnalysis)
+                .lastUpdated(Instant.now().toString())
+                .build();
+    }
+    
+    /**
+     * Calculate Compa Ratio Analysis (min > 0, max, average)
+     */
+    private ClientDashboardStatistics.CompaRatioAnalysis calculateCompaRatioAnalysis(List<CalculationResult> results) {
+        // Filter out null or zero compa ratios
+        List<BigDecimal> compaRatios = results.stream()
+                .map(CalculationResult::getCompaRatio)
+                .filter(ratio -> ratio != null && ratio.compareTo(BigDecimal.ZERO) > 0)
+                .collect(Collectors.toList());
+        
+        if (compaRatios.isEmpty()) {
+            return ClientDashboardStatistics.CompaRatioAnalysis.builder()
+                    .minimum(BigDecimal.ZERO)
+                    .maximum(BigDecimal.ZERO)
+                    .average(BigDecimal.ZERO)
+                    .build();
+        }
+        
+        BigDecimal minimum = compaRatios.stream()
+                .min(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO);
+        
+        BigDecimal maximum = compaRatios.stream()
+                .max(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO);
+        
+        BigDecimal sum = compaRatios.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal average = sum.divide(BigDecimal.valueOf(compaRatios.size()), 2, RoundingMode.HALF_UP);
+        
+        return ClientDashboardStatistics.CompaRatioAnalysis.builder()
+                .minimum(minimum.setScale(2, RoundingMode.HALF_UP))
+                .maximum(maximum.setScale(2, RoundingMode.HALF_UP))
+                .average(average)
+                .build();
+    }
+    
+    /**
+     * Calculate Percentage Increase Analysis (min, max, average)
+     */
+    private ClientDashboardStatistics.PercentageIncreaseAnalysis calculatePercentageIncreaseAnalysis(List<CalculationResult> results) {
+        // Get all percentage increases (from increasePct field)
+        List<BigDecimal> percentageIncreases = results.stream()
+                .map(CalculationResult::getIncreasePct)
+                .filter(pct -> pct != null)
+                .collect(Collectors.toList());
+        
+        if (percentageIncreases.isEmpty()) {
+            return ClientDashboardStatistics.PercentageIncreaseAnalysis.builder()
+                    .minimum(BigDecimal.ZERO)
+                    .maximum(BigDecimal.ZERO)
+                    .average(BigDecimal.ZERO)
+                    .build();
+        }
+        
+        BigDecimal minimum = percentageIncreases.stream()
+                .min(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO);
+        
+        BigDecimal maximum = percentageIncreases.stream()
+                .max(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO);
+        
+        BigDecimal sum = percentageIncreases.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal average = sum.divide(BigDecimal.valueOf(percentageIncreases.size()), 2, RoundingMode.HALF_UP);
+        
+        return ClientDashboardStatistics.PercentageIncreaseAnalysis.builder()
+                .minimum(minimum.setScale(2, RoundingMode.HALF_UP))
+                .maximum(maximum.setScale(2, RoundingMode.HALF_UP))
+                .average(average)
+                .build();
+    }
+    
+    /**
+     * Calculate Amount Increase Analysis (min, max, average)
+     */
+    private ClientDashboardStatistics.AmountIncreaseAnalysis calculateAmountIncreaseAnalysis(List<CalculationResult> results) {
+        // Calculate amount increase for each result: newSalary - currentSalary
+        List<BigDecimal> amountIncreases = results.stream()
+                .filter(r -> r.getCurrentSalary() != null && r.getNewSalary() != null)
+                .map(r -> r.getNewSalary().subtract(r.getCurrentSalary()))
+                .collect(Collectors.toList());
+        
+        if (amountIncreases.isEmpty()) {
+            return ClientDashboardStatistics.AmountIncreaseAnalysis.builder()
+                    .minimum(BigDecimal.ZERO)
+                    .maximum(BigDecimal.ZERO)
+                    .average(BigDecimal.ZERO)
+                    .build();
+        }
+        
+        BigDecimal minimum = amountIncreases.stream()
+                .min(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO);
+        
+        BigDecimal maximum = amountIncreases.stream()
+                .max(Comparator.naturalOrder())
+                .orElse(BigDecimal.ZERO);
+        
+        BigDecimal sum = amountIncreases.stream()
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal average = sum.divide(BigDecimal.valueOf(amountIncreases.size()), 2, RoundingMode.HALF_UP);
+        
+        return ClientDashboardStatistics.AmountIncreaseAnalysis.builder()
+                .minimum(minimum.setScale(2, RoundingMode.HALF_UP))
+                .maximum(maximum.setScale(2, RoundingMode.HALF_UP))
+                .average(average)
+                .build();
+    }
+    
+    /**
+     * Build empty statistics when no calculation results are found
+     */
+    private ClientDashboardStatistics buildEmptyStatistics(String clientId) {
+        return ClientDashboardStatistics.builder()
+                .clientId(clientId)
+                .totalEmployees(0)
+                .totalCurrentSalary(BigDecimal.ZERO)
+                .totalNewSalary(BigDecimal.ZERO)
+                .totalPercentageChange(BigDecimal.ZERO)
+                .compaRatioAnalysis(ClientDashboardStatistics.CompaRatioAnalysis.builder()
+                        .minimum(BigDecimal.ZERO)
+                        .maximum(BigDecimal.ZERO)
+                        .average(BigDecimal.ZERO)
+                        .build())
+                .percentageIncreaseAnalysis(ClientDashboardStatistics.PercentageIncreaseAnalysis.builder()
+                        .minimum(BigDecimal.ZERO)
+                        .maximum(BigDecimal.ZERO)
+                        .average(BigDecimal.ZERO)
+                        .build())
+                .amountIncreaseAnalysis(ClientDashboardStatistics.AmountIncreaseAnalysis.builder()
+                        .minimum(BigDecimal.ZERO)
+                        .maximum(BigDecimal.ZERO)
+                        .average(BigDecimal.ZERO)
+                        .build())
+                .lastUpdated(Instant.now().toString())
+                .build();
     }
 }

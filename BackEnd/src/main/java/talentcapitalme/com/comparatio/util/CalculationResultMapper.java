@@ -40,7 +40,7 @@ public class CalculationResultMapper {
                 switch (perfBucket) {
                     case 1: return 1;
                     case 2: return 2; // Both rating 2 and 3 map to bucket 2, so show 2
-                    case 3: return 4; // Both rating 4 and 5 map to bucket 3, so show 4
+                    case 3: return 3; // Both rating 4 and 5 map to bucket 3, so show 3
                     default: return 1;
                 }
             default:
