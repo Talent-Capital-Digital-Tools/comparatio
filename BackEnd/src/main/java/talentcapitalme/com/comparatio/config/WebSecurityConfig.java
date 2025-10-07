@@ -61,7 +61,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/matrix/**", "/api/admin/matrix/**")
                         .hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/admin/dashboard/**")
-                        .hasRole("SUPER_ADMIN")
+                        .hasAnyRole("SUPER_ADMIN", "CLIENT_ADMIN")
                         .requestMatchers("/api/clients/**")
                         .hasRole("SUPER_ADMIN")
                         .requestMatchers("/api/test/**")
@@ -71,10 +71,11 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/upload-history/**")
                         .hasAnyRole("SUPER_ADMIN", "CLIENT_ADMIN")
 
-                        // Calculation & template endpoints - open access
-                        //.requestMatchers("/api/calc/bulk").permitAll()
-                        .requestMatchers("/api/calc/**").authenticated()
-                        .requestMatchers("/api/template/**").authenticated()
+                        // Calculation & template endpoints - admin access only
+                        .requestMatchers("/api/calc/**")
+                        .hasAnyRole("SUPER_ADMIN", "CLIENT_ADMIN")
+                        .requestMatchers("/api/template/**")
+                        .hasAnyRole("SUPER_ADMIN", "CLIENT_ADMIN")
 
                         // All other requests
                         .anyRequest().authenticated()
