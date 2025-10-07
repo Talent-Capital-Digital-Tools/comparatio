@@ -308,10 +308,10 @@ public class DashboardService implements IDashboardService {
      * Calculate Percentage Increase Analysis (min, max, average)
      */
     private ClientDashboardStatistics.PercentageIncreaseAnalysis calculatePercentageIncreaseAnalysis(List<CalculationResult> results) {
-        // Get all percentage increases (from increasePct field)
+        // Get all percentage increases (from increasePct field), excluding zero values
         List<BigDecimal> percentageIncreases = results.stream()
                 .map(CalculationResult::getIncreasePct)
-                .filter(pct -> pct != null)
+                .filter(pct -> pct != null && pct.compareTo(BigDecimal.ZERO) > 0)
                 .collect(Collectors.toList());
         
         if (percentageIncreases.isEmpty()) {
@@ -346,10 +346,11 @@ public class DashboardService implements IDashboardService {
      * Calculate Amount Increase Analysis (min, max, average)
      */
     private ClientDashboardStatistics.AmountIncreaseAnalysis calculateAmountIncreaseAnalysis(List<CalculationResult> results) {
-        // Calculate amount increase for each result: newSalary - currentSalary
+        // Calculate amount increase for each result: newSalary - currentSalary, excluding zero values
         List<BigDecimal> amountIncreases = results.stream()
                 .filter(r -> r.getCurrentSalary() != null && r.getNewSalary() != null)
                 .map(r -> r.getNewSalary().subtract(r.getCurrentSalary()))
+                .filter(amount -> amount.compareTo(BigDecimal.ZERO) > 0)
                 .collect(Collectors.toList());
         
         if (amountIncreases.isEmpty()) {
