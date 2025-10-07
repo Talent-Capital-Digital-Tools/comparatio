@@ -17,7 +17,7 @@ public interface AdjustmentMatrixRepository extends MongoRepository<AdjustmentMa
      * @return An Optional containing the matching AdjustmentMatrix if found, otherwise empty.
      */
     @Query("{ 'perfBucket': ?0, 'active': true, " +
-            " 'compaFrom': { $lte: ?1 }, 'compaTo': { $gt: ?1 } }")
+            " 'compaFrom': { $lte: ?1 }, 'compaTo': { $gte: ?1 } }")
     Optional<AdjustmentMatrix> findActiveCell(int perfBucket, BigDecimal compa);
 
     /**
@@ -46,7 +46,7 @@ public interface AdjustmentMatrixRepository extends MongoRepository<AdjustmentMa
      * @return An Optional containing the matching AdjustmentMatrix if found, otherwise empty.
      */
     @Query("{ 'clientId': ?2, 'perfBucket': ?0, 'active': true, " +
-           "'compaFrom': { $lte: ?1 }, 'compaTo': { $gt: ?1 } }")
+           "'compaFrom': { $lte: ?1 }, 'compaTo': { $gte: ?1 } }")
     Optional<AdjustmentMatrix> findClientActiveCell(int perfBucket, BigDecimal compa, String clientId);
     
     /**
