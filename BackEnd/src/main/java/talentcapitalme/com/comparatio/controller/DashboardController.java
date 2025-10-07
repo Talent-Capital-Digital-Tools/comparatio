@@ -183,7 +183,6 @@ public class DashboardController {
      * Returns comprehensive statistics including:
      * - Total employees count
      * - Total current salary, total new salary, total percentage change
-     * - Compa ratio analysis (min > 0, max, average)
      * - Percentage increase analysis (min, max, average)
      * - Amount increase analysis (min, max, average)
      */

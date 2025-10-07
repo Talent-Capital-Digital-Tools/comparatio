@@ -284,9 +284,6 @@ public class DashboardService implements IDashboardService {
                     .setScale(2, RoundingMode.HALF_UP);
         }
         
-        // Calculate Compa Ratio Analysis
-        ClientDashboardStatistics.CompaRatioAnalysis compaRatioAnalysis = calculateCompaRatioAnalysis(results);
-        
         // Calculate Percentage Increase Analysis
         ClientDashboardStatistics.PercentageIncreaseAnalysis percentageIncreaseAnalysis = calculatePercentageIncreaseAnalysis(results);
         
@@ -300,50 +297,12 @@ public class DashboardService implements IDashboardService {
                 .totalCurrentSalary(totalCurrentSalary.setScale(2, RoundingMode.HALF_UP))
                 .totalNewSalary(totalNewSalary.setScale(2, RoundingMode.HALF_UP))
                 .totalPercentageChange(totalPercentageChange)
-                .compaRatioAnalysis(compaRatioAnalysis)
                 .percentageIncreaseAnalysis(percentageIncreaseAnalysis)
                 .amountIncreaseAnalysis(amountIncreaseAnalysis)
                 .lastUpdated(Instant.now().toString())
                 .build();
     }
     
-    /**
-     * Calculate Compa Ratio Analysis (min > 0, max, average)
-     */
-    private ClientDashboardStatistics.CompaRatioAnalysis calculateCompaRatioAnalysis(List<CalculationResult> results) {
-        // Filter out null or zero compa ratios
-        List<BigDecimal> compaRatios = results.stream()
-                .map(CalculationResult::getCompaRatio)
-                .filter(ratio -> ratio != null && ratio.compareTo(BigDecimal.ZERO) > 0)
-                .collect(Collectors.toList());
-        
-        if (compaRatios.isEmpty()) {
-            return ClientDashboardStatistics.CompaRatioAnalysis.builder()
-                    .minimum(BigDecimal.ZERO)
-                    .maximum(BigDecimal.ZERO)
-                    .average(BigDecimal.ZERO)
-                    .build();
-        }
-        
-        BigDecimal minimum = compaRatios.stream()
-                .min(Comparator.naturalOrder())
-                .orElse(BigDecimal.ZERO);
-        
-        BigDecimal maximum = compaRatios.stream()
-                .max(Comparator.naturalOrder())
-                .orElse(BigDecimal.ZERO);
-        
-        BigDecimal sum = compaRatios.stream()
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        BigDecimal average = sum.divide(BigDecimal.valueOf(compaRatios.size()), 2, RoundingMode.HALF_UP);
-        
-        return ClientDashboardStatistics.CompaRatioAnalysis.builder()
-                .minimum(minimum.setScale(2, RoundingMode.HALF_UP))
-                .maximum(maximum.setScale(2, RoundingMode.HALF_UP))
-                .average(average)
-                .build();
-    }
     
     /**
      * Calculate Percentage Increase Analysis (min, max, average)
@@ -431,11 +390,6 @@ public class DashboardService implements IDashboardService {
                 .totalCurrentSalary(BigDecimal.ZERO)
                 .totalNewSalary(BigDecimal.ZERO)
                 .totalPercentageChange(BigDecimal.ZERO)
-                .compaRatioAnalysis(ClientDashboardStatistics.CompaRatioAnalysis.builder()
-                        .minimum(BigDecimal.ZERO)
-                        .maximum(BigDecimal.ZERO)
-                        .average(BigDecimal.ZERO)
-                        .build())
                 .percentageIncreaseAnalysis(ClientDashboardStatistics.PercentageIncreaseAnalysis.builder()
                         .minimum(BigDecimal.ZERO)
                         .maximum(BigDecimal.ZERO)

@@ -23,8 +23,6 @@ public class ClientDashboardStatistics {
     private BigDecimal totalNewSalary;         // Sum of all new salaries
     private BigDecimal totalPercentageChange;  // ((totalNewSalary - totalCurrentSalary) / totalCurrentSalary) * 100
     
-    // Compa Ratio Analysis
-    private CompaRatioAnalysis compaRatioAnalysis;
     
     // Percentage Increase Analysis (based on increasePct field)
     private PercentageIncreaseAnalysis percentageIncreaseAnalysis;
@@ -36,18 +34,6 @@ public class ClientDashboardStatistics {
     private String clientId;
     private String lastUpdated;
     
-    /**
-     * Nested class for Compa Ratio Analysis
-     */
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CompaRatioAnalysis {
-        private BigDecimal minimum;    // Minimum compa ratio (> 0)
-        private BigDecimal maximum;    // Maximum compa ratio
-        private BigDecimal average;    // Average compa ratio
-    }
     
     /**
      * Nested class for Percentage Increase Analysis
